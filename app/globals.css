@@ -34,7 +34,7 @@ body {
   display: flex;
   flex-direction: column;
   background: var(--bg);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', 'Noto Sans Sinhala', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--purple-900);

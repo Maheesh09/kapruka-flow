@@ -8,7 +8,7 @@ import FlowArea from './components/FlowArea'
 function detectCheckout(text) {
   const url = text.match(/https:\/\/www\.kapruka\.com\/tools\/continue_order\.jsp\?id=[\w]+/)
   const ref = text.match(/ORD-[\w-]+/)
-  const exp = text.match(/(\d{4}-\d{2}-\d{2}T[\d:+.]+)/)
+  const exp = text.match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)/)
   if (!url) return null
   return { url: url[0], ref: ref?.[0] ?? null, expiresAt: exp?.[0] ?? null }
 }
@@ -271,6 +271,8 @@ export default function Home() {
   const [journeyActive, setJourneyActive] = useState(0)
   const [journeyDone, setJourneyDone] = useState([])
   const [showTrackChip, setShowTrackChip] = useState(false)
+  const [liveStatus, setLiveStatus] = useState([])   // real-time tool status feed
+  const [lastPlan, setLastPlan] = useState(null)
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
   const flowRef = useRef(null)
 
@@ -335,6 +337,7 @@ export default function Home() {
     addUserMsg(t)
     setLoading(true)
 
+    setLiveStatus([])
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -345,8 +348,31 @@ export default function Home() {
         })
       })
 
-      const data = await res.json()
-      if (data.error) { addAgentMsg('Something went wrong. Please try again.', false); return }
+      // ── NDJSON stream: status lines arrive live, then one final payload ──
+      let data = null
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buf = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        let nl
+        while ((nl = buf.indexOf('\n')) >= 0) {
+          const line = buf.slice(0, nl).trim()
+          buf = buf.slice(nl + 1)
+          if (!line) continue
+          let ev
+          try { ev = JSON.parse(line) } catch { continue }
+          if (ev.type === 'status') {
+            setLiveStatus(prev => [...prev, { icon: ev.icon, label: ev.label }])
+          } else if (ev.type === 'final') {
+            data = ev.payload
+          }
+        }
+      }
+
+      if (!data) { addAgentMsg('Something went wrong. Please try again.', false); return }
 
       if (data.type === 'product_trio') {
         setJourneyActive(1); setJourneyDone([0])
@@ -359,6 +385,7 @@ export default function Home() {
 
       if (data.type === 'plan_board') {
         setJourneyActive(2); setJourneyDone([0, 1])
+        setLastPlan(data.plan)
         addMsg({
           role: 'assistant', msgType: 'plan_board', plan: data.plan,
           rawContent: data.rawText, content: data.plan?.message || ''
@@ -373,18 +400,23 @@ export default function Home() {
         setShowTrackChip(true)
         addMsg({
           role: 'assistant', msgType: 'checkout', checkoutData: checkout,
+          plan: lastPlan,
           content: data.text, rawContent: data.rawText || data.text
         })
         return
       }
 
-      // Plain agent message
-      addAgentMsg(data.text || 'Let me know how I can help.', true)
+      // Plain agent message (with optional quick-reply chips)
+      addMsg({
+        role: 'assistant', msgType: 'agent', content: data.text || 'Let me know how I can help.',
+        stream: true, chips: data.chips || null, rawContent: data.rawText || data.text
+      })
 
     } catch (e) {
       addAgentMsg('Network error. Please try again.', false)
     } finally {
       setLoading(false)
+      setLiveStatus([])
     }
   }
 
@@ -404,6 +436,18 @@ export default function Home() {
 
   function handleTrack() {
     send('Track my order.')
+  }
+
+  function handleAddItem() {
+    send("I'd like to add another item to this order. What would go well with it?")
+  }
+
+  function handleEditGift(text) {
+    send(`Please update the gift message to: "${text}"`)
+  }
+
+  function handleChip(label) {
+    send(label)
   }
 
   return (
@@ -432,9 +476,13 @@ export default function Home() {
         <>
           <FlowArea
             messages={messages} loading={loading}
+            liveStatus={liveStatus}
             onChoose={handleProductChosen}
             onAddRecipient={handleAddRecipient}
             onCreateOrder={handleCreateOrder}
+            onAddItem={handleAddItem}
+            onEditGift={handleEditGift}
+            onChip={handleChip}
             flowRef={flowRef} />
 
           {/* Layer 2: Docked input */}

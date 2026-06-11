@@ -1,8 +1,15 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Kapruka Flow',
-  description: 'The future of shopping in Sri Lanka',
+  title: 'Kapruka Flow — AI shopping, the Sri Lankan way',
+  description: 'Chat with Flow, your AI shopping companion for Kapruka.com. Find the perfect gift, check delivery anywhere in Sri Lanka, and checkout — all in one conversation. English · සිංහල · Tanglish.',
+  openGraph: {
+    title: 'Kapruka Flow — AI shopping, the Sri Lankan way',
+    description: 'Find the perfect gift, check delivery, and checkout — all in one conversation.',
+    url: 'https://kapruka-flow.vercel.app',
+    siteName: 'Kapruka Flow',
+    type: 'website',
+  },
 }
 
 export const viewport = {
@@ -20,7 +27,7 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Noto+Serif+Sinhala:ital,wght@0,400;1,400&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Noto+Serif+Sinhala:ital,wght@0,400;1,400&family=Noto+Sans+Sinhala:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
       </head>

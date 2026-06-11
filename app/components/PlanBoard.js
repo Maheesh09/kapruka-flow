@@ -27,6 +27,7 @@ function Divider() {
 }
 
 function ItemRow({ item, idx }) {
+    const [imgErr, setImgErr] = useState(false)
     return (
         <div className="rise" style={{
             display: 'flex', gap: 14, alignItems: 'center',
@@ -36,10 +37,10 @@ function ItemRow({ item, idx }) {
                 width: 58, height: 58, borderRadius: 14, overflow: 'hidden',
                 flexShrink: 0, background: 'rgba(61,39,133,0.08)'
             }}>
-                {item.image_url
+                {(item.image_url && !imgErr)
                     ? <img src={item.image_url} alt={item.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        onError={e => { e.currentTarget.style.display = 'none' }} />
+                        onError={() => setImgErr(true)} />
                     : <div style={{
                         width: '100%', height: '100%', display: 'flex',
                         alignItems: 'center', justifyContent: 'center'
@@ -75,7 +76,9 @@ function ItemRow({ item, idx }) {
     )
 }
 
-export default function PlanBoard({ plan, onAddRecipient, onCreateOrder }) {
+export default function PlanBoard({ plan, onAddRecipient, onCreateOrder, onAddItem, onEditGift }) {
+    const [editingGift, setEditingGift] = useState(false)
+    const [giftDraft, setGiftDraft] = useState(plan.gift_message || '')
     const delivery = plan.delivery || {}
     const recipient = plan.recipient || {}
     const hasRecipient = recipient.name
@@ -105,6 +108,19 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder }) {
 
             {/* Items */}
             {(plan.items || []).map((item, idx) => <ItemRow key={idx} item={item} idx={idx} />)}
+
+            {/* Multi-item cart: invite the user to add more */}
+            {onAddItem && (
+                <button onClick={onAddItem} className="rise" style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 12,
+                    padding: '7px 14px', borderRadius: 999, cursor: 'pointer',
+                    fontFamily: 'Inter', fontSize: 13, fontWeight: 600, color: '#3D2785',
+                    background: 'rgba(61,39,133,0.06)',
+                    border: '1.5px dashed rgba(61,39,133,0.30)', ...rowDelay()
+                }}>
+                    <Icon name="plus" size={14} color="#3D2785" stroke={2.4} /> Add something else
+                </button>
+            )}
 
             <div className="rise" style={{ margin: '14px 0', ...rowDelay() }}><Divider /></div>
 
@@ -149,12 +165,54 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder }) {
                         borderRadius: '50%', background: 'rgba(245,200,0,0.55)',
                         boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.15)'
                     }} />
-                    <div style={{
-                        fontFamily: "'Noto Serif Sinhala',serif", fontStyle: 'italic',
-                        fontSize: 20, color: '#3D2785', textAlign: 'center', lineHeight: 1.5
-                    }}>
-                        {plan.gift_message}
-                    </div>
+
+                    {/* Edit pencil — gift messaging bonus, made tangible */}
+                    {onEditGift && !editingGift && (
+                        <button onClick={() => { setGiftDraft(plan.gift_message); setEditingGift(true) }}
+                            aria-label="Edit gift message"
+                            style={{
+                                position: 'absolute', top: 8, right: 10, width: 26, height: 26,
+                                borderRadius: 8, border: 'none', cursor: 'pointer',
+                                background: 'rgba(61,39,133,0.07)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}>
+                            <Icon name="pencil" size={13} color="#3D2785" />
+                        </button>
+                    )}
+
+                    {editingGift ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            <textarea value={giftDraft} onChange={e => setGiftDraft(e.target.value)}
+                                rows={2}
+                                style={{
+                                    width: '100%', border: '1px solid rgba(61,39,133,0.2)',
+                                    borderRadius: 8, padding: '10px 12px', resize: 'none',
+                                    fontFamily: "'Noto Serif Sinhala','Noto Sans Sinhala',serif",
+                                    fontStyle: 'italic', fontSize: 17, color: '#3D2785',
+                                    textAlign: 'center', background: 'rgba(255,255,255,0.7)', outline: 'none'
+                                }} />
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+                                <button onClick={() => setEditingGift(false)} style={{
+                                    padding: '7px 14px', borderRadius: 999, border: '1px solid rgba(61,39,133,0.25)',
+                                    background: 'transparent', color: '#3D2785', fontSize: 13, fontWeight: 600,
+                                    cursor: 'pointer', fontFamily: 'Inter'
+                                }}>Cancel</button>
+                                <button onClick={() => { setEditingGift(false); onEditGift(giftDraft) }} style={{
+                                    padding: '7px 16px', borderRadius: 999, border: 'none',
+                                    background: 'linear-gradient(135deg,#FFE08A,#F5C800)', color: '#3D2785',
+                                    fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter',
+                                    boxShadow: '0 4px 12px rgba(245,200,0,0.4)'
+                                }}>Save message</button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={{
+                            fontFamily: "'Noto Serif Sinhala',serif", fontStyle: 'italic',
+                            fontSize: 20, color: '#3D2785', textAlign: 'center', lineHeight: 1.5
+                        }}>
+                            {plan.gift_message}
+                        </div>
+                    )}
                 </div>
             )}
 

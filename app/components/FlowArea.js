@@ -66,7 +66,8 @@ const THINKING_ITEMS = [
     { label: 'Delivery date', icon: 'calendar' },
 ]
 
-export function FlowThinking() {
+export function FlowThinking({ events = [] }) {
+    const hasReal = events.length > 0
     const [visibleItems, setVisibleItems] = useState(0)
     const [phase, setPhase] = useState(0) // 0=building, cycling through status messages
     const statusMessages = [
@@ -109,56 +110,136 @@ export function FlowThinking() {
                 minWidth: 240, maxWidth: '100%'
             }}>
                 {/* Status line */}
-                <div key={statusIdx} className="status-line" style={{
+                <div key={hasReal ? 'real' : statusIdx} className="status-line" style={{
                     fontSize: 15, fontWeight: 600, color: '#3D2785',
                     fontFamily: "'Space Grotesk',sans-serif",
                     marginBottom: 14, animation: 'fadeIn .35s ease-out'
                 }}>
-                    {statusMessages[statusIdx]}
+                    {hasReal ? 'Flow is on it…' : statusMessages[statusIdx]}
                 </div>
 
-                {/* Checklist */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-                    {THINKING_ITEMS.map((item, i) => {
-                        const visible = i < visibleItems
-                        return (
-                            <div key={item.label} style={{
-                                display: 'flex', alignItems: 'center', gap: 10,
-                                opacity: visible ? 1 : 0.2,
-                                transition: 'opacity .4s'
-                            }}>
-                                {/* Tick / pending circle */}
-                                <div style={{
-                                    width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    background: visible
-                                        ? 'linear-gradient(135deg,#FFE08A,#F5C800)'
-                                        : 'rgba(61,39,133,0.08)',
-                                    border: visible ? 'none' : '1.5px dashed rgba(61,39,133,0.25)',
-                                    boxShadow: visible ? '0 2px 8px rgba(245,200,0,0.4)' : 'none',
-                                    animation: visible ? 'tickPop .4s cubic-bezier(.2,.7,.2,1) both' : 'none'
+                {/* Real tool activity — streamed live from the agent */}
+                {hasReal && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                        {events.map((ev, i) => {
+                            const isLast = i === events.length - 1
+                            return (
+                                <div key={i} style={{
+                                    display: 'flex', alignItems: 'center', gap: 10,
+                                    animation: 'lineSlide .35s ease-out both'
                                 }}>
-                                    {visible && (
-                                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                                            <path d="M1 4L3.5 6.5L9 1" stroke="#3D2785" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    )}
+                                    <div style={{
+                                        width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        background: isLast
+                                            ? 'rgba(61,39,133,0.10)'
+                                            : 'linear-gradient(135deg,#FFE08A,#F5C800)',
+                                        border: isLast ? '1.5px dashed rgba(61,39,133,0.35)' : 'none',
+                                        boxShadow: isLast ? 'none' : '0 2px 8px rgba(245,200,0,0.4)',
+                                        animation: isLast ? 'agentPulse 1.6s ease-in-out infinite' : 'tickPop .4s cubic-bezier(.2,.7,.2,1) both'
+                                    }}>
+                                        {!isLast && (
+                                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                                <path d="M1 4L3.5 6.5L9 1" stroke="#3D2785" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                        )}
+                                        {isLast && <Icon name={ev.icon || 'sparkles'} size={11} color="#3D2785" />}
+                                    </div>
+                                    <div style={{
+                                        fontSize: 14, fontWeight: isLast ? 600 : 500,
+                                        color: isLast ? '#1A1433' : 'rgba(26,20,51,0.6)',
+                                        fontFamily: 'Inter'
+                                    }}>
+                                        {ev.label}
+                                    </div>
                                 </div>
-                                {/* Label */}
-                                <div style={{
-                                    fontSize: 14, fontWeight: visible ? 600 : 400,
-                                    color: visible ? '#1A1433' : 'rgba(26,20,51,0.4)',
-                                    fontFamily: 'Inter',
-                                    animation: visible ? 'lineSlide .35s ease-out both' : 'none',
-                                    transition: 'color .4s, font-weight .4s'
+                            )
+                        })}
+                    </div>
+                )}
+
+                {/* Fallback animated checklist (first moments, before tool calls start) */}
+                {!hasReal && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                        {THINKING_ITEMS.map((item, i) => {
+                            const visible = i < visibleItems
+                            return (
+                                <div key={item.label} style={{
+                                    display: 'flex', alignItems: 'center', gap: 10,
+                                    opacity: visible ? 1 : 0.2,
+                                    transition: 'opacity .4s'
                                 }}>
-                                    {item.label}
+                                    {/* Tick / pending circle */}
+                                    <div style={{
+                                        width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        background: visible
+                                            ? 'linear-gradient(135deg,#FFE08A,#F5C800)'
+                                            : 'rgba(61,39,133,0.08)',
+                                        border: visible ? 'none' : '1.5px dashed rgba(61,39,133,0.25)',
+                                        boxShadow: visible ? '0 2px 8px rgba(245,200,0,0.4)' : 'none',
+                                        animation: visible ? 'tickPop .4s cubic-bezier(.2,.7,.2,1) both' : 'none'
+                                    }}>
+                                        {visible && (
+                                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                                <path d="M1 4L3.5 6.5L9 1" stroke="#3D2785" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                        )}
+                                    </div>
+                                    {/* Label */}
+                                    <div style={{
+                                        fontSize: 14, fontWeight: visible ? 600 : 400,
+                                        color: visible ? '#1A1433' : 'rgba(26,20,51,0.4)',
+                                        fontFamily: 'Inter',
+                                        animation: visible ? 'lineSlide .35s ease-out both' : 'none',
+                                        transition: 'color .4s, font-weight .4s'
+                                    }}>
+                                        {item.label}
+                                    </div>
                                 </div>
-                            </div>
-                        )
-                    })}
-                </div>
+                            )
+                        })}
+                    </div>
+                )}
             </div>
+        </div>
+    )
+}
+
+// ── Lightweight formatter: **bold** + bullet lines, nothing else ──────────────
+function renderInline(text, keyPrefix) {
+    const parts = text.split(/(\*\*[^*]+\*\*)/g)
+    return parts.map((p, i) =>
+        p.startsWith('**') && p.endsWith('**')
+            ? <strong key={`${keyPrefix}-${i}`} style={{ fontWeight: 600, color: '#3D2785' }}>
+                {p.slice(2, -2)}
+            </strong>
+            : p
+    )
+}
+
+function FormattedText({ text }) {
+    // Rescue inline bullets the model sometimes emits ("... provide: * **Name** * **Phone**")
+    const norm = text
+        .replace(/:\s*\*\s+/g, ':\n* ')          // bullet glued after a colon
+        .replace(/\*\*\s+\*\s+(?=\*\*)/g, '**\n* ') // bullet glued between bold items
+    const lines = norm.split('\n')
+    return (
+        <div>
+            {lines.map((line, i) => {
+                const t = line.trim()
+                const isBullet = t.startsWith('* ') || t.startsWith('- ') || t.startsWith('• ')
+                if (isBullet) {
+                    return (
+                        <div key={i} style={{ display: 'flex', gap: 9, padding: '3px 0 3px 4px', alignItems: 'baseline' }}>
+                            <span style={{ color: '#F5C800', fontWeight: 700, flexShrink: 0 }}>•</span>
+                            <span>{renderInline(t.slice(2), i)}</span>
+                        </div>
+                    )
+                }
+                if (!t) return <div key={i} style={{ height: 8 }} />
+                return <div key={i}>{renderInline(line, i)}</div>
+            })}
         </div>
     )
 }
@@ -175,7 +256,7 @@ function StreamingText({ text }) {
     const streaming = shown < words.length
     return (
         <span>
-            {words.slice(0, shown).join(' ')}
+            <FormattedText text={words.slice(0, shown).join(' ')} />
             {streaming && (
                 <span style={{
                     display: 'inline-block', width: 7, height: 18, background: '#3D2785',
@@ -206,7 +287,7 @@ function UserMessage({ text }) {
 }
 
 // ── Agent message ──────────────────────────────────────────────────────────────
-function AgentMessage({ text, stream }) {
+function AgentMessage({ text, stream, chips, onChip }) {
     return (
         <div className="agent-row" style={{
             display: 'flex', gap: 14, alignItems: 'flex-start', margin: '16px 0',
@@ -229,6 +310,29 @@ function AgentMessage({ text, stream }) {
                 color: '#1A1433', fontSize: 17, lineHeight: 1.65, fontFamily: 'Inter'
             }}>
                 {stream ? <StreamingText text={text} /> : text}
+                {chips?.length > 0 && (
+                    <div style={{
+                        display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12,
+                        animation: 'fadeIn .4s .3s ease-out both'
+                    }}>
+                        {chips.map((c, i) => (
+                            <button key={i} onClick={() => onChip?.(c)} style={{
+                                padding: '8px 15px', borderRadius: 999, cursor: 'pointer',
+                                fontFamily: "'Inter','Noto Sans Sinhala',sans-serif",
+                                fontSize: 13.5, fontWeight: 600, color: '#3D2785',
+                                background: 'rgba(61,39,133,0.07)',
+                                border: '1px solid rgba(61,39,133,0.22)',
+                                transition: 'all .2s',
+                                animation: `riseBlur .4s ${0.35 + i * 0.06}s ease-out both`
+                            }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg,#FFE08A,#F5C800)'; e.currentTarget.style.borderColor = 'transparent' }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(61,39,133,0.07)'; e.currentTarget.style.borderColor = 'rgba(61,39,133,0.22)' }}
+                            >
+                                {c}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     )
@@ -237,6 +341,7 @@ function AgentMessage({ text, stream }) {
 // ── Product trio ───────────────────────────────────────────────────────────────
 function ProductCard({ product, idx, onChoose }) {
     const [hovered, setHovered] = useState(false)
+    const [imgErr, setImgErr] = useState(false)
     const [tilt, setTilt] = useState({ x: 0, y: 0 })
 
     const onMove = e => {
@@ -285,10 +390,10 @@ function ProductCard({ product, idx, onChoose }) {
                 position: 'relative', height: product.pick ? 168 : 150,
                 borderRadius: 15, overflow: 'hidden', background: 'rgba(61,39,133,0.08)', flexShrink: 0
             }}>
-                {product.image_url
+                {(product.image_url && !imgErr)
                     ? <img src={product.image_url} alt={product.name}
                         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                        onError={e => { e.currentTarget.style.display = 'none' }} />
+                        onError={() => setImgErr(true)} />
                     : <div style={{
                         position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
                         justifyContent: 'center', background: 'linear-gradient(135deg,#E9E4FF,#C8BFEF)'
@@ -386,7 +491,7 @@ function ProductTrio({ trio, onChoose }) {
 }
 
 // ── Flow area ──────────────────────────────────────────────────────────────────
-export default function FlowArea({ messages, loading, onChoose, onAddRecipient, onCreateOrder, flowRef }) {
+export default function FlowArea({ messages, loading, liveStatus, onChoose, onAddRecipient, onCreateOrder, onAddItem, onEditGift, onChip, flowRef }) {
     return (
         <div ref={flowRef} className="flow-area">
             <div className="flow-inner">
@@ -395,25 +500,28 @@ export default function FlowArea({ messages, loading, onChoose, onAddRecipient, 
 
                     switch (m.msgType) {
                         case 'agent':
-                            return <AgentMessage key={i} text={m.content} stream={m.stream} />
+                            return <AgentMessage key={i} text={m.content} stream={m.stream} chips={m.chips} onChip={onChip} />
                         case 'product_trio':
                             return <ProductTrio key={i} trio={m.trio} onChoose={onChoose} />
                         case 'plan_board':
                             return (
                                 <PlanBoard key={i} plan={m.plan}
                                     onAddRecipient={() => onAddRecipient(m.plan)}
-                                    onCreateOrder={() => onCreateOrder(m.plan)} />
+                                    onCreateOrder={() => onCreateOrder(m.plan)}
+                                    onAddItem={onAddItem}
+                                    onEditGift={onEditGift} />
                             )
                         case 'checkout':
                             return <LockedCard key={i}
                                 url={m.checkoutData?.url}
                                 orderRef={m.checkoutData?.ref}
-                                expiresAt={m.checkoutData?.expiresAt} />
+                                expiresAt={m.checkoutData?.expiresAt}
+                                plan={m.plan} />
                         default:
                             return null
                     }
                 })}
-                {loading && <FlowThinking />}
+                {loading && <FlowThinking events={liveStatus} />}
             </div>
         </div>
     )

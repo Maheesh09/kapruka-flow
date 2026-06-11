@@ -19,17 +19,27 @@ const glass = {
     borderBottomColor: 'rgba(61,39,133,0.12)',
 }
 
-export default function LockedCard({ url, orderRef, expiresAt }) {
+export default function LockedCard({ url, orderRef, expiresAt, plan }) {
     const [secs, setSecs] = useState(null)
     const [paid, setPaid] = useState(false)
+    const [copied, setCopied] = useState(false)
+
+    function copyRef() {
+        if (!orderRef) return
+        navigator.clipboard?.writeText(orderRef).then(() => {
+            setCopied(true); setTimeout(() => setCopied(false), 1800)
+        }).catch(() => { })
+    }
     const TOTAL = 3600
 
     useEffect(() => {
-        if (!expiresAt) { setSecs(3582); return }
+        const FALLBACK = 3582 // MCP locks prices for 60 min — assume that when expiry is unreadable
+        if (!expiresAt) { setSecs(FALLBACK); return }
         const end = new Date(expiresAt).getTime()
+        if (isNaN(end)) { setSecs(FALLBACK); return }   // ← Invalid Date guard
         const tick = () => {
             const diff = Math.floor((end - Date.now()) / 1000)
-            setSecs(isNaN(diff) ? 0 : Math.max(0, diff))
+            setSecs(isNaN(diff) ? FALLBACK : Math.max(0, diff))
         }
         tick()
         const id = setInterval(tick, 1000)
@@ -78,13 +88,54 @@ export default function LockedCard({ url, orderRef, expiresAt }) {
                             fontSize: 16, color: '#3D2785'
                         }}>Order locked</div>
                         {orderRef && (
-                            <div style={{
-                                fontSize: 12.5, color: 'rgba(26,20,51,0.55)',
-                                letterSpacing: '0.03em', marginTop: 1
-                            }}>{orderRef}</div>
+                            <button onClick={copyRef} title="Copy order number" style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 5,
+                                fontSize: 12.5, color: copied ? '#0E9F6E' : 'rgba(26,20,51,0.55)',
+                                letterSpacing: '0.03em', marginTop: 1, cursor: 'pointer',
+                                background: 'none', border: 'none', padding: 0, fontFamily: 'Inter'
+                            }}>
+                                {orderRef}
+                                <Icon name={copied ? 'check' : 'copy'} size={12}
+                                    color={copied ? '#0E9F6E' : 'rgba(26,20,51,0.45)'} />
+                                {copied && <span style={{ fontWeight: 600 }}>Copied</span>}
+                            </button>
                         )}
                     </div>
                 </div>
+
+                {/* What's in this order — the user's last look before paying */}
+                {plan?.items?.length > 0 && (
+                    <div style={{
+                        background: 'rgba(61,39,133,0.05)', borderRadius: 14,
+                        padding: '12px 14px', marginBottom: 16
+                    }}>
+                        {plan.items.map((it, i) => (
+                            <div key={i} style={{
+                                display: 'flex', justifyContent: 'space-between', gap: 10,
+                                fontSize: 13.5, color: '#1A1433', fontFamily: 'Inter',
+                                padding: '3px 0'
+                            }}>
+                                <span style={{ fontWeight: 500, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {it.name}{it.quantity > 1 ? ` ×${it.quantity}` : ''}
+                                </span>
+                                <span style={{ fontVariantNumeric: 'tabular-nums', color: '#3D2785', fontWeight: 600, flexShrink: 0 }}>
+                                    LKR {Number(it.price * (it.quantity || 1)).toLocaleString()}
+                                </span>
+                            </div>
+                        ))}
+                        {plan.total != null && (
+                            <div style={{
+                                display: 'flex', justifyContent: 'space-between', marginTop: 7,
+                                paddingTop: 8, borderTop: '1px solid rgba(61,39,133,0.12)',
+                                fontSize: 14, fontWeight: 700, color: '#3D2785',
+                                fontFamily: "'Space Grotesk',sans-serif"
+                            }}>
+                                <span>Total{plan.delivery_fee ? ' (incl. delivery)' : ''}</span>
+                                <span style={{ fontVariantNumeric: 'tabular-nums' }}>LKR {Number(plan.total).toLocaleString()}</span>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Countdown ring */}
                 <div style={{
