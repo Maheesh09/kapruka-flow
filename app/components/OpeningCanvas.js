@@ -145,6 +145,7 @@ function LuxuryChip({ chip, onSubmit, idx }) {
 
     return (
         <button
+            className="luxury-chip"
             onClick={() => onSubmit(chip.goal)}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
@@ -177,7 +178,7 @@ function LuxuryChip({ chip, onSubmit, idx }) {
             }} />
 
             {/* Icon bubble — small */}
-            <div style={{
+            <div className="luxury-chip-icon" style={{
                 width: 28, height: 28, borderRadius: 9, flexShrink: 0,
                 background: chip.grad,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -189,7 +190,7 @@ function LuxuryChip({ chip, onSubmit, idx }) {
             </div>
 
             {/* Label */}
-            <span style={{
+            <span className="luxury-chip-label" style={{
                 fontFamily: "'Space Grotesk',sans-serif",
                 fontWeight: 600, fontSize: 14, color: '#1A1433',
                 whiteSpace: 'nowrap'
@@ -208,7 +209,7 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked }) {
             width: docked ? 'min(700px,94vw)' : '100%',
             borderRadius: 999
         }}>
-            {/* Spinning conic border outline on focus */}
+            {/* Spinning conic border outline */}
             <div style={{
                 position: 'absolute', inset: -2, borderRadius: 999,
                 padding: 2,
@@ -217,16 +218,17 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked }) {
                 maskComposite: 'exclude',
                 overflow: 'hidden',
                 opacity: focused ? 1 : 0, transition: 'opacity .3s',
-                pointerEvents: 'none'
+                pointerEvents: 'none',
+                zIndex: 0
             }}>
                 <div style={{
                     position: 'absolute', top: '50%', left: '50%',
-                    width: 2000, height: 2000, margin: '-1000px 0 0 -1000px',
+                    width: '300%', paddingBottom: '300%', margin: '-150% 0 0 -150%',
                     background: 'conic-gradient(from 0deg, #3D2785, #F5C800, #FF9ECF, #3D2785)',
                     animation: focused ? 'spin 4s linear infinite' : 'none'
                 }} />
             </div>
-            <div style={{
+            <div className="chat-input-inner" style={{
                 position: 'relative', display: 'flex', alignItems: 'center', gap: 10,
                 padding: docked ? '8px 8px 8px 22px' : '10px 10px 10px 24px',
                 borderRadius: 999,
@@ -242,6 +244,7 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked }) {
                 transition: 'box-shadow .3s, background .3s'
             }}>
                 <input
+                    className="chat-input-field"
                     value={value}
                     onChange={e => onChange(e.target.value)}
                     onFocus={() => setFocused(true)}
@@ -255,6 +258,7 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked }) {
                     }}
                 />
                 <button
+                    className="chat-input-btn"
                     onClick={() => onSubmit(value)}
                     aria-label="Send"
                     style={{
