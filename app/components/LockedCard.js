@@ -62,7 +62,7 @@ export default function LockedCard({ url, orderRef, expiresAt }) {
                 }} />
             </div>
 
-            <div style={{ ...glass, borderRadius: 24, padding: 24, position: 'relative' }}>
+            <div className="locked-card-inner" style={{ ...glass, borderRadius: 24, padding: 24, position: 'relative' }}>
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
                     <div style={{

@@ -5,6 +5,14 @@ export const metadata = {
   description: 'The future of shopping in Sri Lanka',
 }
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#FAF9FF',
+}
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

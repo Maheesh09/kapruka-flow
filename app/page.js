@@ -171,10 +171,10 @@ function FlowPresence() {
 // ── Docked input bar (flow state) ─────────────────────────────────────────────
 function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onTrack }) {
   return (
-    <div style={{
+    <div className="docked-bar" style={{
       position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30,
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
-      padding: '16px 20px 28px',
+      padding: '16px 20px calc(28px + env(safe-area-inset-bottom))',
       background: 'linear-gradient(to top, rgba(250,249,255,0.96) 50%, rgba(250,249,255,0))'
     }}>
       {showTrackChip && (
@@ -337,7 +337,7 @@ export default function Home() {
 
   return (
     <div style={{
-      position: 'relative', width: '100%', height: '100vh',
+      position: 'relative', width: '100%', height: '100dvh', minHeight: '100vh',
       overflow: 'hidden', background: '#FAF9FF', fontFamily: "'Inter',sans-serif",
       color: '#1A1433'
     }}>

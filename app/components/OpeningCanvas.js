@@ -69,10 +69,11 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
     const words = (HEADLINES[lang] || HEADLINES.EN).split(' ')
 
     return (
-        <div style={{
+        <div className="opening-canvas" style={{
             position: 'absolute', inset: 0, zIndex: 5, display: 'flex',
             flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            gap: 28, padding: '108px 24px 60px', textAlign: 'center'
+            gap: 28, padding: '108px 24px 60px', textAlign: 'center',
+            overflowY: 'auto', WebkitOverflowScrolling: 'touch'
         }}>
 
             {/* Headline + slogan */}

@@ -82,12 +82,12 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
             }}>
 
                 {/* Wordmark */}
-                <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="header-brand" style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div className="mobile-header-wordmark" style={{
                         fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
                         fontSize: 20, letterSpacing: '-0.02em', lineHeight: 1
                     }}>
-                        <span className="hide-mobile" style={{ color: '#FFFFFF' }}>kapruka</span>{' '}
+                        <span style={{ color: '#FFFFFF' }}>kapruka</span>{' '}
                         <span style={{ color: '#F5C800' }}>flow</span>
                     </div>
                     {/* Smile arc */}
@@ -107,7 +107,7 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
                 </div>
 
                 {/* Language toggle */}
-                <div className="hide-mobile" style={{
+                <div className="header-lang" style={{
                     justifySelf: 'end', display: 'flex', gap: 4, padding: 3,
                     borderRadius: 999, background: 'rgba(255,255,255,0.08)',
                     border: '1px solid rgba(255,255,255,0.07)'
