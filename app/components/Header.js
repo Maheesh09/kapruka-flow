@@ -6,7 +6,7 @@ const NODES = ['Goal', 'Discover', 'Plan', 'Delivery', 'Done']
 function JourneyLine({ active, done }) {
     const fill = (active / (NODES.length - 1)) * 100
     return (
-        <div style={{
+        <div className="mobile-journey-line" style={{
             position: 'relative', display: 'flex', alignItems: 'center',
             justifyContent: 'space-between', width: 'min(480px, 44vw)', minWidth: 260, height: 44
         }}>
@@ -29,7 +29,7 @@ function JourneyLine({ active, done }) {
                 const isDone = done.includes(i) && !isActive
                 const isFuture = !isActive && !isDone
                 return (
-                    <div key={i} style={{
+                    <div key={i} className="mobile-journey-node" style={{
                         position: 'relative', zIndex: 2, display: 'flex',
                         flexDirection: 'column', alignItems: 'center', gap: 5, width: 14
                     }}>
@@ -47,7 +47,7 @@ function JourneyLine({ active, done }) {
                             {isDone && <Icon name="check" size={7} color="#3D2785" stroke={3.2} />}
                         </div>
                         {/* Label — always visible */}
-                        <div style={{
+                        <div className="mobile-journey-label" style={{
                             fontSize: 9.5, fontWeight: isActive ? 700 : 500,
                             color: isActive ? '#FFFFFF' : isDone ? '#F5C800' : 'rgba(255,255,255,0.42)',
                             whiteSpace: 'nowrap', fontFamily: 'Inter',
@@ -70,7 +70,7 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
             position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30,
             display: 'flex', justifyContent: 'center', padding: '16px 18px 0'
         }}>
-            <div style={{
+            <div className="mobile-header-grid" style={{
                 display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center',
                 gap: 24, width: 'min(1180px,96%)', padding: '12px 22px',
                 borderRadius: 22,
@@ -83,11 +83,11 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
 
                 {/* Wordmark */}
                 <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{
+                    <div className="mobile-header-wordmark" style={{
                         fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
                         fontSize: 20, letterSpacing: '-0.02em', lineHeight: 1
                     }}>
-                        <span style={{ color: '#FFFFFF' }}>kapruka</span>{' '}
+                        <span className="hide-mobile" style={{ color: '#FFFFFF' }}>kapruka</span>{' '}
                         <span style={{ color: '#F5C800' }}>flow</span>
                     </div>
                     {/* Smile arc */}
@@ -102,12 +102,12 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
                 </div>
 
                 {/* Journey */}
-                <div style={{ justifySelf: 'center' }}>
+                <div className="mobile-journey-wrapper" style={{ justifySelf: 'center' }}>
                     <JourneyLine active={journeyActive} done={journeyDone} />
                 </div>
 
                 {/* Language toggle */}
-                <div style={{
+                <div className="hide-mobile" style={{
                     justifySelf: 'end', display: 'flex', gap: 4, padding: 3,
                     borderRadius: 999, background: 'rgba(255,255,255,0.08)',
                     border: '1px solid rgba(255,255,255,0.07)'

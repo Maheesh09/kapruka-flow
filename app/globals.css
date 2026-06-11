@@ -198,3 +198,58 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 600px) {
   .trio-grid { grid-template-columns: 1fr !important; }
 }
+
+/* ── Mobile Responsive Utilities ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+  
+  /* Header specific */
+  .mobile-header-grid {
+    grid-template-columns: auto 1fr !important;
+    gap: 12px !important;
+    padding: 10px 16px !important;
+  }
+  .mobile-header-wordmark {
+    font-size: 18px !important;
+  }
+  .mobile-journey-wrapper {
+    justify-self: stretch !important;
+  }
+  .mobile-journey-line {
+    width: 100% !important;
+    min-width: 200px !important;
+  }
+  .mobile-journey-node {
+    width: 10px !important;
+  }
+  .mobile-journey-label {
+    font-size: 8px !important;
+  }
+
+  /* Presence specific */
+  .mobile-presence-widget {
+    bottom: 95px !important; /* Move above docked input */
+    left: 16px !important;
+    padding: 6px !important;
+    border-radius: 50% !important;
+  }
+  .mobile-presence-text { display: none !important; }
+
+  /* Chat specific */
+  .mobile-bot-avatar-wrapper {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  .mobile-bot-avatar-orb {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .mobile-chat-bubble {
+    padding: 14px 16px !important;
+    font-size: 15px !important;
+    max-width: 90% !important;
+  }
+  .flow-inner {
+    padding: 90px 16px 200px !important;
+  }
+}

@@ -7,7 +7,7 @@ import LockedCard from './LockedCard'
 // ── Kapruka Smile Animation ────────────────────────────────────────────────────
 function KaprukaSmiley({ thinking }) {
     return (
-        <div style={{
+        <div className="mobile-bot-avatar-wrapper" style={{
             position: 'relative', width: 52, height: 52, flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}>
@@ -28,7 +28,7 @@ function KaprukaSmiley({ thinking }) {
                 </>
             )}
             {/* Orb background */}
-            <div style={{
+            <div className="mobile-bot-avatar-orb" style={{
                 width: 44, height: 44, borderRadius: '50%',
                 background: 'radial-gradient(circle at 34% 30%, #8a72d0, #3D2785 72%)',
                 boxShadow: thinking
@@ -216,13 +216,15 @@ function AgentMessage({ text, stream }) {
             <div style={{ paddingTop: 8, flexShrink: 0 }}>
                 <KaprukaSmiley thinking={false} />
             </div>
-            <div style={{
+            <div className="mobile-chat-bubble" style={{
                 flex: 1,
                 background: 'linear-gradient(135deg,rgba(255,255,255,0.62),rgba(255,255,255,0.44))',
                 backdropFilter: 'blur(22px) saturate(180%)',
                 WebkitBackdropFilter: 'blur(22px) saturate(180%)',
                 borderRadius: 20, padding: '14px 20px',
-                border: '1px solid rgba(255,255,255,0.85)',
+                borderWidth: 1, borderStyle: 'solid',
+                borderTopColor: 'rgba(255,255,255,0.85)', borderLeftColor: 'rgba(255,255,255,0.85)',
+                borderRightColor: 'rgba(61,39,133,0.12)', borderBottomColor: 'rgba(61,39,133,0.12)',
                 boxShadow: '0 8px 28px rgba(61,39,133,0.09)',
                 color: '#1A1433', fontSize: 17, lineHeight: 1.65, fontFamily: 'Inter'
             }}>
@@ -262,8 +264,8 @@ function ProductCard({ product, idx, onChoose }) {
                 borderRadius: 22, padding: 12, cursor: 'pointer',
                 boxShadow: hovered ? '0 20px 48px rgba(61,39,133,0.20)' : '0 8px 30px rgba(61,39,133,0.09)',
                 transform: hovered ? `perspective(820px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateY(-6px)` : 'none',
-                transformStyle: 'preserve-3d', transition: 'box-shadow .3s, border .3s, background .3s',
-                transitionProperty: 'box-shadow, border, background',
+                transformStyle: 'preserve-3d', transition: 'box-shadow .3s, border-color .3s, background .3s',
+                transitionProperty: 'box-shadow, border-color, background',
                 display: 'flex', flexDirection: 'column',
                 animation: 'riseBlur .5s cubic-bezier(.2,.7,.2,1) both',
                 animationDelay: `${idx * 0.09}s`,
