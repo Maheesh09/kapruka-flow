@@ -24,13 +24,16 @@ export default function LockedCard({ url, orderRef, expiresAt }) {
     useEffect(() => {
         if (!expiresAt) { setSecs(3582); return }
         const end = new Date(expiresAt).getTime()
-        const tick = () => setSecs(Math.max(0, Math.floor((end - Date.now()) / 1000)))
+        const tick = () => {
+            const diff = Math.floor((end - Date.now()) / 1000)
+            setSecs(isNaN(diff) ? 0 : Math.max(0, diff))
+        }
         tick()
         const id = setInterval(tick, 1000)
         return () => clearInterval(id)
     }, [expiresAt])
 
-    const rem = secs ?? 3582
+    const rem = (secs !== null && !isNaN(secs)) ? secs : 3582
     const R = 50, C = 2 * Math.PI * R
     const offset = C * (1 - rem / TOTAL)
     const expired = rem === 0
