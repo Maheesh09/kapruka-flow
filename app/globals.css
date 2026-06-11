@@ -1,304 +1,200 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* ── Design Tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --bg: #FAF9FF;
+  --surface-0: rgba(255,255,255,0.06);
+  --surface-1: rgba(255,255,255,0.50);
+  --surface-2: rgba(255,255,255,0.72);
+  --surface-3: rgba(255,255,255,0.88);
+
+  --purple-900: #1A1433;
+  --purple-700: #2C1C66;
+  --purple-500: #3D2785;
+  --purple-300: #6B52C8;
+  --purple-100: #E9E4FF;
+
+  --gold-500: #F5C800;
+  --gold-300: #FFE08A;
+  --gold-100: #FFF7E0;
+
+  --pink-300: #FF9ECF;
+  --pink-100: #FFE9F3;
+
+  --blur-1: blur(14px) saturate(160%);
+  --blur-2: blur(22px) saturate(180%);
+  --blur-3: blur(32px) saturate(200%);
+  --blur-nav: blur(28px) saturate(180%);
 }
 
-html,
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; padding: 0; margin: 0; }
+html { height: 100%; }
+html, body { max-width: 100vw; overflow-x: hidden; }
 body {
-  height: 100%;
-}
-
-body {
-  font-family: 'Inter', 'Noto Sans Sinhala', system-ui, sans-serif;
-  background: #FAF9FF;
-  color: #1A1433;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
-  overflow: hidden;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--purple-900);
+}
+a { color: inherit; text-decoration: none; }
+
+/* ── Keyframes ─────────────────────────────────────────────────────────────── */
+
+/* Entry animations */
+@keyframes riseBlur {
+  from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-::selection {
-  background: rgba(61, 39, 133, 0.18);
+/* Ambient blob drift */
+@keyframes driftA {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%     { transform: translate(3vw,2vh) scale(1.04); }
+  66%     { transform: translate(-2vw,4vh) scale(0.97); }
+}
+@keyframes driftB {
+  0%,100% { transform: translate(0,0) scale(1); }
+  40%     { transform: translate(-4vw,-3vh) scale(1.06); }
+  70%     { transform: translate(2vw,2vh) scale(0.96); }
+}
+@keyframes driftC {
+  0%,100% { transform: translate(0,0) scale(1); }
+  30%     { transform: translate(2vw,-2vh) scale(1.03); }
+  65%     { transform: translate(-3vw,3vh) scale(1.05); }
 }
 
-/* ── Scrollbar ─────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
+/* Orb / glow */
+@keyframes orbPulse {
+  0%,100% { box-shadow: 0 0 18px rgba(61,39,133,0.55), 0 0 0 0 rgba(61,39,133,0); }
+  50%     { box-shadow: 0 0 28px rgba(61,39,133,0.75), 0 0 22px 6px rgba(61,39,133,0.15); }
+}
+@keyframes ripple {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.4); opacity: 0;   }
+}
+@keyframes haloLight {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
+  50%     { box-shadow: 0 0 0 5px rgba(255,255,255,0); }
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(61, 39, 133, 0.18);
-  border-radius: 6px;
+/* Cursor blink */
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0; }
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+/* Spin (conic border) */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
-/* ── Ambient blobs ─────────────────────────────────────── */
+/* Shimmer sweep */
+@keyframes shimmerSweep {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Agent presence pulse (green dot) */
+@keyframes agentPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.7); transform: scale(1); }
+  50%     { box-shadow: 0 0 0 5px rgba(52,211,153,0); transform: scale(1.15); }
+}
+
+/* Kapruka smile draw (SVG stroke-dashoffset) */
+@keyframes smileDraw {
+  0%   { stroke-dashoffset: 24; opacity: 0.4; }
+  50%  { stroke-dashoffset: 0;  opacity: 1;   }
+  100% { stroke-dashoffset: 24; opacity: 0.4; }
+}
+@keyframes cuteWiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  10% { transform: rotate(-12deg) scale(1.15); }
+  20% { transform: rotate(10deg) scale(1.15); }
+  30% { transform: rotate(-6deg) scale(1.05); }
+  40% { transform: rotate(4deg) scale(1.05); }
+  50% { transform: rotate(0deg) scale(1); }
+}
+
+/* Flow thinking checklist tick */
+@keyframes tickPop {
+  0%  { transform: scale(0) rotate(-10deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(3deg); opacity: 1; }
+  100%{ transform: scale(1) rotate(0deg);   opacity: 1; }
+}
+@keyframes lineSlide {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Chip float hover lift */
+@keyframes chipIdle {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-2px); }
+}
+
+/* Slogan shimmer */
+@keyframes sloganShimmer {
+  0%   { background-position: -300% center; }
+  100% { background-position: 300% center; }
+}
+
+/* Deep glow pulse for scene */
+@keyframes glowPulse {
+  0%,100% { opacity: 0.5; }
+  50%     { opacity: 0.75; }
+}
+
+/* ── Blob utility classes ──────────────────────────────────────────────────── */
 .kf-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(72px);
-  will-change: transform;
   pointer-events: none;
+  will-change: transform;
+  filter: blur(1px);
 }
+.drift-a { animation: driftA 38s ease-in-out infinite; }
+.drift-b { animation: driftB 44s ease-in-out infinite; }
+.drift-c { animation: driftC 51s ease-in-out infinite; }
 
-.drift-a {
-  animation: driftA 34s ease-in-out infinite;
-}
-
-.drift-b {
-  animation: driftB 44s ease-in-out infinite;
-}
-
-.drift-c {
-  animation: driftC 39s ease-in-out infinite;
-}
-
-/* ── Glass utility ─────────────────────────────────────── */
-.glass {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.55));
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-right-color: rgba(61, 39, 133, 0.12);
-  border-bottom-color: rgba(61, 39, 133, 0.12);
-  box-shadow: 0 8px 32px rgba(61, 39, 133, 0.08);
-  border-radius: 24px;
-}
-
-/* ── Keyframes ─────────────────────────────────────────── */
-@keyframes driftA {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-
-  50% {
-    transform: translate(7vw, 5vh) scale(1.18);
-  }
-
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-}
-
-@keyframes driftB {
-  0% {
-    transform: translate(0, 0) scale(1.1);
-  }
-
-  50% {
-    transform: translate(-6vw, 7vh) scale(0.92);
-  }
-
-  100% {
-    transform: translate(0, 0) scale(1.1);
-  }
-}
-
-@keyframes driftC {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-
-  50% {
-    transform: translate(5vw, -6vh) scale(1.12);
-  }
-
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-}
-
-@keyframes riseBlur {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-    filter: blur(6px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes orbPulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: .92;
-  }
-
-  50% {
-    transform: scale(1.13);
-    opacity: 1;
-  }
-}
-
-@keyframes ripple {
-  0% {
-    transform: scale(.55);
-    opacity: .55;
-  }
-
-  100% {
-    transform: scale(2.6);
-    opacity: 0;
-  }
-}
-
-@keyframes haloPulse {
-
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(61, 39, 133, .35);
-  }
-
-  50% {
-    box-shadow: 0 0 0 7px rgba(61, 39, 133, 0);
-  }
-}
-
-@keyframes haloLight {
-
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, .55);
-  }
-
-  50% {
-    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
-  }
-}
-
-@keyframes blink {
-
-  0%,
-  49% {
-    opacity: .85;
-  }
-
-  50%,
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-130%) skewX(-18deg);
-  }
-
-  100% {
-    transform: translateX(260%) skewX(-18deg);
-  }
-}
-
-@keyframes shimmerOnce {
-  0% {
-    transform: translateX(-130%) skewX(-18deg);
-    opacity: 1;
-  }
-
-  100% {
-    transform: translateX(260%) skewX(-18deg);
-    opacity: 0;
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0.94);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* ── Utility animation classes ─────────────────────────── */
-.rise {
-  animation: riseBlur .5s cubic-bezier(.2, .7, .2, 1) both;
-}
-
-.fade {
-  animation: fadeIn .35s ease-out both;
-}
-
-.scale-in {
-  animation: scaleIn .45s cubic-bezier(.2, .7, .2, 1) both;
-}
-
-/* ── Reduced motion ────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-
-  .drift-a,
-  .drift-b,
-  .drift-c {
-    animation: none !important;
-  }
-
-  .rise,
-  .fade,
-  .scale-in {
-    animation: none !important;
-  }
-}
-
-/* ── Product trio responsive ───────────────────────────── */
-@media (max-width: 640px) {
-  .trio-grid {
-    display: flex !important;
-    overflow-x: auto !important;
-    scroll-snap-type: x mandatory;
-    gap: 12px !important;
-    grid-template-columns: unset !important;
-    padding-bottom: 8px;
-  }
-
-  .trio-card {
-    min-width: 240px !important;
-    scroll-snap-align: center;
-    flex-shrink: 0;
-  }
-}
-
-/* ── Flow area ─────────────────────────────────────────── */
+/* ── Flow area ─────────────────────────────────────────────────────────────── */
 .flow-area {
   position: absolute;
   inset: 0;
   overflow-y: auto;
-  padding: 110px 20px 160px;
-  z-index: 5;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.flow-area::-webkit-scrollbar { width: 4px; }
+.flow-area::-webkit-scrollbar-track { background: transparent; }
+.flow-area::-webkit-scrollbar-thumb {
+  background: rgba(61,39,133,0.18);
+  border-radius: 4px;
 }
 
 .flow-inner {
-  max-width: 768px;
+  min-height: 100%;
+  padding: 110px 24px 220px;
+  max-width: 860px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+}
+
+/* ── Product trio cards ────────────────────────────────────────────────────── */
+.trio-card { user-select: none; }
+@media (max-width: 600px) {
+  .trio-grid { grid-template-columns: 1fr !important; }
 }

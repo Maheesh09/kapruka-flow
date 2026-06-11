@@ -8,48 +8,54 @@ function JourneyLine({ active, done }) {
     return (
         <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
-            justifyContent: 'space-between', width: 'min(400px,40vw)', minWidth: 220, height: 30
+            justifyContent: 'space-between', width: 'min(480px, 44vw)', minWidth: 260, height: 44
         }}>
             {/* Track */}
             <div style={{
-                position: 'absolute', left: 7, right: 7, top: '50%', height: 2,
-                background: 'rgba(255,255,255,0.22)', transform: 'translateY(-50%)', borderRadius: 2
+                position: 'absolute', left: 8, right: 8, top: 14, height: 2,
+                background: 'rgba(255,255,255,0.18)', borderRadius: 2
             }} />
             {/* Fill */}
             <div style={{
-                position: 'absolute', left: 7, top: '50%', height: 2,
-                width: `calc((100% - 14px) * ${fill / 100})`,
+                position: 'absolute', left: 8, top: 14, height: 2,
+                width: `calc((100% - 16px) * ${fill / 100})`,
                 background: 'linear-gradient(90deg, rgba(255,255,255,0.95), #F5C800)',
-                transform: 'translateY(-50%)', borderRadius: 2, transition: 'width .6s ease'
+                borderRadius: 2, transition: 'width .6s cubic-bezier(.4,0,.2,1)',
+                boxShadow: '0 0 8px rgba(245,200,0,0.5)'
             }} />
             {/* Nodes */}
             {NODES.map((label, i) => {
                 const isActive = i === active
                 const isDone = done.includes(i) && !isActive
+                const isFuture = !isActive && !isDone
                 return (
                     <div key={i} style={{
                         position: 'relative', zIndex: 2, display: 'flex',
-                        alignItems: 'center', justifyContent: 'center', width: 16, height: 16
+                        flexDirection: 'column', alignItems: 'center', gap: 5, width: 14
                     }}>
+                        {/* Dot */}
                         <div style={{
-                            width: isActive ? 14 : 10, height: isActive ? 14 : 10,
+                            width: isActive ? 16 : isDone ? 12 : 9,
+                            height: isActive ? 16 : isDone ? 12 : 9,
                             borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: isActive ? '#FFFFFF' : isDone ? '#F5C800' : 'rgba(255,255,255,0.30)',
+                            background: isActive ? '#FFFFFF' : isDone ? '#F5C800' : 'rgba(255,255,255,0.22)',
+                            border: isFuture ? '1.5px dashed rgba(255,255,255,0.30)' : 'none',
+                            boxShadow: isActive ? '0 0 0 4px rgba(255,255,255,0.18), 0 0 12px rgba(255,255,255,0.4)' : 'none',
                             animation: isActive ? 'haloLight 2s ease-in-out infinite' : 'none',
-                            transition: 'all .4s'
+                            transition: 'all .4s cubic-bezier(.4,0,.2,1)'
                         }}>
                             {isDone && <Icon name="check" size={7} color="#3D2785" stroke={3.2} />}
                         </div>
-                        {/* Label: always show for active, hover handled via CSS title */}
-                        {isActive && (
-                            <div style={{
-                                position: 'absolute', top: 18, left: '50%', transform: 'translateX(-50%)',
-                                fontSize: 10, fontWeight: 600, color: '#fff', whiteSpace: 'nowrap',
-                                fontFamily: 'Inter', animation: 'fadeIn .25s'
-                            }}>
-                                {label}
-                            </div>
-                        )}
+                        {/* Label — always visible */}
+                        <div style={{
+                            fontSize: 9.5, fontWeight: isActive ? 700 : 500,
+                            color: isActive ? '#FFFFFF' : isDone ? '#F5C800' : 'rgba(255,255,255,0.42)',
+                            whiteSpace: 'nowrap', fontFamily: 'Inter',
+                            letterSpacing: '0.04em', textTransform: 'uppercase',
+                            transition: 'color .4s', marginTop: 2
+                        }}>
+                            {label}
+                        </div>
                     </div>
                 )
             })}
@@ -62,27 +68,36 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
     return (
         <header style={{
             position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30,
-            display: 'flex', justifyContent: 'center', padding: '18px 18px 0'
+            display: 'flex', justifyContent: 'center', padding: '16px 18px 0'
         }}>
             <div style={{
                 display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center',
-                gap: 24, width: 'min(1180px,96%)', padding: '14px 24px',
-                borderRadius: 20, background: 'linear-gradient(135deg, #3D2785, #2C1C66)',
+                gap: 24, width: 'min(1180px,96%)', padding: '12px 22px',
+                borderRadius: 22,
+                background: 'linear-gradient(135deg, rgba(44,28,102,0.96), rgba(26,20,51,0.98))',
                 border: '1px solid rgba(255,255,255,0.10)',
-                boxShadow: '0 14px 40px rgba(44,28,102,0.42), inset 0 1px 0 rgba(255,255,255,0.12)'
+                backdropFilter: 'blur(28px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+                boxShadow: '0 16px 48px rgba(26,20,51,0.50), 0 1px 0 rgba(255,255,255,0.10) inset, 0 -1px 0 rgba(0,0,0,0.20) inset'
             }}>
 
                 {/* Wordmark */}
-                <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+                <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{
                         fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
-                        fontSize: 21, letterSpacing: '-0.02em', lineHeight: 1
+                        fontSize: 20, letterSpacing: '-0.02em', lineHeight: 1
                     }}>
                         <span style={{ color: '#FFFFFF' }}>kapruka</span>{' '}
                         <span style={{ color: '#F5C800' }}>flow</span>
                     </div>
-                    <svg width="22" height="11" viewBox="0 0 22 11" style={{ marginBottom: 2 }}>
-                        <path d="M2 2 Q11 13 20 2" stroke="#F5C800" strokeWidth="3" fill="none" strokeLinecap="round" />
+                    {/* Smile arc */}
+                    <svg width="26" height="15" viewBox="0 0 24 13" style={{ marginTop: 4 }}>
+                        <path
+                            d="M2 2 Q12 14 22 2"
+                            stroke="#F5C800" strokeWidth="2.5" fill="none"
+                            strokeLinecap="round"
+                            style={{ animation: 'cuteWiggle 4s ease-in-out infinite', transformOrigin: 'center' }}
+                        />
                     </svg>
                 </div>
 
@@ -94,16 +109,16 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
                 {/* Language toggle */}
                 <div style={{
                     justifySelf: 'end', display: 'flex', gap: 4, padding: 3,
-                    borderRadius: 999, background: 'rgba(255,255,255,0.10)',
-                    border: '1px solid rgba(255,255,255,0.08)'
+                    borderRadius: 999, background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.07)'
                 }}>
                     {LANGS.map(l => {
                         const active = lang === l.code
                         return (
                             <button key={l.code} onClick={() => setLang(l.code)} style={{
                                 border: 'none', cursor: 'pointer', padding: '6px 12px', borderRadius: 999,
-                                fontFamily: "'Inter','Noto Sans Sinhala',sans-serif", fontSize: 13, fontWeight: 600,
-                                color: active ? '#3D2785' : 'rgba(255,255,255,0.72)',
+                                fontFamily: "'Inter','Noto Sans Sinhala',sans-serif", fontSize: 12, fontWeight: 600,
+                                color: active ? '#3D2785' : 'rgba(255,255,255,0.65)',
                                 background: active ? 'linear-gradient(135deg,#FFE08A,#F5C800)' : 'transparent',
                                 boxShadow: active ? '0 4px 12px rgba(245,200,0,0.45)' : 'none',
                                 transition: 'all .25s'

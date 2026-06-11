@@ -1,8 +1,167 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Icon from './Icon'
 import PlanBoard from './PlanBoard'
 import LockedCard from './LockedCard'
+
+// ── Kapruka Smile Animation ────────────────────────────────────────────────────
+function KaprukaSmiley({ thinking }) {
+    return (
+        <div style={{
+            position: 'relative', width: 52, height: 52, flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+            {/* Outer ripple rings */}
+            {thinking && (
+                <>
+                    <div style={{
+                        position: 'absolute', inset: 0, borderRadius: '50%',
+                        border: '1.5px solid rgba(61,39,133,0.35)',
+                        animation: 'ripple 2.4s ease-out infinite'
+                    }} />
+                    <div style={{
+                        position: 'absolute', inset: 0, borderRadius: '50%',
+                        border: '1.5px solid rgba(61,39,133,0.20)',
+                        animation: 'ripple 2.4s ease-out infinite',
+                        animationDelay: '0.8s'
+                    }} />
+                </>
+            )}
+            {/* Orb background */}
+            <div style={{
+                width: 44, height: 44, borderRadius: '50%',
+                background: 'radial-gradient(circle at 34% 30%, #8a72d0, #3D2785 72%)',
+                boxShadow: thinking
+                    ? '0 0 20px rgba(61,39,133,0.65), 0 0 40px rgba(61,39,133,0.2)'
+                    : '0 0 14px rgba(61,39,133,0.4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                animation: thinking ? 'orbPulse 2.4s ease-in-out infinite' : 'none',
+                transition: 'box-shadow .5s'
+            }}>
+                {/* Kapruka smile arc — draw-in animation */}
+                <svg width="26" height="16" viewBox="0 0 26 16" fill="none">
+                    <path
+                        d="M3 3 Q13 17 23 3"
+                        stroke="#F5C800"
+                        strokeWidth="2.8"
+                        strokeLinecap="round"
+                        fill="none"
+                        style={{
+                            strokeDasharray: 24,
+                            strokeDashoffset: 0,
+                            animation: thinking ? 'smileDraw 1.8s ease-in-out infinite' : 'none'
+                        }}
+                    />
+                </svg>
+            </div>
+        </div>
+    )
+}
+
+// ── Flow Thinking Checklist ────────────────────────────────────────────────────
+const THINKING_ITEMS = [
+    { label: 'Recipient', icon: 'user' },
+    { label: 'Budget', icon: 'coins' },
+    { label: 'Location', icon: 'map-pin' },
+    { label: 'Delivery date', icon: 'calendar' },
+]
+
+export function FlowThinking() {
+    const [visibleItems, setVisibleItems] = useState(0)
+    const [phase, setPhase] = useState(0) // 0=building, cycling through status messages
+    const statusMessages = [
+        'Flow is figuring things out…',
+        'Searching the catalog…',
+        'Checking delivery options…',
+        'Comparing choices for you…',
+    ]
+    const [statusIdx, setStatusIdx] = useState(0)
+
+    useEffect(() => {
+        // Reveal checklist items one by one
+        const timers = THINKING_ITEMS.map((_, i) =>
+            setTimeout(() => setVisibleItems(v => Math.max(v, i + 1)), 350 + i * 380)
+        )
+        // Cycle status message
+        const statusInterval = setInterval(() => {
+            setStatusIdx(s => (s + 1) % statusMessages.length)
+        }, 1800)
+        return () => {
+            timers.forEach(clearTimeout)
+            clearInterval(statusInterval)
+        }
+    }, [])
+
+    return (
+        <div style={{
+            display: 'flex', gap: 16, alignItems: 'flex-start', margin: '18px 0',
+            animation: 'riseBlur .42s cubic-bezier(.2,.7,.2,1) both'
+        }}>
+            <KaprukaSmiley thinking={true} />
+
+            <div style={{
+                background: 'linear-gradient(135deg,rgba(255,255,255,0.62),rgba(255,255,255,0.44))',
+                backdropFilter: 'blur(22px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(22px) saturate(180%)',
+                borderRadius: 20, padding: '16px 20px',
+                border: '1px solid rgba(255,255,255,0.8)',
+                boxShadow: '0 8px 28px rgba(61,39,133,0.12)',
+                minWidth: 240
+            }}>
+                {/* Status line */}
+                <div key={statusIdx} style={{
+                    fontSize: 15, fontWeight: 600, color: '#3D2785',
+                    fontFamily: "'Space Grotesk',sans-serif",
+                    marginBottom: 14, animation: 'fadeIn .35s ease-out'
+                }}>
+                    {statusMessages[statusIdx]}
+                </div>
+
+                {/* Checklist */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                    {THINKING_ITEMS.map((item, i) => {
+                        const visible = i < visibleItems
+                        return (
+                            <div key={item.label} style={{
+                                display: 'flex', alignItems: 'center', gap: 10,
+                                opacity: visible ? 1 : 0.2,
+                                transition: 'opacity .4s'
+                            }}>
+                                {/* Tick / pending circle */}
+                                <div style={{
+                                    width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    background: visible
+                                        ? 'linear-gradient(135deg,#FFE08A,#F5C800)'
+                                        : 'rgba(61,39,133,0.08)',
+                                    border: visible ? 'none' : '1.5px dashed rgba(61,39,133,0.25)',
+                                    boxShadow: visible ? '0 2px 8px rgba(245,200,0,0.4)' : 'none',
+                                    animation: visible ? 'tickPop .4s cubic-bezier(.2,.7,.2,1) both' : 'none'
+                                }}>
+                                    {visible && (
+                                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                            <path d="M1 4L3.5 6.5L9 1" stroke="#3D2785" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    )}
+                                </div>
+                                {/* Label */}
+                                <div style={{
+                                    fontSize: 14, fontWeight: visible ? 600 : 400,
+                                    color: visible ? '#1A1433' : 'rgba(26,20,51,0.4)',
+                                    fontFamily: 'Inter',
+                                    animation: visible ? 'lineSlide .35s ease-out both' : 'none',
+                                    transition: 'color .4s, font-weight .4s'
+                                }}>
+                                    {item.label}
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+        </div>
+    )
+}
 
 // ── Streaming text ─────────────────────────────────────────────────────────────
 function StreamingText({ text }) {
@@ -28,28 +187,6 @@ function StreamingText({ text }) {
     )
 }
 
-// ── Violet orb ─────────────────────────────────────────────────────────────────
-function Orb({ big }) {
-    const s = big ? 50 : 13
-    return (
-        <div style={{ position: 'relative', width: s, height: s, flexShrink: 0 }}>
-            {big && (
-                <div style={{
-                    position: 'absolute', inset: 0, borderRadius: '50%',
-                    border: '1.5px solid rgba(61,39,133,0.45)',
-                    animation: 'ripple 2.6s ease-out infinite'
-                }} />
-            )}
-            <div style={{
-                position: 'absolute', inset: 0, borderRadius: '50%',
-                background: 'radial-gradient(circle at 34% 30%, #a48fd9, #3D2785 72%)',
-                boxShadow: '0 0 18px rgba(61,39,133,0.55)',
-                animation: big ? 'orbPulse 2.6s ease-in-out infinite' : 'none'
-            }} />
-        </div>
-    )
-}
-
 // ── User message ───────────────────────────────────────────────────────────────
 function UserMessage({ text }) {
     return (
@@ -59,8 +196,8 @@ function UserMessage({ text }) {
         }}>
             <div style={{
                 maxWidth: '72%', textAlign: 'right', paddingRight: 16,
-                borderRight: '2px solid rgba(61,39,133,0.5)', color: '#3D2785',
-                fontSize: 17, lineHeight: 1.5, fontWeight: 500
+                borderRight: '2px solid rgba(61,39,133,0.45)', color: '#3D2785',
+                fontSize: 17, lineHeight: 1.55, fontWeight: 500
             }}>
                 {text}
             </div>
@@ -72,46 +209,24 @@ function UserMessage({ text }) {
 function AgentMessage({ text, stream }) {
     return (
         <div style={{
-            display: 'flex', gap: 13, alignItems: 'flex-start', margin: '16px 0',
+            display: 'flex', gap: 14, alignItems: 'flex-start', margin: '16px 0',
             maxWidth: '94%', animation: 'riseBlur .42s cubic-bezier(.2,.7,.2,1) both'
         }}>
-            <div style={{ paddingTop: 7 }}><Orb big={false} /></div>
+            {/* Small orb */}
+            <div style={{ paddingTop: 8, flexShrink: 0 }}>
+                <KaprukaSmiley thinking={false} />
+            </div>
             <div style={{
-                flex: 1, background: 'linear-gradient(135deg,rgba(255,255,255,0.5),rgba(255,255,255,0.34))',
-                backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-                borderRadius: 16, padding: '12px 18px',
-                border: '1px solid rgba(255,255,255,0.6)', color: '#1A1433',
-                fontSize: 17, lineHeight: 1.6, fontFamily: 'Inter'
+                flex: 1,
+                background: 'linear-gradient(135deg,rgba(255,255,255,0.62),rgba(255,255,255,0.44))',
+                backdropFilter: 'blur(22px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(22px) saturate(180%)',
+                borderRadius: 20, padding: '14px 20px',
+                border: '1px solid rgba(255,255,255,0.85)',
+                boxShadow: '0 8px 28px rgba(61,39,133,0.09)',
+                color: '#1A1433', fontSize: 17, lineHeight: 1.65, fontFamily: 'Inter'
             }}>
                 {stream ? <StreamingText text={text} /> : text}
-            </div>
-        </div>
-    )
-}
-
-// ── Thinking orb ──────────────────────────────────────────────────────────────
-const THINKING_STATUSES = [
-    'Searching the catalog…',
-    'Checking delivery availability…',
-    'Comparing options…',
-    'Narrowing to three…',
-    'Almost there…',
-]
-
-export function ThinkingOrb() {
-    const [idx, setIdx] = useState(0)
-    useEffect(() => {
-        const id = setInterval(() => setIdx(i => (i + 1) % THINKING_STATUSES.length), 1100)
-        return () => clearInterval(id)
-    }, [])
-    return (
-        <div style={{ display: 'flex', gap: 14, alignItems: 'center', margin: '18px 0' }}>
-            <Orb big={true} />
-            <div key={idx} style={{
-                color: 'rgba(26,20,51,0.55)', fontSize: 17, fontWeight: 500,
-                animation: 'fadeIn .35s ease-out'
-            }}>
-                {THINKING_STATUSES[idx]}
             </div>
         </div>
     )
@@ -136,24 +251,37 @@ function ProductCard({ product, idx, onChoose }) {
             onClick={() => onChoose(product)}
             className="trio-card"
             style={{
-                background: 'linear-gradient(135deg,rgba(255,255,255,0.70),rgba(255,255,255,0.55))',
-                backdropFilter: 'blur(20px) saturate(160%)', WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-                border: '1px solid rgba(255,255,255,0.9)',
+                background: hovered
+                    ? 'linear-gradient(135deg,rgba(255,255,255,0.82),rgba(255,255,255,0.68))'
+                    : 'linear-gradient(135deg,rgba(255,255,255,0.65),rgba(255,255,255,0.50))',
+                backdropFilter: 'blur(22px) saturate(180%)', WebkitBackdropFilter: 'blur(22px) saturate(180%)',
+                borderWidth: 1, borderStyle: 'solid',
+                borderTopColor: hovered ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.8)',
+                borderLeftColor: hovered ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.8)',
                 borderRightColor: 'rgba(61,39,133,0.12)', borderBottomColor: 'rgba(61,39,133,0.12)',
                 borderRadius: 22, padding: 12, cursor: 'pointer',
-                boxShadow: hovered ? '0 18px 44px rgba(61,39,133,0.18)' : '0 8px 30px rgba(61,39,133,0.10)',
-                transform: hovered ? `perspective(820px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateY(-5px)` : 'none',
-                transformStyle: 'preserve-3d', transition: 'box-shadow .3s, transform .15s ease-out',
+                boxShadow: hovered ? '0 20px 48px rgba(61,39,133,0.20)' : '0 8px 30px rgba(61,39,133,0.09)',
+                transform: hovered ? `perspective(820px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateY(-6px)` : 'none',
+                transformStyle: 'preserve-3d', transition: 'box-shadow .3s, border .3s, background .3s',
+                transitionProperty: 'box-shadow, border, background',
                 display: 'flex', flexDirection: 'column',
                 animation: 'riseBlur .5s cubic-bezier(.2,.7,.2,1) both',
-                animationDelay: `${idx * 0.09}s`
+                animationDelay: `${idx * 0.09}s`,
+                overflow: 'hidden', position: 'relative'
             }}>
+
+            {/* Shimmer */}
+            <div style={{
+                position: 'absolute', top: 0, bottom: 0, width: '45%',
+                background: 'linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.55) 50%,rgba(255,255,255,0) 100%)',
+                transform: hovered ? 'translateX(260%) skewX(-18deg)' : 'translateX(-160%) skewX(-18deg)',
+                transition: hovered ? 'transform .75s ease' : 'none', pointerEvents: 'none'
+            }} />
 
             {/* Image */}
             <div style={{
                 position: 'relative', height: product.pick ? 168 : 150,
-                borderRadius: 15, overflow: 'hidden', background: 'rgba(61,39,133,0.08)',
-                flexShrink: 0
+                borderRadius: 15, overflow: 'hidden', background: 'rgba(61,39,133,0.08)', flexShrink: 0
             }}>
                 {product.image_url
                     ? <img src={product.image_url} alt={product.name}
@@ -166,13 +294,6 @@ function ProductCard({ product, idx, onChoose }) {
                         <Icon name="gift" size={40} color="rgba(61,39,133,0.3)" />
                     </div>
                 }
-                {/* Shimmer */}
-                <div style={{
-                    position: 'absolute', top: 0, bottom: 0, width: '45%',
-                    background: 'linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.55) 50%,rgba(255,255,255,0) 100%)',
-                    transform: hovered ? 'translateX(260%) skewX(-18deg)' : 'translateX(-160%) skewX(-18deg)',
-                    transition: hovered ? 'transform .75s ease' : 'none', pointerEvents: 'none'
-                }} />
             </div>
 
             {/* Flow's pick tag */}
@@ -233,13 +354,15 @@ function ProductTrio({ trio, onChoose }) {
     return (
         <div style={{ margin: '8px 0 6px' }}>
             {trio.context && (
-                <div style={{ display: 'flex', gap: 13, alignItems: 'flex-start', marginBottom: 14 }}>
-                    <div style={{ paddingTop: 4 }}><Orb big={false} /></div>
+                <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 14 }}>
+                    <div style={{ paddingTop: 4, flexShrink: 0 }}>
+                        <KaprukaSmiley thinking={false} />
+                    </div>
                     <div style={{
                         fontSize: 16, color: '#1A1433', lineHeight: 1.55,
-                        background: 'linear-gradient(135deg,rgba(255,255,255,0.5),rgba(255,255,255,0.34))',
-                        backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-                        borderRadius: 16, padding: '10px 16px', border: '1px solid rgba(255,255,255,0.6)'
+                        background: 'linear-gradient(135deg,rgba(255,255,255,0.62),rgba(255,255,255,0.44))',
+                        backdropFilter: 'blur(22px)', WebkitBackdropFilter: 'blur(22px)',
+                        borderRadius: 20, padding: '12px 18px', border: '1px solid rgba(255,255,255,0.85)'
                     }}>
                         {trio.context}
                     </div>
@@ -285,7 +408,7 @@ export default function FlowArea({ messages, loading, onChoose, onAddRecipient, 
                             return null
                     }
                 })}
-                {loading && <ThinkingOrb />}
+                {loading && <FlowThinking />}
             </div>
         </div>
     )
