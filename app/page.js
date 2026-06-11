@@ -63,7 +63,7 @@ function AmbientLayer({ mousePos, loading }) {
       {/* Blurred Background Image */}
       <div style={{
         position: 'absolute', inset: -50,
-        backgroundImage: 'url("/back.png")',
+        backgroundImage: 'url("/back.jpg")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         filter: loading ? 'blur(24px) brightness(0.85)' : 'blur(10px)',
