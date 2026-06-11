@@ -207,15 +207,22 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked }) {
             width: docked ? 'min(700px,94vw)' : '100%',
             borderRadius: 999
         }}>
-            {/* Spinning conic border on focus */}
+            {/* Spinning conic border outline on focus */}
             <div style={{
                 position: 'absolute', inset: -2, borderRadius: 999,
-                overflow: 'hidden', opacity: focused ? 1 : 0, transition: 'opacity .3s'
+                padding: 2,
+                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                WebkitMaskComposite: 'xor',
+                maskComposite: 'exclude',
+                overflow: 'hidden',
+                opacity: focused ? 1 : 0, transition: 'opacity .3s',
+                pointerEvents: 'none'
             }}>
                 <div style={{
-                    position: 'absolute', inset: '-60%',
+                    position: 'absolute', top: '50%', left: '50%',
+                    width: 2000, height: 2000, margin: '-1000px 0 0 -1000px',
                     background: 'conic-gradient(from 0deg, #3D2785, #F5C800, #FF9ECF, #3D2785)',
-                    animation: focused ? 'spin 4.5s linear infinite' : 'none'
+                    animation: focused ? 'spin 4s linear infinite' : 'none'
                 }} />
             </div>
             <div style={{

@@ -91,11 +91,11 @@ function AmbientLayer() {
 function FlowPresence() {
   const [hovered, setHovered] = useState(false)
   return (
-    <div
+    <div className="mobile-presence-widget"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        position: 'absolute', bottom: 28, left: 24, zIndex: 25,
+        position: 'absolute', bottom: 28, left: 24, zIndex: 35,
         display: 'flex', alignItems: 'center', gap: 12,
         padding: '12px 18px 12px 14px',
         borderRadius: 18,
@@ -130,7 +130,7 @@ function FlowPresence() {
       </div>
 
       {/* Text */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <div className="mobile-presence-text" style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <div style={{
           display: 'flex', alignItems: 'center', gap: 6
         }}>
