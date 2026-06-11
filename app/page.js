@@ -138,6 +138,7 @@ export default function Home() {
     const t = (text ?? input).trim()
     if (!t || loading) return
     setInput('')
+    setShowTrackChip(false)
 
     if (phase === 'opening') {
       setPhase('flow')
