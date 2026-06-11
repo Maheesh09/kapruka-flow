@@ -15,7 +15,7 @@ const CHIPS = [
         label: 'Celebrate',
         sub: 'Make moments unforgettable',
         icon: 'party-popper',
-        goal: 'Help me celebrate someone special',
+        goal: 'I need a birthday cake delivered to Kandy this Saturday, budget under LKR 6,000',
         grad: 'linear-gradient(135deg,#FFF7E0,#FFE08A)',
         iconColor: '#8a6d00'
     },
@@ -23,7 +23,7 @@ const CHIPS = [
         label: 'Say something',
         sub: 'Gifts that speak for you',
         icon: 'heart',
-        goal: 'I want to say thank you or sorry with a gift',
+        goal: 'I want to send flowers and chocolates to say thank you, delivery to Colombo tomorrow',
         grad: 'linear-gradient(135deg,#FFE9F3,#FF9ECF)',
         iconColor: '#c0336a'
     },
@@ -55,13 +55,13 @@ const CHIPS = [
 
 const HEADLINES = {
     EN: 'What would you like Flow to handle today?',
-    SI: 'Flow එකෙන් අද කරවගන්න ඕන මොකක්ද?',
-    TG: 'Flow ekata ada mokak karanna oneda?',
+    SI: 'අද Flow එකෙන් කරගන්න ඕනේ මොකක්ද?',
+    TG: 'Ada Flow eken karaganna ona mokakda?',
 }
 const PLACEHOLDERS = {
-    EN: 'Tell me… a birthday in Kandy, chocolates under 5,000, flowers for amma',
-    SI: 'කියන්න… Kandy birthday cake ekak, 5,000 yata chocolate gift',
-    TG: 'Kiyanna… Kandy cake ekak, flowers for amma, chocolate box',
+    EN: 'Tell me... a gaming laptop, flowers for tomorrow, and delivery to Galle',
+    SI: 'කියන්න... gaming laptop එකක්, හෙටට මල්, Galle delivery',
+    TG: 'Kiyanna... gaming laptop ekak, heta mal, Galle delivery',
 }
 const SLOGAN = 'Flow your way to the perfect find'
 
