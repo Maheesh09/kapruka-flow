@@ -11,7 +11,10 @@ const glass = {
     background: 'linear-gradient(135deg,rgba(255,255,255,0.84),rgba(255,255,255,0.72))',
     backdropFilter: 'blur(20px) saturate(160%)',
     WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-    border: '1px solid rgba(255,255,255,0.9)',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderTopColor: 'rgba(255,255,255,0.9)',
+    borderLeftColor: 'rgba(255,255,255,0.9)',
     borderRightColor: 'rgba(61,39,133,0.12)',
     borderBottomColor: 'rgba(61,39,133,0.12)',
 }
