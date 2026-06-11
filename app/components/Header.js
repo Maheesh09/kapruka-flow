@@ -91,10 +91,10 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
                         <span style={{ color: '#F5C800' }}>flow</span>
                     </div>
                     {/* Smile arc */}
-                    <svg width="26" height="15" viewBox="0 0 24 13" style={{ marginTop: 4 }}>
+                    <svg width="22" height="14" viewBox="0 0 24 15" style={{ marginTop: 5 }}>
                         <path
-                            d="M2 2 Q12 14 22 2"
-                            stroke="#F5C800" strokeWidth="2.5" fill="none"
+                            d="M3.5 2.5 A 8.5 8.5 0 0 0 20.5 2.5"
+                            stroke="#F5C800" strokeWidth="4.5" fill="none"
                             strokeLinecap="round"
                             style={{ animation: 'cuteWiggle 4s ease-in-out infinite', transformOrigin: 'center' }}
                         />

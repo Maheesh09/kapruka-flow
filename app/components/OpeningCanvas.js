@@ -97,19 +97,19 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
                 {/* Slogan */}
                 <div style={{
                     marginTop: 12,
-                    animation: 'riseBlur .6s 0.55s cubic-bezier(.2,.7,.2,1) both'
+                    animation: 'riseBlur .6s 0.055s cubic-bezier(.2,.7,.2,1) both'
                 }}>
                     <span style={{
                         fontFamily: "'Space Grotesk',sans-serif",
                         fontWeight: 500,
                         fontSize: 'clamp(13px,1.6vw,16px)',
                         letterSpacing: '0.01em',
-                        backgroundImage: 'linear-gradient(90deg, #3D2785 0%, #6B52C8 30%, #F5C800 55%, #3D2785 80%, #6B52C8 100%)',
-                        backgroundSize: '300% auto',
+                        backgroundImage: 'linear-gradient(90deg, #3D2785 0%, #3D2785 35%, #6B52C8 45%, #F5C800 50%, #6B52C8 55%, #3D2785 65%, #3D2785 100%)',
+                        backgroundSize: '400% auto',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text',
-                        animation: 'sloganShimmer 5s linear infinite',
+                        animation: 'sloganShimmer 15s linear infinite',
                         display: 'inline-block'
                     }}>
                         {SLOGAN}

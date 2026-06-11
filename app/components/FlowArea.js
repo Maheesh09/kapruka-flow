@@ -39,15 +39,15 @@ function KaprukaSmiley({ thinking }) {
                 transition: 'box-shadow .5s'
             }}>
                 {/* Kapruka smile arc — draw-in animation */}
-                <svg width="26" height="16" viewBox="0 0 26 16" fill="none">
+                <svg width="24" height="15" viewBox="0 0 24 15" fill="none" style={{ marginTop: 5 }}>
                     <path
-                        d="M3 3 Q13 17 23 3"
+                        d="M3.5 2.5 A 8.5 8.5 0 0 0 20.5 2.5"
                         stroke="#F5C800"
-                        strokeWidth="2.8"
+                        strokeWidth="4.2"
                         strokeLinecap="round"
                         fill="none"
                         style={{
-                            strokeDasharray: 24,
+                            strokeDasharray: 28,
                             strokeDashoffset: 0,
                             animation: thinking ? 'smileDraw 1.8s ease-in-out infinite' : 'none'
                         }}
