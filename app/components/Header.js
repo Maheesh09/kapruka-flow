@@ -82,19 +82,19 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
             }}>
 
                 {/* Wordmark */}
-                <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="header-brand" style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div className="mobile-header-wordmark" style={{
                         fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
                         fontSize: 20, letterSpacing: '-0.02em', lineHeight: 1
                     }}>
-                        <span className="hide-mobile" style={{ color: '#FFFFFF' }}>kapruka</span>{' '}
+                        <span style={{ color: '#FFFFFF' }}>kapruka</span>{' '}
                         <span style={{ color: '#F5C800' }}>flow</span>
                     </div>
                     {/* Smile arc */}
-                    <svg width="26" height="15" viewBox="0 0 24 13" style={{ marginTop: 4 }}>
+                    <svg width="22" height="14" viewBox="0 0 24 15" style={{ marginTop: 5 }}>
                         <path
-                            d="M2 2 Q12 14 22 2"
-                            stroke="#F5C800" strokeWidth="2.5" fill="none"
+                            d="M3.5 2.5 A 8.5 8.5 0 0 0 20.5 2.5"
+                            stroke="#F5C800" strokeWidth="4.5" fill="none"
                             strokeLinecap="round"
                             style={{ animation: 'cuteWiggle 4s ease-in-out infinite', transformOrigin: 'center' }}
                         />
@@ -107,7 +107,7 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
                 </div>
 
                 {/* Language toggle */}
-                <div className="hide-mobile" style={{
+                <div className="header-lang" style={{
                     justifySelf: 'end', display: 'flex', gap: 4, padding: 3,
                     borderRadius: 999, background: 'rgba(255,255,255,0.08)',
                     border: '1px solid rgba(255,255,255,0.07)'

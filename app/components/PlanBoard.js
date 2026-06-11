@@ -83,7 +83,7 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder }) {
     const rowDelay = (() => { let i = 0; return () => ({ animationDelay: `${i++ * 0.1}s` }) })()
 
     const board = (
-        <div style={{
+        <div className="plan-board" style={{
             ...glass, maxWidth: 560, width: '100%', margin: '8px auto',
             padding: 22, borderRadius: 26, animation: 'scaleIn .45s cubic-bezier(.2,.7,.2,1) both'
         }}>
@@ -192,7 +192,7 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder }) {
 
             {/* Footer */}
             <div className="rise" style={{
-                display: 'flex', alignItems: 'center',
+                display: 'flex', alignItems: 'center', flexWrap: 'wrap',
                 justifyContent: 'space-between', gap: 14, marginTop: 6, ...rowDelay()
             }}>
                 <div>
@@ -200,7 +200,7 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder }) {
                         fontSize: 12, color: 'rgba(26,20,51,0.55)', textTransform: 'uppercase',
                         letterSpacing: '0.06em', fontWeight: 600
                     }}>Total</div>
-                    <div style={{
+                    <div className="plan-total" style={{
                         fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
                         fontSize: 26, color: '#3D2785', fontVariantNumeric: 'tabular-nums'
                     }}>
@@ -209,7 +209,7 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder }) {
                 </div>
 
                 {hasRecipient ? (
-                    <button onClick={onCreateOrder} style={{
+                    <button onClick={onCreateOrder} className="plan-cta" style={{
                         display: 'inline-flex', alignItems: 'center',
                         gap: 8, background: 'linear-gradient(135deg,#FFE08A,#F5C800)', color: '#3D2785',
                         fontWeight: 700, fontSize: 16, padding: '13px 22px', border: 'none',
@@ -219,7 +219,7 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder }) {
                         Create order <Icon name="arrow-right" size={18} color="#3D2785" stroke={2} />
                     </button>
                 ) : (
-                    <button onClick={onAddRecipient} style={{
+                    <button onClick={onAddRecipient} className="plan-cta" style={{
                         display: 'inline-flex', alignItems: 'center',
                         gap: 8, background: 'rgba(255,255,255,0.5)', color: '#3D2785', fontWeight: 600,
                         fontSize: 15, padding: '12px 20px', border: '1px solid rgba(61,39,133,0.3)',

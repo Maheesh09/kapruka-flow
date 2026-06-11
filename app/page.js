@@ -13,13 +13,66 @@ function detectCheckout(text) {
   return { url: url[0], ref: ref?.[0] ?? null, expiresAt: exp?.[0] ?? null }
 }
 
+// ── Magic Dust Particles ────────────────────────────────────────────────────────
+function ParticlesLayer() {
+  const [particles, setParticles] = useState([])
+  useEffect(() => {
+    // Generate 20 random particles
+    const p = Array.from({ length: 20 }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      size: Math.random() * 4 + 2,
+      duration: Math.random() * 20 + 15,
+      delay: Math.random() * -20,
+    }))
+    setParticles(p)
+  }, [])
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1, overflow: 'hidden' }}>
+      {particles.map(p => (
+        <div key={p.id} style={{
+          position: 'absolute',
+          left: `${p.left}%`,
+          top: `${p.top}%`,
+          width: p.size,
+          height: p.size,
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.8)',
+          boxShadow: '0 0 8px rgba(255,255,255,0.8)',
+          animation: `floatUp ${p.duration}s linear infinite`,
+          animationDelay: `${p.delay}s`,
+          opacity: 0
+        }} />
+      ))}
+    </div>
+  )
+}
+
 // ── Ambient depth scene ────────────────────────────────────────────────────────
-function AmbientLayer() {
+function AmbientLayer({ mousePos, loading }) {
+  const tiltX = (mousePos.y - 0.5) * 15;
+  const tiltY = (mousePos.x - 0.5) * -15;
+
   return (
     <div aria-hidden="true" style={{
       position: 'absolute', inset: 0, overflow: 'hidden',
-      pointerEvents: 'none', zIndex: 0
+      pointerEvents: 'none', zIndex: 0,
+      perspective: '1200px'
     }}>
+      {/* Blurred Background Image */}
+      <div style={{
+        position: 'absolute', inset: -50,
+        backgroundImage: 'url("/back.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        filter: loading ? 'blur(24px) brightness(0.85)' : 'blur(10px)',
+        zIndex: -1,
+        opacity: 0.95,
+        transform: `translateZ(-50px) rotateX(${tiltX * 0.4}deg) rotateY(${tiltY * 0.4}deg) scale(1.1)`,
+        transition: 'transform 0.4s ease-out, filter 1.5s ease',
+        transformStyle: 'preserve-3d'
+      }} />
       {/* Layer 0: Deep ambient color blobs */}
       <div className="kf-blob drift-a" style={{
         width: '58vw', height: '58vw',
@@ -77,11 +130,15 @@ function AmbientLayer() {
       {/* Layer 3: Center directional spotlight */}
       <div style={{
         position: 'absolute', left: '50%', top: '38%',
-        transform: 'translate(-50%,-50%)', width: 900, height: 900, maxWidth: '95vw',
+        transform: `translate(-50%,-50%) translate(${tiltY * -4}px, ${tiltX * 4}px)`,
+        width: 900, height: 900, maxWidth: '95vw',
         borderRadius: '50%',
-        background: 'radial-gradient(circle,rgba(255,255,255,0.75) 0%,rgba(255,255,255,0.2) 40%,rgba(255,255,255,0) 68%)',
+        background: loading
+          ? 'radial-gradient(circle,rgba(107,82,200,0.4) 0%,rgba(107,82,200,0.1) 40%,rgba(255,255,255,0) 68%)'
+          : 'radial-gradient(circle,rgba(255,255,255,0.75) 0%,rgba(255,255,255,0.2) 40%,rgba(255,255,255,0) 68%)',
         zIndex: 2, pointerEvents: 'none',
-        animation: 'glowPulse 10s ease-in-out infinite'
+        animation: loading ? 'glowPulse 3s ease-in-out infinite' : 'glowPulse 10s ease-in-out infinite',
+        transition: 'transform 0.3s ease-out, background 1.5s ease'
       }} />
     </div>
   )
@@ -122,8 +179,9 @@ function FlowPresence() {
         display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
         {/* Mini smile */}
-        <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
-          <path d="M2 2 Q9 12 16 2" stroke="#F5C800" strokeWidth="2.2" strokeLinecap="round" fill="none"
+        <svg width="16" height="10" viewBox="0 0 24 15" fill="none" style={{ marginTop: 4 }}>
+          <path d="M3.5 2.5 A 8.5 8.5 0 0 0 20.5 2.5"
+            stroke="#F5C800" strokeWidth="4.5" strokeLinecap="round" fill="none"
             style={{ animation: 'cuteWiggle 4s ease-in-out infinite', transformOrigin: 'center' }}
           />
         </svg>
@@ -171,10 +229,10 @@ function FlowPresence() {
 // ── Docked input bar (flow state) ─────────────────────────────────────────────
 function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onTrack }) {
   return (
-    <div style={{
+    <div className="docked-bar" style={{
       position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30,
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
-      padding: '16px 20px 28px',
+      padding: '16px 20px calc(28px + env(safe-area-inset-bottom))',
       background: 'linear-gradient(to top, rgba(250,249,255,0.96) 50%, rgba(250,249,255,0))'
     }}>
       {showTrackChip && (
@@ -213,7 +271,20 @@ export default function Home() {
   const [journeyActive, setJourneyActive] = useState(0)
   const [journeyDone, setJourneyDone] = useState([])
   const [showTrackChip, setShowTrackChip] = useState(false)
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
   const flowRef = useRef(null)
+
+  // Track cursor for parallax
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({
+        x: e.clientX / window.innerWidth,
+        y: e.clientY / window.innerHeight
+      })
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
 
   // Auto-scroll flow area
   useEffect(() => {
@@ -337,13 +408,14 @@ export default function Home() {
 
   return (
     <div style={{
-      position: 'relative', width: '100%', height: '100vh',
+      position: 'relative', width: '100%', height: '100dvh', minHeight: '100vh',
       overflow: 'hidden', background: '#FAF9FF', fontFamily: "'Inter',sans-serif",
       color: '#1A1433'
     }}>
 
       {/* Layer 0: Ambient depth scene */}
-      <AmbientLayer />
+      <AmbientLayer mousePos={mousePos} loading={loading} />
+      <ParticlesLayer />
 
       {/* Layer 3: Navigation */}
       <Header lang={lang} setLang={setLang}

@@ -39,15 +39,15 @@ function KaprukaSmiley({ thinking }) {
                 transition: 'box-shadow .5s'
             }}>
                 {/* Kapruka smile arc — draw-in animation */}
-                <svg width="26" height="16" viewBox="0 0 26 16" fill="none">
+                <svg width="24" height="15" viewBox="0 0 24 15" fill="none" style={{ marginTop: 5 }}>
                     <path
-                        d="M3 3 Q13 17 23 3"
+                        d="M3.5 2.5 A 8.5 8.5 0 0 0 20.5 2.5"
                         stroke="#F5C800"
-                        strokeWidth="2.8"
+                        strokeWidth="4.2"
                         strokeLinecap="round"
                         fill="none"
                         style={{
-                            strokeDasharray: 24,
+                            strokeDasharray: 28,
                             strokeDashoffset: 0,
                             animation: thinking ? 'smileDraw 1.8s ease-in-out infinite' : 'none'
                         }}
@@ -99,17 +99,17 @@ export function FlowThinking() {
         }}>
             <KaprukaSmiley thinking={true} />
 
-            <div style={{
+            <div className="thinking-card" style={{
                 background: 'linear-gradient(135deg,rgba(255,255,255,0.62),rgba(255,255,255,0.44))',
                 backdropFilter: 'blur(22px) saturate(180%)',
                 WebkitBackdropFilter: 'blur(22px) saturate(180%)',
                 borderRadius: 20, padding: '16px 20px',
                 border: '1px solid rgba(255,255,255,0.8)',
                 boxShadow: '0 8px 28px rgba(61,39,133,0.12)',
-                minWidth: 240
+                minWidth: 240, maxWidth: '100%'
             }}>
                 {/* Status line */}
-                <div key={statusIdx} style={{
+                <div key={statusIdx} className="status-line" style={{
                     fontSize: 15, fontWeight: 600, color: '#3D2785',
                     fontFamily: "'Space Grotesk',sans-serif",
                     marginBottom: 14, animation: 'fadeIn .35s ease-out'
@@ -194,7 +194,7 @@ function UserMessage({ text }) {
             display: 'flex', justifyContent: 'flex-end', margin: '16px 0',
             animation: 'riseBlur .42s cubic-bezier(.2,.7,.2,1) both'
         }}>
-            <div style={{
+            <div className="user-msg" style={{
                 maxWidth: '72%', textAlign: 'right', paddingRight: 16,
                 borderRight: '2px solid rgba(61,39,133,0.45)', color: '#3D2785',
                 fontSize: 17, lineHeight: 1.55, fontWeight: 500
@@ -208,7 +208,7 @@ function UserMessage({ text }) {
 // ── Agent message ──────────────────────────────────────────────────────────────
 function AgentMessage({ text, stream }) {
     return (
-        <div style={{
+        <div className="agent-row" style={{
             display: 'flex', gap: 14, alignItems: 'flex-start', margin: '16px 0',
             maxWidth: '94%', animation: 'riseBlur .42s cubic-bezier(.2,.7,.2,1) both'
         }}>
@@ -281,7 +281,7 @@ function ProductCard({ product, idx, onChoose }) {
             }} />
 
             {/* Image */}
-            <div style={{
+            <div className="trio-img" style={{
                 position: 'relative', height: product.pick ? 168 : 150,
                 borderRadius: 15, overflow: 'hidden', background: 'rgba(61,39,133,0.08)', flexShrink: 0
             }}>
@@ -331,13 +331,16 @@ function ProductCard({ product, idx, onChoose }) {
 
             {/* Choose button */}
             <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
-                <div style={{
+                <div className="choose-pill" style={{
                     display: 'inline-flex', alignItems: 'center', gap: 6,
                     padding: '8px 12px', borderRadius: 999, transition: 'all .25s',
                     background: hovered ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'rgba(61,39,133,0.10)',
                     boxShadow: hovered ? '0 6px 16px rgba(61,39,133,0.4)' : 'none'
                 }}>
-                    {hovered && <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>Choose</span>}
+                    <span className="choose-label" style={{
+                        fontSize: 13, fontWeight: 600, color: '#fff',
+                        display: hovered ? 'inline' : 'none'
+                    }}>Choose</span>
                     <Icon name="arrow-right" size={17} color={hovered ? '#fff' : '#3D2785'} stroke={2} />
                 </div>
             </div>
