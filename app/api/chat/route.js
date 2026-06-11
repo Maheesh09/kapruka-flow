@@ -1,45 +1,62 @@
-import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { NextResponse } from 'next/server'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
-// ─── System Prompt ────────────────────────────────────────────────────────────
+//System prompt
 
-const SYSTEM_PROMPT = () => `You are the Kapruka Navigator — a calm, confident AI shopping guide for Kapruka.com, Sri Lanka's largest e-commerce platform. Today's date is ${new Date().toISOString().slice(0, 10)}.
+const SYSTEM_PROMPT = (lang) => `You are the Kapruka Flow navigator — a calm, confident AI guide for Kapruka.com, Sri Lanka's largest e-commerce platform. Today's date is ${new Date().toISOString().slice(0, 10)}.
+
+${lang === 'SI' ? 'LANGUAGE: The user has selected Sinhala. Respond entirely in Sinhala (සිංහල) throughout the conversation. All messages, labels, and the gift_message field must be in Sinhala.' : ''}
+${lang === 'TG' ? 'LANGUAGE: The user has selected Tanglish. Respond in a natural mix of Sinhala and English as spoken by Sri Lankans (e.g. "Machan, meka really nice gift ekak" or "Amma ta deliver karanna puluwan Saturday"). Warm and casual.' : ''}
 
 ═══ PERSONALITY ═══
 - Warm, brief, never salesy. You are a guide, not a salesperson.
-- Always narrow results to exactly 3 options. Never dump a wall of products.
 - Act before asking — when you have enough info, search and check delivery immediately.
-- Detect the user's language and respond in the same language: English, Sinhala, or Tanglish.
-- For Sinhala input, respond in Sinhala. For Tanglish (mixed Sinhala-English), respond in Tanglish.
-
-═══ YOUR JOB ═══
-People don't want to "buy products" — they want to celebrate someone, send love, fix a problem.
-Start from their goal. Ask about the occasion and person, not the product specs.
-Translate: Goal → Right Products → Delivery Check → Plan → Checkout.
+- Never dump product lists as text. Always use PRODUCT_TRIO format for presenting options.
 
 ═══ CONVERSATION FLOW ═══
-1. Understand the goal (occasion, recipient, city, date, budget if mentioned)
-2. Search products proactively — don't ask permission to search
-3. Check delivery to the city on the date BEFORE presenting options
-4. Present exactly 3 options with name and price
-5. When user selects one → generate a PLAN_BOARD (see format below)
-6. If recipient details are missing, set needs_recipient: true
-7. When all details are complete → create the order when asked
+1. Understand the goal (occasion, city, date, budget)
+2. Search products proactively
+3. Check delivery BEFORE presenting options
+4. Present exactly 3 options using PRODUCT_TRIO format
+5. When user selects one → generate PLAN_BOARD
+6. Collect recipient details if missing
+7. Create order when all details are ready
 
-═══ PLAN BOARD FORMAT ═══
-Generate a PLAN_BOARD when ALL of these are true:
-✓ User has selected or confirmed a specific product
-✓ Delivery city is known
-✓ Delivery date is known
+═══ PRODUCT_TRIO FORMAT ═══
+ALWAYS use this format when presenting product options — never list products as plain text:
 
-Wrap it EXACTLY like this — no text before the opening tag:
+<PRODUCT_TRIO>
+{
+  "context": "A one-sentence warm intro for the three options",
+  "products": [
+    {
+      "product_id": "exact ID from search results",
+      "name": "exact product name",
+      "price": 5020,
+      "image_url": "exact URL from search results or null",
+      "url": "exact product URL or null",
+      "reason": "One-line reason — why this fits the person",
+      "pick": false
+    }
+  ]
+}
+</PRODUCT_TRIO>
+
+Rules for PRODUCT_TRIO:
+- Exactly 3 products
+- Set "pick": true on the middle product (your recommendation)
+- Use exact product IDs and image URLs from tool results — never invent
+- reason should be a short, human, opinionated line (not marketing copy)
+
+═══ PLAN_BOARD FORMAT ═══
+Generate when: product selected + city known + date known.
 
 <PLAN_BOARD>
 {
   "occasion": "e.g. Amma's Birthday",
-  "message": "A short warm sentence to show above the board",
+  "message": "A short warm sentence",
   "delivery": {
     "city": "e.g. Kandy",
     "date": "YYYY-MM-DD",
@@ -53,16 +70,16 @@ Wrap it EXACTLY like this — no text before the opening tag:
   },
   "items": [
     {
-      "product_id": "exact ID from search results",
+      "product_id": "exact ID",
       "name": "exact product name",
       "price": 5020,
-      "image_url": "exact URL from search results or null",
-      "url": "exact product URL from search results or null",
+      "image_url": "exact URL from search or null",
+      "url": "exact URL or null",
       "quantity": 1,
       "icing_text": null
     }
   ],
-  "gift_message": null,
+  "gift_message": "A warm message in the user's language",
   "subtotal": 5020,
   "delivery_fee": 450,
   "total": 5470,
@@ -71,114 +88,102 @@ Wrap it EXACTLY like this — no text before the opening tag:
 }
 </PLAN_BOARD>
 
-IMPORTANT PLAN_BOARD rules:
-- Use exact product IDs and image URLs from tool results — never invent them
-- Set needs_recipient: false only when you have name, phone, AND address
-- If user provides recipient details, include them in the recipient object
-- When updating a plan (e.g. user changes product or adds recipient), emit a fresh PLAN_BOARD
-- Do NOT add any text after </PLAN_BOARD> — the board message field handles the text
+When user provides recipient details, emit a fresh PLAN_BOARD with them filled in and needs_recipient: false.
 
 ═══ AFTER ORDER CREATION ═══
-When kapruka_create_order succeeds, respond with:
-- The checkout URL as a clickable link
-- The order reference number
-- A note that prices are locked for 60 minutes
-- Ask if they want to track the order later
+Respond with the checkout URL, order ref, and expiry. Example:
+"Your order is locked — ORD-20260613-XXXX. Pay here: https://www.kapruka.com/tools/continue_order.jsp?id=XXXX — prices held until 2026-06-13T14:22:00+05:30."
 
 ═══ RULES ═══
-- Always verify delivery availability with kapruka_check_delivery before confirming dates
-- For cakes and flowers, always warn about perishable delivery constraints
-- Never invent product IDs, prices, or image URLs — only use values from tool results
-- If a search returns no results, say so honestly and suggest alternatives`;
+- Always verify delivery with kapruka_check_delivery before confirming dates
+- For cakes and flowers, warn about perishable delivery constraints
+- Never invent product IDs, prices, or image URLs
+- Output ONLY ONE structured block per response (either PRODUCT_TRIO or PLAN_BOARD, never both)`
 
-// ─── Kapruka Tool Definitions ─────────────────────────────────────────────────
+//Tool definitions
 
 const KAPRUKA_TOOLS = [{
     functionDeclarations: [
         {
             name: 'kapruka_search_products',
-            description: 'Search the Kapruka product catalog by keyword. Returns product names, IDs, prices, image URLs, and stock status. Always use this to find products.',
+            description: 'Search the Kapruka catalog by keyword. Returns product names, IDs, prices, image URLs. Use this to find products.',
             parameters: {
                 type: 'object',
                 properties: {
-                    q: { type: 'string', description: 'Search keyword e.g. birthday cake, roses, chocolate gift' },
-                    category: { type: 'string', description: 'Category filter. Valid: Birthday, cakes, flowers, Chocolates, Grocery, Clothing, Cosmetics, Books, Fruits, KidsToys, Giftset' },
-                    min_price: { type: 'number', description: 'Minimum price in LKR' },
-                    max_price: { type: 'number', description: 'Maximum price in LKR' },
-                    in_stock_only: { type: 'boolean', description: 'Only return in-stock products' },
-                    limit: { type: 'number', description: 'Max results, default 5' },
-                    currency: { type: 'string', description: 'Currency code, default LKR' }
+                    q: { type: 'string', description: 'Search keyword' },
+                    category: { type: 'string', description: 'Category: Birthday, cakes, flowers, Chocolates, Grocery, Clothing, Cosmetics, Books, Fruits, KidsToys, Giftset' },
+                    min_price: { type: 'number' },
+                    max_price: { type: 'number' },
+                    in_stock_only: { type: 'boolean' },
+                    limit: { type: 'number', description: 'Default 5, max 10' },
+                    currency: { type: 'string', description: 'Default LKR' }
                 },
                 required: ['q']
             }
         },
         {
             name: 'kapruka_get_product',
-            description: 'Get full details for a specific product by ID including images, variants, and shipping info.',
+            description: 'Get full product details by ID.',
             parameters: {
                 type: 'object',
                 properties: {
-                    product_id: { type: 'string', description: 'Product ID from search results' },
-                    currency: { type: 'string', description: 'Currency code, default LKR' }
+                    product_id: { type: 'string' },
+                    currency: { type: 'string' }
                 },
                 required: ['product_id']
             }
         },
         {
             name: 'kapruka_list_categories',
-            description: 'List all product categories available on Kapruka.',
+            description: 'List all product categories on Kapruka.',
             parameters: { type: 'object', properties: {} }
         },
         {
             name: 'kapruka_list_delivery_cities',
-            description: 'Search for cities in the Kapruka delivery network.',
+            description: 'Search delivery network cities.',
             parameters: {
                 type: 'object',
                 properties: {
-                    query: { type: 'string', description: 'City name to search e.g. Kandy, Colombo, Galle' },
-                    limit: { type: 'number', description: 'Max results, default 10' }
+                    query: { type: 'string' },
+                    limit: { type: 'number' }
                 },
                 required: ['query']
             }
         },
         {
             name: 'kapruka_check_delivery',
-            description: 'Check if delivery is available to a city on a given date. Always run this before confirming a delivery date.',
+            description: 'Check delivery availability to a city on a date. Always run before confirming.',
             parameters: {
                 type: 'object',
                 properties: {
-                    city: { type: 'string', description: 'Delivery city name' },
-                    delivery_date: { type: 'string', description: 'Date in YYYY-MM-DD format' },
-                    product_id: { type: 'string', description: 'Product ID — needed for perishable warnings on cakes and flowers' }
+                    city: { type: 'string' },
+                    delivery_date: { type: 'string', description: 'YYYY-MM-DD' },
+                    product_id: { type: 'string', description: 'Needed for perishable warnings' }
                 },
                 required: ['city', 'delivery_date']
             }
         },
         {
             name: 'kapruka_create_order',
-            description: 'Create a guest checkout order and return a click-to-pay URL. Prices locked for 60 minutes. Only call this when you have ALL required fields.',
+            description: 'Create guest checkout order. Returns click-to-pay URL locked for 60 mins.',
             parameters: {
                 type: 'object',
                 properties: {
                     cart: {
                         type: 'array',
-                        description: 'Items to order',
                         items: {
                             type: 'object',
                             properties: {
                                 product_id: { type: 'string' },
                                 quantity: { type: 'number' },
-                                icing_text: { type: 'string', description: 'Text to write on cake' }
+                                icing_text: { type: 'string' }
                             },
                             required: ['product_id', 'quantity']
                         }
                     },
                     recipient: {
                         type: 'object',
-                        properties: {
-                            name: { type: 'string' },
-                            phone: { type: 'string' }
-                        },
+                        properties: { name: { type: 'string' }, phone: { type: 'string' } },
                         required: ['name', 'phone']
                     },
                     delivery: {
@@ -186,18 +191,15 @@ const KAPRUKA_TOOLS = [{
                         properties: {
                             address: { type: 'string' },
                             city: { type: 'string' },
-                            location_type: { type: 'string', description: 'house, apartment, or office' },
-                            date: { type: 'string', description: 'YYYY-MM-DD' },
+                            location_type: { type: 'string' },
+                            date: { type: 'string' },
                             instructions: { type: 'string' }
                         },
                         required: ['address', 'city', 'date']
                     },
                     sender: {
                         type: 'object',
-                        properties: {
-                            name: { type: 'string' },
-                            anonymous: { type: 'boolean' }
-                        },
+                        properties: { name: { type: 'string' }, anonymous: { type: 'boolean' } },
                         required: ['name']
                     },
                     gift_message: { type: 'string' },
@@ -211,191 +213,131 @@ const KAPRUKA_TOOLS = [{
             description: 'Track an existing order by order number.',
             parameters: {
                 type: 'object',
-                properties: {
-                    order_number: { type: 'string', description: 'Order number e.g. ORD-20260610-XXXX' }
-                },
+                properties: { order_number: { type: 'string' } },
                 required: ['order_number']
             }
         }
     ]
-}];
+}]
 
-// ─── Kapruka MCP Client ───────────────────────────────────────────────────────
+//MCP Client
 
 class KaprukaMCPClient {
-    constructor() {
-        this.sessionId = null;
-        this.msgId = 1;
-        this.ready = false;
-    }
+    constructor() { this.sessionId = null; this.msgId = 1; this.ready = false }
 
     async _rpc(method, params = {}, isNotif = false) {
-        const body = { jsonrpc: '2.0', method, params };
-        if (!isNotif) body.id = this.msgId++;
+        const body = { jsonrpc: '2.0', method, params }
+        if (!isNotif) body.id = this.msgId++
+        const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' }
+        if (this.sessionId) headers['mcp-session-id'] = this.sessionId
 
-        const headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json, text/event-stream'
-        };
-        if (this.sessionId) headers['mcp-session-id'] = this.sessionId;
+        const res = await fetch('https://mcp.kapruka.com/mcp', { method: 'POST', headers, body: JSON.stringify(body) })
+        const sid = res.headers.get('mcp-session-id')
+        if (sid) this.sessionId = sid
+        if (isNotif) return null
 
-        const res = await fetch('https://mcp.kapruka.com/mcp', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(body)
-        });
-
-        const sid = res.headers.get('mcp-session-id');
-        if (sid) this.sessionId = sid;
-        if (isNotif) return null;
-
-        const ct = res.headers.get('content-type') || '';
+        const ct = res.headers.get('content-type') || ''
         if (ct.includes('text/event-stream')) {
-            const text = await res.text();
-            for (const line of text.split('\n').filter(l => l.startsWith('data:')).reverse()) {
-                try { return JSON.parse(line.slice(5).trim()); } catch { }
-            }
-            return null;
+            const text = await res.text()
+            for (const line of text.split('\n').filter(l => l.startsWith('data:')).reverse())
+                try { return JSON.parse(line.slice(5).trim()) } catch { }
+            return null
         }
-        return res.json();
+        return res.json()
     }
 
     async init() {
-        if (this.ready) return;
-        await this._rpc('initialize', {
-            protocolVersion: '2025-03-26',
-            capabilities: {},
-            clientInfo: { name: 'kapruka-navigator', version: '1' }
-        });
-        await this._rpc('notifications/initialized', {}, true);
-        this.ready = true;
+        if (this.ready) return
+        await this._rpc('initialize', { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'kapruka-flow', version: '1' } })
+        await this._rpc('notifications/initialized', {}, true)
+        this.ready = true
     }
 
     async callTool(name, args) {
-        await this.init();
-        const result = await this._rpc('tools/call', { name, arguments: { params: args } });
-        const content = result?.result?.content;
-        if (Array.isArray(content)) {
-            return content.filter(b => b.type === 'text').map(b => b.text).join('\n');
-        }
-        return JSON.stringify(result);
+        await this.init()
+        const result = await this._rpc('tools/call', { name, arguments: { params: args } })
+        const content = result?.result?.content
+        if (Array.isArray(content)) return content.filter(b => b.type === 'text').map(b => b.text).join('\n')
+        return JSON.stringify(result)
     }
 }
 
-// ─── Plan Board Parser ────────────────────────────────────────────────────────
+//Parsers
+
+function cleanJSON(raw) {
+    return raw.trim().replace(/^```json\s*/i, '').replace(/\s*```$/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '')
+}
 
 function parsePlanBoard(text) {
-    let match = text.match(/<PLAN_BOARD>([\s\S]*?)<\/PLAN_BOARD>/i);
-    if (!match) return null;
-
-    // Strip markdown code fences Gemini sometimes adds
-    let json = match[1].trim();
-    json = json.replace(/^```json\s*/i, '').replace(/\s*```$/i, '');
-    json = json.replace(/^```\s*/, '').replace(/\s*```$/, '');
-
-    try {
-        return JSON.parse(json);
-    } catch (e) {
-        console.error('Plan board parse failed:', e.message);
-        console.error('Raw content:', json.slice(0, 300));
-        return null;
-    }
+    const m = text.match(/<PLAN_BOARD>([\s\S]*?)<\/PLAN_BOARD>/i)
+    if (!m) return null
+    try { return JSON.parse(cleanJSON(m[1])) } catch (e) { console.error('PLAN_BOARD parse:', e.message); return null }
 }
 
-function stripPlanBoard(text) {
-    return text.replace(/<PLAN_BOARD>[\s\S]*?<\/PLAN_BOARD>/g, '').trim();
+function parseProductTrio(text) {
+    const m = text.match(/<PRODUCT_TRIO>([\s\S]*?)<\/PRODUCT_TRIO>/i)
+    if (!m) return null
+    try { return JSON.parse(cleanJSON(m[1])) } catch (e) { console.error('PRODUCT_TRIO parse:', e.message); return null }
 }
 
-// ─── History Builder ──────────────────────────────────────────────────────────
+//History builder
 
 function toGeminiHistory(messages) {
     return messages.slice(0, -1).map(m => ({
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
-    }));
+    }))
 }
 
-// ─── Route Handler ────────────────────────────────────────────────────────────
+//Route handler
 
 export async function POST(req) {
     try {
-        const { messages } = await req.json();
-        if (!messages || messages.length === 0) {
-            return NextResponse.json({ error: 'No messages' }, { status: 400 });
-        }
+        const { messages, lang = 'EN' } = await req.json()
+        if (!messages?.length) return NextResponse.json({ error: 'No messages' }, { status: 400 })
 
-        const mcp = new KaprukaMCPClient();
-
+        const mcp = new KaprukaMCPClient()
         const model = genAI.getGenerativeModel({
             model: 'gemini-3.1-flash-lite',
             tools: KAPRUKA_TOOLS,
-            systemInstruction: SYSTEM_PROMPT()
-        });
+            systemInstruction: SYSTEM_PROMPT(lang)
+        })
 
-        const chat = model.startChat({ history: toGeminiHistory(messages) });
-        const lastMessage = messages[messages.length - 1].content;
+        const chat = model.startChat({ history: toGeminiHistory(messages) })
+        const lastMessage = messages[messages.length - 1].content
+        let result = await chat.sendMessage(lastMessage)
 
-        let result = await chat.sendMessage(lastMessage);
-
-        // Agentic loop — keep going until Gemini stops calling tools
-        let iterations = 0;
+        let iterations = 0
         while (iterations < 10) {
-            iterations++;
-            const functionCalls = result.response.functionCalls();
+            iterations++
+            const functionCalls = result.response.functionCalls()
+            if (!functionCalls?.length) break
 
-            if (!functionCalls || functionCalls.length === 0) {
-                // No more tool calls — process the final response
-                const fullText = result.response.text();
-                const plan = parsePlanBoard(fullText);
-
-                if (plan) {
-                    // Return structured plan board
-                    return NextResponse.json({
-                        type: 'plan_board',
-                        plan,
-                        // Keep full text in rawText so it goes into history correctly
-                        rawText: fullText
-                    });
-                }
-
-                // Plain chat response
-                return NextResponse.json({
-                    type: 'chat',
-                    text: fullText,
-                    rawText: fullText
-                });
-            }
-
-            console.log('🔧 Tool calls:', functionCalls.map(c => c.name).join(', '));
-
-            // Execute all tool calls (in parallel when possible)
+            console.log('🔧', functionCalls.map(c => c.name).join(', '))
             const toolResults = await Promise.all(
-                functionCalls.map(async (call) => {
-                    let output;
-                    try {
-                        output = await mcp.callTool(call.name, call.args);
-                    } catch (e) {
-                        console.error(`Tool error (${call.name}):`, e.message);
-                        output = `Error: ${e.message}`;
-                    }
-                    return {
-                        functionResponse: {
-                            name: call.name,
-                            response: { result: output }
-                        }
-                    };
+                functionCalls.map(async call => {
+                    let output
+                    try { output = await mcp.callTool(call.name, call.args) }
+                    catch (e) { output = `Error: ${e.message}` }
+                    return { functionResponse: { name: call.name, response: { result: output } } }
                 })
-            );
-
-            result = await chat.sendMessage(toolResults);
+            )
+            result = await chat.sendMessage(toolResults)
         }
 
-        // Loop limit hit — return whatever we have
-        const fallback = result.response.text();
-        return NextResponse.json({ type: 'chat', text: fallback, rawText: fallback });
+        const fullText = result.response.text()
+
+        // Check for structured outputs
+        const trio = parseProductTrio(fullText)
+        if (trio) return NextResponse.json({ type: 'product_trio', trio, rawText: fullText })
+
+        const plan = parsePlanBoard(fullText)
+        if (plan) return NextResponse.json({ type: 'plan_board', plan, rawText: fullText })
+
+        return NextResponse.json({ type: 'chat', text: fullText, rawText: fullText })
 
     } catch (e) {
-        console.error('Route error:', e);
-        return NextResponse.json({ error: e.message }, { status: 500 });
+        console.error('Route error:', e)
+        return NextResponse.json({ error: e.message }, { status: 500 })
     }
 }
