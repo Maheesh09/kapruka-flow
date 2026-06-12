@@ -348,6 +348,8 @@ function SplashScreen({ onDone }) {
   )
 }
 
+const STORE_KEY = 'kapruka-flow-session'
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const [phase, setPhase] = useState('opening')
@@ -362,6 +364,35 @@ export default function Home() {
   const [lastPlan, setLastPlan] = useState(null)
   const flowRef = useRef(null)
   const [splash, setSplash] = useState(true)
+
+  // ── Restore on mount (must be in useEffect — SSR has no sessionStorage) ──
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(STORE_KEY)
+      if (!saved) return
+      const s = JSON.parse(saved)
+      if (!s.messages?.length) return
+      // stream:false so restored bubbles render instantly instead of re-typing
+      setMessages(s.messages.map(m => ({ ...m, stream: false })))
+      setPhase(s.phase ?? 'flow')
+      setJourneyActive(s.journeyActive ?? 0)
+      setJourneyDone(s.journeyDone ?? [])
+      setShowTrackChip(s.showTrackChip ?? false)
+      setLastPlan(s.lastPlan ?? null)
+      setLang(s.lang ?? 'EN')
+    } catch { /* corrupt state → start fresh, never crash */ }
+  }, [])
+
+  // ── Save on every meaningful change ──
+  useEffect(() => {
+    if (phase === 'opening' && messages.length === 0) return
+    try {
+      sessionStorage.setItem(STORE_KEY, JSON.stringify({
+        messages: messages.slice(-30),   // cap size — sessionStorage has a ~5MB limit
+        phase, journeyActive, journeyDone, showTrackChip, lastPlan, lang
+      }))
+    } catch { /* quota exceeded → just skip saving */ }
+  }, [messages, phase, journeyActive, journeyDone, showTrackChip, lastPlan, lang])
 
   // Auto-scroll flow area
   useEffect(() => {
@@ -524,6 +555,7 @@ export default function Home() {
   }
 
   function handleNewFlow() {
+    sessionStorage.removeItem(STORE_KEY)
     setMessages([])
     setPhase('opening')
     setJourneyActive(0)
