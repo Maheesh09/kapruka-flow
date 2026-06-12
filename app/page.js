@@ -152,7 +152,7 @@ function FlowPresence() {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        position: 'absolute', bottom: 28, left: 24, zIndex: 35,
+        position: 'absolute', bottom: 28, right: 24, zIndex: 35,
         display: 'flex', alignItems: 'center', gap: 12,
         padding: '12px 18px 12px 14px',
         borderRadius: 18,
@@ -463,7 +463,8 @@ export default function Home() {
 
       {/* Layer 3: Navigation */}
       <Header lang={lang} setLang={setLang}
-        journeyActive={journeyActive} journeyDone={journeyDone} />
+        journeyActive={journeyActive} journeyDone={journeyDone}
+        showJourney={phase !== 'opening'} />
 
       {/* Layer 1: Content */}
       {phase === 'opening' && (
