@@ -40,6 +40,7 @@ function ItemRow({ item, idx }) {
                 {(item.image_url && !imgErr)
                     ? <img src={item.image_url} alt={item.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        referrerPolicy="no-referrer"
                         onError={() => setImgErr(true)} />
                     : <div style={{
                         width: '100%', height: '100%', display: 'flex',

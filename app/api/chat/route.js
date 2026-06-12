@@ -74,6 +74,7 @@ Rules for PRODUCT_TRIO:
 - Use exact product IDs and image URLs from tool results — never invent
 - reason should be a short, human, opinionated line (not marketing copy)
 - The JSON must be strictly valid: double quotes, no trailing commas, no comments.
+- image_url MUST be copied character-for-character from the "image_url" field in the search results JSON. If the field is null or missing, use null — never construct or guess an image URL.
 
 ═══ PLAN_BOARD FORMAT ═══
 Generate when: product selected + city known + date known.
@@ -316,15 +317,20 @@ class KaprukaMCPClient {
     }
 
     async callTool(name, args) {
+        // Read tools must return JSON — the default markdown format omits image_url entirely
+        const callArgs = CACHEABLE.has(name)
+            ? { ...args, response_format: 'json' }
+            : args
+
         // Cache read-only tools — shields the shared per-IP MCP rate limit
-        const key = CACHEABLE.has(name) ? `${name}:${JSON.stringify(args)}` : null
+        const key = CACHEABLE.has(name) ? `${name}:${JSON.stringify(callArgs)}` : null
         if (key) {
             const hit = MCP_CACHE.get(key)
             if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.text
         }
 
         await this.init()
-        const result = await this._rpc('tools/call', { name, arguments: { params: args } })
+        const result = await this._rpc('tools/call', { name, arguments: { params: callArgs } })
         if (result?.error?.message === 'rate_limited') {
             return 'RATE_LIMIT: Kapruka is asking us to slow down. Tell the user warmly to try again in about 30 seconds.'
         }
