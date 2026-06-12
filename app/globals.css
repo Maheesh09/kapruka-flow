@@ -241,20 +241,14 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 768px) {
   .hide-mobile { display: none !important; }
 
-  /* ── Header: two-row layout — wordmark + lang on top, journey below ── */
+  /* ── Header: tighter on mobile ── */
   .mobile-header-grid {
-    grid-template-columns: auto 1fr auto !important;
-    grid-template-areas:
-      "brand . lang"
-      "journey journey journey" !important;
-    gap: 10px 8px !important;
-    padding: 10px 16px 12px !important;
+    padding: 10px 16px !important;
     border-radius: 18px !important;
+    gap: 12px !important;
   }
-  .header-brand   { grid-area: brand; }
-  .header-lang    { grid-area: lang; justify-self: end !important; display: flex !important; }
-  .mobile-journey-wrapper { grid-area: journey; justify-self: stretch !important; }
-  .mobile-header-wordmark { font-size: 17px !important; }
+  .mobile-header-wordmark { font-size: 15px !important; white-space: nowrap !important; }
+  .mobile-journey-wrapper { flex: 1 !important; }
 
   .mobile-journey-line {
     width: 100% !important;

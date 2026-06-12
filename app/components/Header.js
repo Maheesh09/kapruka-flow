@@ -71,10 +71,10 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
             display: 'flex', justifyContent: 'center', padding: '18px 24px 0'
         }}>
             <div className="mobile-header-grid" style={{
-                display: 'grid',
-                gridTemplateColumns: showJourney ? '1fr auto 1fr' : '1fr auto',
+                display: 'flex',
                 alignItems: 'center',
-                gap: 24, width: 'min(1180px,92%)', padding: '18px 28px',
+                justifyContent: 'space-between',
+                gap: 16, width: 'min(1180px,92%)', padding: '14px 22px',
                 borderRadius: 22,
                 background: 'linear-gradient(135deg, rgba(44,28,102,0.96), rgba(26,20,51,0.98))',
                 border: '1px solid rgba(255,255,255,0.12)',
@@ -84,28 +84,30 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
             }}>
 
                 {/* Wordmark */}
-                <div className="header-brand" style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="header-brand" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                     <div className="mobile-header-wordmark" style={{
                         fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
-                        fontSize: 20, letterSpacing: '-0.02em', lineHeight: 1
+                        fontSize: 20, letterSpacing: '-0.02em', lineHeight: 1,
+                        display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap'
                     }}>
-                        <span style={{ color: '#FFFFFF' }}>kapruka</span>{' '}
-                        <span style={{ color: '#F5C800' }}>flow</span>
+                        <span>
+                            <span style={{ color: '#FFFFFF' }}>kapruka</span>{' '}
+                            <span style={{ color: '#F5C800' }}>flow</span>
+                        </span>
+                        <svg width="20" height="13" viewBox="0 0 24 15" style={{ display: 'block', flexShrink: 0 }}>
+                            <path
+                                d="M3.5 2.5 A 8.5 8.5 0 0 0 20.5 2.5"
+                                stroke="#F5C800" strokeWidth="4.5" fill="none"
+                                strokeLinecap="round"
+                                style={{ animation: 'cuteWiggle 4s ease-in-out infinite', transformOrigin: 'center' }}
+                            />
+                        </svg>
                     </div>
-                    {/* Smile arc */}
-                    <svg width="22" height="14" viewBox="0 0 24 15" style={{ marginTop: 5 }}>
-                        <path
-                            d="M3.5 2.5 A 8.5 8.5 0 0 0 20.5 2.5"
-                            stroke="#F5C800" strokeWidth="4.5" fill="none"
-                            strokeLinecap="round"
-                            style={{ animation: 'cuteWiggle 4s ease-in-out infinite', transformOrigin: 'center' }}
-                        />
-                    </svg>
                 </div>
 
-                {/* Journey — hidden on landing screen to reduce cognitive load */}
+                {/* Journey — hidden on landing screen, centred when visible */}
                 {showJourney && (
-                    <div className="mobile-journey-wrapper" style={{ justifySelf: 'center' }}>
+                    <div className="mobile-journey-wrapper" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                         <JourneyLine active={journeyActive} done={journeyDone} />
                     </div>
                 )}
