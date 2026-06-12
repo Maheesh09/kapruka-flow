@@ -1,6 +1,52 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Icon from './Icon'
+
+const SPEECH_LANG = { EN: 'en-IN', SI: 'si-LK', TG: 'si-LK' }
+
+function useSpeech(lang, onResult) {
+  const [listening, setListening] = useState(false)
+  const [supported, setSupported] = useState(false)
+  const recRef = useRef(null)
+
+  useEffect(() => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) { console.log('[voice] SpeechRecognition not available in this browser'); return }
+    setSupported(true)
+    const rec = new SR()
+    rec.continuous = false
+    rec.interimResults = true
+    rec.maxAlternatives = 1
+
+    rec.onstart = () => console.log('[voice] started, lang =', rec.lang)
+    rec.onaudiostart = () => console.log('[voice] mic is capturing audio')
+    rec.onspeechstart = () => console.log('[voice] speech detected')
+    rec.onresult = (e) => {
+      const text = Array.from(e.results).map(r => r[0].transcript).join('')
+      console.log('[voice] result:', text)
+      onResult(text, e.results[e.results.length - 1].isFinal)
+    }
+    rec.onerror = (e) => {
+      console.log('[voice] ERROR:', e.error, e.message || '')
+      setListening(false)
+    }
+    rec.onend = () => { console.log('[voice] ended'); setListening(false) }
+
+    recRef.current = rec
+    return () => rec.abort()
+  }, [onResult])
+
+  const toggle = () => {
+    const rec = recRef.current
+    if (!rec) return
+    if (listening) { rec.stop(); return }
+    rec.lang = { EN: 'en-IN', SI: 'si-LK', TG: 'si-LK' }[lang] || 'en-IN'
+    try { rec.start(); setListening(true) }
+    catch (err) { console.log('[voice] start threw:', err.message); setListening(false) }
+  }
+
+  return { listening, supported, toggle }
+}
 
 const CHIPS = [
     {
@@ -106,7 +152,7 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
                 <InputBar
                     value={input} onChange={setInput}
                     placeholder={PLACEHOLDERS[lang] || PLACEHOLDERS.EN}
-                    onSubmit={onSubmit} docked={false}
+                    onSubmit={onSubmit} docked={false} lang={lang}
                 />
             </div>
 
@@ -186,8 +232,10 @@ function LuxuryChip({ chip, onSubmit, idx }) {
     )
 }
 
-export function InputBar({ value, onChange, placeholder, onSubmit, docked, loading }) {
+export function InputBar({ value, onChange, placeholder, onSubmit, docked, loading, lang = 'EN' }) {
     const [focused, setFocused] = useState(false)
+    const handleSpeech = useCallback((text) => { onChange(text) }, [onChange])
+    const { listening, supported, toggle } = useSpeech(lang, handleSpeech)
     return (
         <div style={{
             position: 'relative',
@@ -244,6 +292,25 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked, loadi
                         color: '#1A1433', fontWeight: 400
                     }}
                 />
+                {supported && (
+                    <button onClick={toggle} aria-label="Voice input" style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        width: 42, height: 42, borderRadius: 12, border: 'none', cursor: 'pointer',
+                        flexShrink: 0,
+                        background: listening ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'rgba(61,39,133,0.08)',
+                        boxShadow: listening ? '0 0 0 4px rgba(61,39,133,0.15)' : 'none',
+                        animation: listening ? 'agentPulse 1.4s ease-in-out infinite' : 'none',
+                        transition: 'all .25s'
+                    }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke={listening ? '#fff' : '#3D2785'} strokeWidth="1.8"
+                            strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                            <line x1="12" x2="12" y1="19" y2="22" />
+                        </svg>
+                    </button>
+                )}
                 <button
                     className="chat-input-btn"
                     onClick={() => !loading && onSubmit(value)}

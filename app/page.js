@@ -243,7 +243,7 @@ function FlowPresence() {
 }
 
 // ── Docked input bar (flow state) ─────────────────────────────────────────────
-function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onTrack, onNewFlow }) {
+function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onTrack, onNewFlow, lang }) {
   const pillStyle = {
     display: 'inline-flex', alignItems: 'center', gap: 8,
     padding: '9px 18px', borderRadius: 999, cursor: 'pointer', fontFamily: 'Inter',
@@ -282,7 +282,7 @@ function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onT
           </button>
         </div>
       )}
-      <InputBar value={input} onChange={setInput} onSubmit={onSubmit} docked={true} loading={loading}
+      <InputBar value={input} onChange={setInput} onSubmit={onSubmit} docked={true} loading={loading} lang={lang}
         placeholder={loading ? 'Flow is working…' : 'Ask, refine, or tell me what changed…'} />
     </div>
   )
@@ -588,7 +588,8 @@ export default function Home() {
             onSubmit={send} loading={loading}
             showTrackChip={showTrackChip}
             onTrack={handleTrack}
-            onNewFlow={handleNewFlow} />
+            onNewFlow={handleNewFlow}
+            lang={lang} />
         </>
       )}
 
