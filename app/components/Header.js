@@ -49,7 +49,7 @@ function JourneyLine({ active, done }) {
                         {/* Label — always visible */}
                         <div className="mobile-journey-label" style={{
                             fontSize: 9.5, fontWeight: isActive ? 700 : 500,
-                            color: isActive ? '#FFFFFF' : isDone ? '#F5C800' : 'rgba(255,255,255,0.42)',
+                            color: isActive ? '#FFFFFF' : isDone ? '#FFD54F' : 'rgba(255,255,255,0.72)',
                             whiteSpace: 'nowrap', fontFamily: 'Inter',
                             letterSpacing: '0.04em', textTransform: 'uppercase',
                             transition: 'color .4s', marginTop: 2
@@ -63,19 +63,21 @@ function JourneyLine({ active, done }) {
     )
 }
 
-export default function Header({ lang, setLang, journeyActive, journeyDone }) {
+export default function Header({ lang, setLang, journeyActive, journeyDone, showJourney = true }) {
     const LANGS = [{ code: 'EN', label: 'EN' }, { code: 'SI', label: 'සිං' }, { code: 'TG', label: 'TG' }]
     return (
         <header style={{
             position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30,
-            display: 'flex', justifyContent: 'center', padding: '16px 18px 0'
+            display: 'flex', justifyContent: 'center', padding: '18px 24px 0'
         }}>
             <div className="mobile-header-grid" style={{
-                display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center',
-                gap: 24, width: 'min(1180px,96%)', padding: '12px 22px',
+                display: 'grid',
+                gridTemplateColumns: showJourney ? '1fr auto 1fr' : '1fr auto',
+                alignItems: 'center',
+                gap: 24, width: 'min(1180px,92%)', padding: '14px 26px',
                 borderRadius: 22,
                 background: 'linear-gradient(135deg, rgba(44,28,102,0.96), rgba(26,20,51,0.98))',
-                border: '1px solid rgba(255,255,255,0.10)',
+                border: '1px solid rgba(255,255,255,0.12)',
                 backdropFilter: 'blur(28px) saturate(180%)',
                 WebkitBackdropFilter: 'blur(28px) saturate(180%)',
                 boxShadow: '0 16px 48px rgba(26,20,51,0.50), 0 1px 0 rgba(255,255,255,0.10) inset, 0 -1px 0 rgba(0,0,0,0.20) inset'
@@ -101,10 +103,12 @@ export default function Header({ lang, setLang, journeyActive, journeyDone }) {
                     </svg>
                 </div>
 
-                {/* Journey */}
-                <div className="mobile-journey-wrapper" style={{ justifySelf: 'center' }}>
-                    <JourneyLine active={journeyActive} done={journeyDone} />
-                </div>
+                {/* Journey — hidden on landing screen to reduce cognitive load */}
+                {showJourney && (
+                    <div className="mobile-journey-wrapper" style={{ justifySelf: 'center' }}>
+                        <JourneyLine active={journeyActive} done={journeyDone} />
+                    </div>
+                )}
 
                 {/* Language toggle */}
                 <div className="header-lang" style={{

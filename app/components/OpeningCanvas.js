@@ -59,9 +59,9 @@ const HEADLINES = {
     TG: 'Ada Flow eken karaganna ona mokakda?',
 }
 const PLACEHOLDERS = {
-    EN: 'Tell me... a gaming laptop, flowers for tomorrow, and delivery to Galle',
-    SI: 'කියන්න... gaming laptop එකක්, හෙටට මල්, Galle delivery',
-    TG: 'Kiyanna... gaming laptop ekak, heta mal, Galle delivery',
+    EN: 'A gaming laptop, flowers for tomorrow, delivery to Galle…',
+    SI: 'Gaming laptop එකක්, හෙටට මල්, Galle delivery',
+    TG: 'Gaming laptop ekak, heta mal, Galle delivery',
 }
 const SLOGAN = 'Flow your way to the perfect find'
 
@@ -126,10 +126,11 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
                 />
             </div>
 
-            {/* Intent chips — compact pill-cards */}
+            {/* Intent chips — even 2×3 grid */}
             <div style={{
-                display: 'flex', flexWrap: 'wrap', justifyContent: 'center',
-                gap: 10, maxWidth: 720,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                gap: 12, maxWidth: 620, width: '100%',
                 animation: 'riseBlur .7s 0.7s ease-out both'
             }}>
                 {CHIPS.map((chip, idx) => (
@@ -265,12 +266,12 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked }) {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         width: 46, height: 46, borderRadius: 13, border: 'none', cursor: 'pointer',
                         background: 'linear-gradient(135deg,#FFE08A,#F5C800)',
-                        boxShadow: '0 6px 18px rgba(245,200,0,0.55)',
+                        boxShadow: '0 3px 10px rgba(245,200,0,0.50), 0 0 0 1px rgba(245,200,0,0.15)',
                         transition: 'transform .2s, box-shadow .2s',
                         flexShrink: 0
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(245,200,0,0.7)' }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(245,200,0,0.55)' }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(245,200,0,0.60), 0 0 0 1px rgba(245,200,0,0.2)' }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 3px 10px rgba(245,200,0,0.50), 0 0 0 1px rgba(245,200,0,0.15)' }}
                 >
                     <Icon name="arrow-up" size={21} color="#3D2785" stroke={2.4} />
                 </button>
