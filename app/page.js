@@ -227,7 +227,18 @@ function FlowPresence() {
 }
 
 // ── Docked input bar (flow state) ─────────────────────────────────────────────
-function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onTrack }) {
+function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onTrack, onNewFlow }) {
+  const pillStyle = {
+    display: 'inline-flex', alignItems: 'center', gap: 8,
+    padding: '9px 18px', borderRadius: 999, cursor: 'pointer', fontFamily: 'Inter',
+    fontWeight: 600, fontSize: 14, color: '#3D2785',
+    background: 'linear-gradient(135deg,rgba(255,255,255,0.82),rgba(255,255,255,0.66))',
+    backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)',
+    borderWidth: 1, borderStyle: 'solid',
+    borderTopColor: 'rgba(255,255,255,0.9)', borderLeftColor: 'rgba(255,255,255,0.9)',
+    borderRightColor: 'rgba(61,39,133,0.14)', borderBottomColor: 'rgba(61,39,133,0.14)',
+    boxShadow: '0 6px 20px rgba(61,39,133,0.10)', animation: 'riseBlur .4s ease-out both'
+  }
   return (
     <div className="docked-bar" style={{
       position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30,
@@ -236,24 +247,24 @@ function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onT
       background: 'linear-gradient(to top, rgba(250,249,255,0.96) 50%, rgba(250,249,255,0))'
     }}>
       {showTrackChip && (
-        <button onClick={onTrack} style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '9px 18px', borderRadius: 999, cursor: 'pointer', fontFamily: 'Inter',
-          fontWeight: 600, fontSize: 14, color: '#3D2785',
-          background: 'linear-gradient(135deg,rgba(255,255,255,0.82),rgba(255,255,255,0.66))',
-          backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)',
-          borderWidth: 1, borderStyle: 'solid',
-          borderTopColor: 'rgba(255,255,255,0.9)', borderLeftColor: 'rgba(255,255,255,0.9)',
-          borderRightColor: 'rgba(61,39,133,0.14)', borderBottomColor: 'rgba(61,39,133,0.14)',
-          boxShadow: '0 6px 20px rgba(61,39,133,0.10)', animation: 'riseBlur .4s ease-out both'
-        }}>
-          <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#3D2785"
-            strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 10c0 4.993-5.539 10.193-7.4 11.799a1 1 0 0 1-1.2 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-          Track order
-        </button>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <button onClick={onTrack} style={pillStyle}>
+            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#3D2785"
+              strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 10c0 4.993-5.539 10.193-7.4 11.799a1 1 0 0 1-1.2 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Track order
+          </button>
+          <button onClick={onNewFlow} style={pillStyle}>
+            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#3D2785"
+              strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
+            Start a new flow
+          </button>
+        </div>
       )}
       <InputBar value={input} onChange={setInput} onSubmit={onSubmit} docked={true}
         placeholder={loading ? 'Flow is working…' : 'Ask, refine, or tell me what changed…'} />
@@ -438,6 +449,17 @@ export default function Home() {
     send('Track my order.')
   }
 
+  function handleNewFlow() {
+    setMessages([])
+    setPhase('opening')
+    setJourneyActive(0)
+    setJourneyDone([])
+    setShowTrackChip(false)
+    setLastPlan(null)
+    setInput('')
+    setLiveStatus([])
+  }
+
   function handleAddItem() {
     send("I'd like to add another item to this order. What would go well with it?")
   }
@@ -491,7 +513,8 @@ export default function Home() {
             input={input} setInput={setInput}
             onSubmit={send} loading={loading}
             showTrackChip={showTrackChip}
-            onTrack={handleTrack} />
+            onTrack={handleTrack}
+            onNewFlow={handleNewFlow} />
         </>
       )}
 

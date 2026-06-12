@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 export const maxDuration = 60
+export const runtime = 'nodejs'  // prevents Vercel edge from buffering the NDJSON stream
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
@@ -470,6 +471,10 @@ export async function POST(req) {
     })
 
     return new Response(stream, {
-        headers: { 'Content-Type': 'application/x-ndjson', 'Cache-Control': 'no-cache' }
+        headers: {
+            'Content-Type': 'application/x-ndjson',
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',   // disables nginx/Vercel proxy buffering
+        }
     })
 }
