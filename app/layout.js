@@ -9,6 +9,7 @@ export const metadata = {
     url: 'https://kapruka-flow.vercel.app',
     siteName: 'Kapruka Flow',
     type: 'website',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'Kapruka Flow — AI shopping, the Sri Lankan way' }],
   },
 }
 
