@@ -392,6 +392,7 @@ function ProductCard({ product, idx, onChoose }) {
             }}>
                 {(product.image_url && !imgErr)
                     ? <img src={product.image_url} alt={product.name}
+                        referrerPolicy="no-referrer"
                         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                         onError={() => setImgErr(true)} />
                     : <div style={{
