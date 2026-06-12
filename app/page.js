@@ -50,7 +50,23 @@ function ParticlesLayer() {
 }
 
 // ── Ambient depth scene ────────────────────────────────────────────────────────
-function AmbientLayer({ mousePos, loading }) {
+function AmbientLayer({ loading }) {
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
+  
+  useEffect(() => {
+    if (!window.matchMedia('(hover: hover)').matches) return // no parallax on touch
+    let raf = null
+    const onMove = (e) => {
+      if (raf) return                       // throttle to one update per frame
+      raf = requestAnimationFrame(() => {
+        setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight })
+        raf = null
+      })
+    }
+    window.addEventListener('mousemove', onMove)
+    return () => { window.removeEventListener('mousemove', onMove); if (raf) cancelAnimationFrame(raf) }
+  }, [])
+
   const tiltX = (mousePos.y - 0.5) * 15;
   const tiltY = (mousePos.x - 0.5) * -15;
 
@@ -266,7 +282,7 @@ function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onT
           </button>
         </div>
       )}
-      <InputBar value={input} onChange={setInput} onSubmit={onSubmit} docked={true}
+      <InputBar value={input} onChange={setInput} onSubmit={onSubmit} docked={true} loading={loading}
         placeholder={loading ? 'Flow is working…' : 'Ask, refine, or tell me what changed…'} />
     </div>
   )
@@ -284,27 +300,24 @@ export default function Home() {
   const [showTrackChip, setShowTrackChip] = useState(false)
   const [liveStatus, setLiveStatus] = useState([])   // real-time tool status feed
   const [lastPlan, setLastPlan] = useState(null)
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
   const flowRef = useRef(null)
-
-  // Track cursor for parallax
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePos({
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight
-      })
-    }
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
 
   // Auto-scroll flow area
   useEffect(() => {
     if (flowRef.current) {
       flowRef.current.scrollTo({ top: flowRef.current.scrollHeight, behavior: 'smooth' })
     }
-  }, [messages, loading])
+  }, [messages, loading, liveStatus])
+
+  useEffect(() => {                              // follow streaming growth
+    if (!loading && messages[messages.length - 1]?.stream !== true) return
+    const id = setInterval(() => {
+      const el = flowRef.current
+      if (el && el.scrollHeight - el.scrollTop - el.clientHeight < 400)
+        el.scrollTo({ top: el.scrollHeight })
+    }, 400)
+    return () => clearInterval(id)
+  }, [loading, messages])
 
   // ── Message helpers ───────────────────────────────────────────────────────
   function addMsg(msg) {
@@ -480,7 +493,7 @@ export default function Home() {
     }}>
 
       {/* Layer 0: Ambient depth scene */}
-      <AmbientLayer mousePos={mousePos} loading={loading} />
+      <AmbientLayer loading={loading} />
       <ParticlesLayer />
 
       {/* Layer 3: Navigation */}
@@ -518,8 +531,8 @@ export default function Home() {
         </>
       )}
 
-      {/* Flow Presence widget — always visible */}
-      <FlowPresence />
+      {/* Flow Presence widget — only visible on landing */}
+      {phase === 'opening' && <FlowPresence />}
     </div>
   )
 }

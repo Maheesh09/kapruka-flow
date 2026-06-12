@@ -186,7 +186,7 @@ function LuxuryChip({ chip, onSubmit, idx }) {
     )
 }
 
-export function InputBar({ value, onChange, placeholder, onSubmit, docked }) {
+export function InputBar({ value, onChange, placeholder, onSubmit, docked, loading }) {
     const [focused, setFocused] = useState(false)
     return (
         <div style={{
@@ -230,12 +230,14 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked }) {
             }}>
                 <input
                     className="chat-input-field"
+                    autoFocus
                     value={value}
                     onChange={e => onChange(e.target.value)}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
                     onKeyDown={e => e.key === 'Enter' && !e.shiftKey && onSubmit(value)}
                     placeholder={placeholder}
+                    disabled={loading}
                     style={{
                         flex: 1, minWidth: 0, border: 'none', outline: 'none',
                         background: 'transparent', fontSize: 16, fontFamily: 'Inter',
@@ -244,15 +246,16 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked }) {
                 />
                 <button
                     className="chat-input-btn"
-                    onClick={() => onSubmit(value)}
+                    onClick={() => !loading && onSubmit(value)}
+                    disabled={loading}
                     aria-label="Send"
                     style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        width: 46, height: 46, borderRadius: 13, border: 'none', cursor: 'pointer',
+                        width: 46, height: 46, borderRadius: 13, border: 'none', cursor: loading ? 'default' : 'pointer',
                         background: 'linear-gradient(135deg,#FFE08A,#F5C800)',
                         boxShadow: '0 3px 10px rgba(245,200,0,0.50), 0 0 0 1px rgba(245,200,0,0.15)',
-                        transition: 'transform .2s, box-shadow .2s',
-                        flexShrink: 0
+                        transition: 'transform .2s, box-shadow .2s, opacity .3s',
+                        flexShrink: 0, opacity: loading ? 0.5 : 1
                     }}
                     onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(245,200,0,0.60), 0 0 0 1px rgba(245,200,0,0.2)' }}
                     onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 3px 10px rgba(245,200,0,0.50), 0 0 0 1px rgba(245,200,0,0.15)' }}
