@@ -52,7 +52,7 @@ function ParticlesLayer() {
 // ── Ambient depth scene ────────────────────────────────────────────────────────
 function AmbientLayer({ loading }) {
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
-  
+
   useEffect(() => {
     if (!window.matchMedia('(hover: hover)').matches) return // no parallax on touch
     let raf = null
@@ -288,6 +288,66 @@ function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onT
   )
 }
 
+// ── Splash screen — brand moment while fonts load ──────────────────────────────
+function SplashScreen({ onDone }) {
+  const [leaving, setLeaving] = useState(false)
+
+  useEffect(() => {
+    const minTime = new Promise(r => setTimeout(r, 1800))        // enough to enjoy, short enough to not annoy
+    const fonts = document.fonts?.ready ?? Promise.resolve()     // real work: wait for webfonts
+    Promise.all([minTime, fonts]).then(() => {
+      setLeaving(true)                                           // start fade-out
+      setTimeout(onDone, 650)                                    // unmount after the fade
+    })
+  }, [onDone])
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 100,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      gap: 18, background: 'linear-gradient(160deg, #2C1C66 0%, #1A1433 100%)',
+      opacity: leaving ? 0 : 1,
+      transform: leaving ? 'scale(1.04)' : 'scale(1)',
+      transition: 'opacity .65s ease, transform .65s ease',
+      pointerEvents: leaving ? 'none' : 'auto'
+    }}>
+      {/* Wordmark */}
+      <div style={{
+        fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
+        fontSize: 'clamp(38px, 8vw, 64px)', letterSpacing: '-0.02em',
+        display: 'flex', alignItems: 'center', gap: 14
+      }}>
+        <span style={{ color: '#FFFFFF', animation: 'riseBlur .7s .15s cubic-bezier(.2,.7,.2,1) both' }}>
+          kapruka
+        </span>
+        <span style={{ color: '#F5C800', animation: 'riseBlur .7s .35s cubic-bezier(.2,.7,.2,1) both' }}>
+          flow
+        </span>
+      </div>
+
+      {/* Smile — draws itself in */}
+      <svg width="64" height="40" viewBox="0 0 24 15" fill="none"
+        style={{ animation: 'fadeIn .4s .55s ease-out both' }}>
+        <path d="M3.5 2.5 A 8.5 8.5 0 0 0 20.5 2.5"
+          stroke="#F5C800" strokeWidth="4.2" strokeLinecap="round" fill="none"
+          style={{
+            strokeDasharray: 28, strokeDashoffset: 28,
+            animation: 'splashSmileDraw 1s .6s cubic-bezier(.4,0,.2,1) forwards'
+          }} />
+      </svg>
+
+      {/* Tagline */}
+      <div style={{
+        fontFamily: 'Inter', fontSize: 17, fontWeight: 500,
+        color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em',
+        animation: 'fadeIn .6s 1s ease-out both'
+      }}>
+        Flow your way to the perfect find
+      </div>
+    </div>
+  )
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const [phase, setPhase] = useState('opening')
@@ -301,6 +361,7 @@ export default function Home() {
   const [liveStatus, setLiveStatus] = useState([])   // real-time tool status feed
   const [lastPlan, setLastPlan] = useState(null)
   const flowRef = useRef(null)
+  const [splash, setSplash] = useState(true)
 
   // Auto-scroll flow area
   useEffect(() => {
@@ -533,6 +594,7 @@ export default function Home() {
 
       {/* Flow Presence widget — only visible on landing */}
       {phase === 'opening' && <FlowPresence />}
+      {splash && <SplashScreen onDone={() => setSplash(false)} />}
     </div>
   )
 }

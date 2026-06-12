@@ -713,3 +713,9 @@ a {
     animation: none !important;
   }
 }
+
+@keyframes splashSmileDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
