@@ -374,7 +374,7 @@ export default function Home() {
     if (!loading && messages[messages.length - 1]?.stream !== true) return
     const id = setInterval(() => {
       const el = flowRef.current
-      if (el && el.scrollHeight - el.scrollTop - el.clientHeight < 400)
+      if (el && el.scrollHeight - el.scrollTop - el.clientHeight < 80)
         el.scrollTo({ top: el.scrollHeight })
     }, 400)
     return () => clearInterval(id)
@@ -548,7 +548,7 @@ export default function Home() {
 
   return (
     <div style={{
-      position: 'relative', width: '100%', height: '100dvh', minHeight: '100vh',
+      position: 'fixed', inset: 0, width: '100%', height: '100dvh',
       overflow: 'hidden', background: '#FAF9FF', fontFamily: "'Inter',sans-serif",
       color: '#1A1433'
     }}>
