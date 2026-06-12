@@ -74,7 +74,7 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
                 display: 'grid',
                 gridTemplateColumns: showJourney ? '1fr auto 1fr' : '1fr auto',
                 alignItems: 'center',
-                gap: 24, width: 'min(1180px,92%)', padding: '14px 26px',
+                gap: 24, width: 'min(1180px,92%)', padding: '18px 28px',
                 borderRadius: 22,
                 background: 'linear-gradient(135deg, rgba(44,28,102,0.96), rgba(26,20,51,0.98))',
                 border: '1px solid rgba(255,255,255,0.12)',
