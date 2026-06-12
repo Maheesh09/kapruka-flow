@@ -34,23 +34,7 @@ const CHIPS = [
         goal: 'I need to order some essentials',
         grad: 'linear-gradient(135deg,#E0F5E9,#A8DFBA)',
         iconColor: '#1a7a3a'
-    },
-    {
-        label: 'Treat yourself',
-        sub: 'Because you deserve it',
-        icon: 'sparkles',
-        goal: 'I want to treat myself to something nice',
-        grad: 'linear-gradient(135deg,#E9E4FF,#B8ACEF)',
-        iconColor: '#5a3fb0'
-    },
-    {
-        label: 'Plan an occasion',
-        sub: 'Events worth remembering',
-        icon: 'calendar-heart',
-        goal: 'Help me plan for an upcoming occasion',
-        grad: 'linear-gradient(135deg,#FFF0E0,#FFD0A0)',
-        iconColor: '#a05000'
-    },
+    }
 ]
 
 const HEADLINES = {
@@ -129,7 +113,7 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
             {/* Intent chips — even 2×3 grid */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
                 gap: 12, maxWidth: 620, width: '100%',
                 animation: 'riseBlur .7s 0.7s ease-out both'
             }}>
@@ -194,7 +178,7 @@ function LuxuryChip({ chip, onSubmit, idx }) {
             <span className="luxury-chip-label" style={{
                 fontFamily: "'Space Grotesk',sans-serif",
                 fontWeight: 600, fontSize: 14, color: '#1A1433',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
             }}>
                 {chip.label}
             </span>
