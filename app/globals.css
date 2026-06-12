@@ -492,7 +492,9 @@ a {
     padding: 10px 16px !important;
     border-radius: 18px !important;
     gap: 12px !important;
+    row-gap: 10px !important;
     width: 97% !important;
+    flex-wrap: wrap !important;
   }
 
   .mobile-header-wordmark {
@@ -501,7 +503,8 @@ a {
   }
 
   .mobile-journey-wrapper {
-    flex: 1 !important;
+    order: 3 !important;
+    flex: 1 1 100% !important;
   }
 
   .mobile-journey-line {
@@ -704,7 +707,9 @@ a {
   .kf-blob,
   .drift-a,
   .drift-b,
-  .drift-c {
+  .drift-c,
+  .opening-canvas *,
+  [style*="floatUp"] {
     animation: none !important;
   }
 }
