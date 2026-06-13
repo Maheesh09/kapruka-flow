@@ -379,7 +379,7 @@ export default function Home() {
       setJourneyDone(s.journeyDone ?? [])
       setShowTrackChip(s.showTrackChip ?? false)
       setLastPlan(s.lastPlan ?? null)
-      setLang(s.lang ?? 'EN')
+      setLang(s.lang ?? ['EN', 'SI', 'TA'])
     } catch { /* corrupt state → start fresh, never crash */ }
   }, [])
 
