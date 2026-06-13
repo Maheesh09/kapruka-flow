@@ -410,6 +410,8 @@ export default function Home() {
       if (!saved) return
       const s = JSON.parse(saved)
       if (!s.messages?.length) return
+      // Returning user mid-conversation — skip the splash so it doesn't flash over their chat
+      setSplash(false)
       // stream:false so restored bubbles render instantly instead of re-typing
       setMessages(s.messages.map(m => ({ ...m, stream: false })))
       setPhase(s.phase ?? 'flow')
