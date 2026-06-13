@@ -20,7 +20,7 @@ const glass = {
     borderBottomColor: 'rgba(61,39,133,0.12)',
 }
 
-export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN' }) {
+export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN', onComplete }) {
     const [secs, setSecs] = useState(null)
     const [paid, setPaid] = useState(false)
     const [copied, setCopied] = useState(false)
@@ -87,7 +87,7 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
                         <div style={{
                             fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
                             fontSize: 16, color: '#3D2785'
-                        }}>{t(lang,'orderLocked')}</div>
+                        }}>{t(lang, 'orderLocked')}</div>
                         {orderRef && (
                             <button onClick={copyRef} title="Copy order number" style={{
                                 display: 'inline-flex', alignItems: 'center', gap: 5,
@@ -98,7 +98,7 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
                                 {orderRef}
                                 <Icon name={copied ? 'check' : 'copy'} size={12}
                                     color={copied ? '#0E9F6E' : 'rgba(26,20,51,0.45)'} />
-                                {copied && <span style={{ fontWeight: 600 }}>{t(lang,'copied')}</span>}
+                                {copied && <span style={{ fontWeight: 600 }}>{t(lang, 'copied')}</span>}
                             </button>
                         )}
                     </div>
@@ -131,7 +131,7 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
                                 fontSize: 14, fontWeight: 700, color: '#3D2785',
                                 fontFamily: "'Space Grotesk',sans-serif"
                             }}>
-                                <span>{t(lang,'total')}</span>
+                                <span>{t(lang, 'total')}</span>
                                 <span style={{ fontVariantNumeric: 'tabular-nums' }}>LKR {Number(plan.total).toLocaleString()}</span>
                             </div>
                         )}
@@ -168,7 +168,7 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
                                 fontSize: 10.5, color: 'rgba(26,20,51,0.5)',
                                 textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 2, fontWeight: 600
                             }}>
-                                {expired ? t(lang,'expired') : t(lang,'remaining')}
+                                {expired ? t(lang, 'expired') : t(lang, 'remaining')}
                             </div>
                         </div>
                     </div>
@@ -176,7 +176,7 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
 
                 {/* Pay button */}
                 <a href={expired ? undefined : url} target="_blank" rel="noopener noreferrer"
-                    onClick={() => !expired && setPaid(true)}
+                    onClick={() => { if (!expired) { setPaid(true); onComplete?.() } }}
                     style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                         width: '100%', padding: '14px', border: 'none', borderRadius: 14, cursor: expired ? 'default' : 'pointer',
@@ -187,7 +187,7 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
                         transition: 'all .3s', pointerEvents: expired ? 'none' : 'auto'
                     }}>
                     {paid && <Icon name="check" size={18} color="#0E9F6E" stroke={2.4} />}
-                    {paid ? t(lang,'openingCheckout') : expired ? t(lang,'linkExpired') : t(lang,'payNow')}
+                    {paid ? t(lang, 'openingCheckout') : expired ? t(lang, 'linkExpired') : t(lang, 'payNow')}
                     {!paid && !expired && <Icon name="arrow-right" size={18} color="#3D2785" stroke={2} />}
                 </a>
 
@@ -195,7 +195,7 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
                     textAlign: 'center', fontSize: 12, color: 'rgba(26,20,51,0.5)',
                     marginTop: 11, lineHeight: 1.4
                 }}>
-                    {t(lang,'securePay')}
+                    {t(lang, 'securePay')}
                 </div>
             </div>
         </div>

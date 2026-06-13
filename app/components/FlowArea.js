@@ -473,7 +473,8 @@ export default function FlowArea({ messages = [], loading, liveStatus = [], lang
                                 url={m.checkoutData?.url}
                                 orderRef={m.checkoutData?.ref}
                                 expiresAt={m.checkoutData?.expiresAt}
-                                plan={m.plan} lang={lang} />
+                                plan={m.plan} lang={lang}
+                                onComplete={onComplete} />
                         default:
                             return null
                     }

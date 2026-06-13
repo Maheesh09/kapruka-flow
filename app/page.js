@@ -162,6 +162,42 @@ function AmbientLayer({ loading }) {
 }
 
 // ── Flow Presence Widget ────────────────────────────────────────────────────────
+// ── Confetti burst — fires once on order completion ──────────────────────────
+function Confetti() {
+  const COLORS = ['#F5C800', '#FFE08A', '#3D2785', '#8a72d0', '#FF9ECF', '#34D399']
+  const pieces = useRef(
+    Array.from({ length: 70 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 0.5,
+      duration: 1.8 + Math.random() * 1.4,
+      color: COLORS[i % COLORS.length],
+      size: 7 + Math.random() * 7,
+      rotate: Math.random() * 360,
+      drift: (Math.random() - 0.5) * 220,
+    }))
+  ).current
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 90, pointerEvents: 'none', overflow: 'hidden'
+    }}>
+      {pieces.map(p => (
+        <span key={p.id} style={{
+          position: 'absolute', top: '-6%', left: `${p.left}%`,
+          width: p.size, height: p.size * 0.45,
+          background: p.color, borderRadius: 1,
+          opacity: 0.95,
+          // CSS custom props consumed by the confettiFall keyframe
+          '--drift': `${p.drift}px`,
+          '--rot': `${p.rotate}deg`,
+          animation: `confettiFall ${p.duration}s cubic-bezier(.25,.6,.5,1) ${p.delay}s forwards`
+        }} />
+      ))}
+    </div>
+  )
+}
+
 function FlowPresence({ lang = 'EN' }) {
   const [hovered, setHovered] = useState(false)
   return (
@@ -362,6 +398,7 @@ export default function Home() {
   const [journeyDone, setJourneyDone] = useState([])
   const [showTrackChip, setShowTrackChip] = useState(false)
   const [liveStatus, setLiveStatus] = useState([])   // real-time tool status feed
+  const [celebrate, setCelebrate] = useState(false)  // confetti burst on order complete
   const [lastPlan, setLastPlan] = useState(null)
   const flowRef = useRef(null)
   const [splash, setSplash] = useState(true)
@@ -565,6 +602,7 @@ export default function Home() {
     setLastPlan(null)
     setInput('')
     setLiveStatus([])
+    setCelebrate(false)
   }
 
   function handleAddItem() {
@@ -577,6 +615,16 @@ export default function Home() {
 
   function handleChip(label) {
     send(label)
+  }
+
+  // Demo completion: clicking "pay" opens Kapruka's checkout (payment happens there,
+  // off-platform and unobservable via MCP) — so we treat the click as the completion
+  // signal to light the Done node and celebrate.
+  function handleOrderComplete() {
+    setJourneyActive(4)
+    setJourneyDone([0, 1, 2, 3])
+    setCelebrate(true)
+    setTimeout(() => setCelebrate(false), 2600)
   }
 
   return (
@@ -614,6 +662,7 @@ export default function Home() {
             onAddItem={handleAddItem}
             onEditGift={handleEditGift}
             onChip={handleChip}
+            onComplete={handleOrderComplete}
             flowRef={flowRef} />
 
           {/* Layer 2: Docked input */}
@@ -628,6 +677,7 @@ export default function Home() {
       )}
 
       {/* Flow Presence widget — only visible on landing */}
+      {celebrate && <Confetti />}
       {phase === 'opening' && <FlowPresence lang={lang} />}
       {splash && <SplashScreen onDone={() => setSplash(false)} />}
     </div>
