@@ -502,6 +502,11 @@ export default function Home() {
         })
       })
 
+      if (!res.ok || !res.body) {
+        addAgentMsg('The server is busy right now — please try that once more.', false)
+        return
+      }
+
       // ── NDJSON stream: status lines arrive live, then one final payload ──
       let data = null
       const reader = res.body.getReader()
@@ -518,7 +523,8 @@ export default function Home() {
           if (!line) continue
           let ev
           try { ev = JSON.parse(line) } catch { continue }
-          if (ev.type === 'status') {
+          if (ev.type === 'heartbeat') { /* keep-alive — ignore */ }
+          else if (ev.type === 'status') {
             setLiveStatus(prev => [...prev, { icon: ev.icon, label: ev.label }])
           } else if (ev.type === 'final') {
             data = ev.payload
@@ -567,7 +573,8 @@ export default function Home() {
       })
 
     } catch (e) {
-      addAgentMsg('Network error. Please try again.', false)
+      console.error('send error:', e)
+      addAgentMsg('That didn\'t go through — your details are saved, just try once more.', false)
     } finally {
       setLoading(false)
       setLiveStatus([])
