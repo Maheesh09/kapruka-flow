@@ -64,7 +64,7 @@ function JourneyLine({ active, done }) {
 }
 
 export default function Header({ lang, setLang, journeyActive, journeyDone, showJourney = true }) {
-    const LANGS = [{ code: 'EN', label: 'EN' }, { code: 'SI', label: 'සිං' }, { code: 'TG', label: 'TG' }]
+    const LANGS = [{ code: 'EN', label: 'EN' }, { code: 'SI', label: 'සිං' }, { code: 'TA', label: 'தமி' }]
     return (
         <header style={{
             position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30,
@@ -123,7 +123,7 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
                         return (
                             <button key={l.code} onClick={() => setLang(l.code)} style={{
                                 border: 'none', cursor: 'pointer', padding: '6px 12px', borderRadius: 999,
-                                fontFamily: "'Inter','Noto Sans Sinhala',sans-serif", fontSize: 12, fontWeight: 600,
+                                fontFamily: "'Inter','Noto Sans Sinhala','Noto Sans Tamil',sans-serif", fontSize: 12, fontWeight: 600,
                                 color: active ? '#3D2785' : 'rgba(255,255,255,0.65)',
                                 background: active ? 'linear-gradient(135deg,#FFE08A,#F5C800)' : 'transparent',
                                 boxShadow: active ? '0 4px 12px rgba(245,200,0,0.45)' : 'none',

@@ -2,50 +2,50 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Icon from './Icon'
 
-const SPEECH_LANG = { EN: 'en-IN', SI: 'si-LK', TG: 'si-LK' }
+const SPEECH_LANG = { EN: 'en-IN', SI: 'si-LK', TA: 'ta-IN' }
 
 function useSpeech(lang, onResult) {
-  const [listening, setListening] = useState(false)
-  const [supported, setSupported] = useState(false)
-  const recRef = useRef(null)
+    const [listening, setListening] = useState(false)
+    const [supported, setSupported] = useState(false)
+    const recRef = useRef(null)
 
-  useEffect(() => {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SR) { console.log('[voice] SpeechRecognition not available in this browser'); return }
-    setSupported(true)
-    const rec = new SR()
-    rec.continuous = false
-    rec.interimResults = true
-    rec.maxAlternatives = 1
+    useEffect(() => {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+        if (!SR) { console.log('[voice] SpeechRecognition not available in this browser'); return }
+        setSupported(true)
+        const rec = new SR()
+        rec.continuous = false
+        rec.interimResults = true
+        rec.maxAlternatives = 1
 
-    rec.onstart = () => console.log('[voice] started, lang =', rec.lang)
-    rec.onaudiostart = () => console.log('[voice] mic is capturing audio')
-    rec.onspeechstart = () => console.log('[voice] speech detected')
-    rec.onresult = (e) => {
-      const text = Array.from(e.results).map(r => r[0].transcript).join('')
-      console.log('[voice] result:', text)
-      onResult(text, e.results[e.results.length - 1].isFinal)
+        rec.onstart = () => console.log('[voice] started, lang =', rec.lang)
+        rec.onaudiostart = () => console.log('[voice] mic is capturing audio')
+        rec.onspeechstart = () => console.log('[voice] speech detected')
+        rec.onresult = (e) => {
+            const text = Array.from(e.results).map(r => r[0].transcript).join('')
+            console.log('[voice] result:', text)
+            onResult(text, e.results[e.results.length - 1].isFinal)
+        }
+        rec.onerror = (e) => {
+            console.log('[voice] ERROR:', e.error, e.message || '')
+            setListening(false)
+        }
+        rec.onend = () => { console.log('[voice] ended'); setListening(false) }
+
+        recRef.current = rec
+        return () => rec.abort()
+    }, [onResult])
+
+    const toggle = () => {
+        const rec = recRef.current
+        if (!rec) return
+        if (listening) { rec.stop(); return }
+        rec.lang = { EN: 'en-IN', SI: 'si-LK', TA: 'ta-LK' }[lang] || 'en-IN'
+        try { rec.start(); setListening(true) }
+        catch (err) { console.log('[voice] start threw:', err.message); setListening(false) }
     }
-    rec.onerror = (e) => {
-      console.log('[voice] ERROR:', e.error, e.message || '')
-      setListening(false)
-    }
-    rec.onend = () => { console.log('[voice] ended'); setListening(false) }
 
-    recRef.current = rec
-    return () => rec.abort()
-  }, [onResult])
-
-  const toggle = () => {
-    const rec = recRef.current
-    if (!rec) return
-    if (listening) { rec.stop(); return }
-    rec.lang = { EN: 'en-IN', SI: 'si-LK', TG: 'si-LK' }[lang] || 'en-IN'
-    try { rec.start(); setListening(true) }
-    catch (err) { console.log('[voice] start threw:', err.message); setListening(false) }
-  }
-
-  return { listening, supported, toggle }
+    return { listening, supported, toggle }
 }
 
 const CHIPS = [
@@ -86,12 +86,12 @@ const CHIPS = [
 const HEADLINES = {
     EN: 'What would you like Flow to handle today?',
     SI: 'අද Flow එකෙන් කරගන්න ඕනේ මොකක්ද?',
-    TG: 'Ada Flow eken karaganna ona mokakda?',
+    TA: 'இன்று Flow மூலம் என்ன செய்ய விரும்புகிறீர்கள்?',
 }
 const PLACEHOLDERS = {
     EN: 'A gaming laptop, flowers for tomorrow, delivery to Galle…',
     SI: 'Gaming laptop එකක්, හෙටට මල්, Galle delivery',
-    TG: 'Gaming laptop ekak, heta mal, Galle delivery',
+    TA: 'Gaming laptop, நாளைக்கு மலர்கள், Galle delivery…',
 }
 const SLOGAN = 'Flow your way to the perfect find'
 
