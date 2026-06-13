@@ -346,7 +346,7 @@ class KaprukaMCPClient {
         if (this.sessionId) headers['mcp-session-id'] = this.sessionId
 
         const ctrl = new AbortController()
-        const timeout = setTimeout(() => ctrl.abort(), 20000)
+        const timeout = setTimeout(() => ctrl.abort(), 12000)
         let res
         try {
             res = await fetch('https://mcp.kapruka.com/mcp', {
@@ -492,6 +492,15 @@ export async function POST(req) {
     const stream = new ReadableStream({
         async start(controller) {
             const emit = (obj) => controller.enqueue(encoder.encode(JSON.stringify(obj) + '\n'))
+            // Emit immediately so mobile browsers don't time out waiting for the first byte
+            emit({ type: 'heartbeat' })
+
+            // Periodic keep-alive: re-emit every 6s during long model/MCP waits.
+            // Prevents Android Chrome from showing "This page couldn't load" on slow 4G.
+            const heartbeatTimer = setInterval(() => {
+                try { emit({ type: 'heartbeat' }) } catch { /* controller already closed */ }
+            }, 6000)
+
             try {
                 const mcp = new KaprukaMCPClient()
                 const model = genAI.getGenerativeModel({
@@ -502,13 +511,22 @@ export async function POST(req) {
 
                 const chat = model.startChat({ history: toGeminiHistory(messages) })
                 const lastMessage = messages[messages.length - 1].content
+
+                // Hard wall-clock budget: leave headroom below Vercel's maxDuration so we
+                // can ALWAYS emit a graceful final message instead of being hard-killed.
+                const DEADLINE = Date.now() + 52000
+                const overBudget = () => Date.now() > DEADLINE
+
                 let result = await chat.sendMessage(lastMessage)
 
                 let iterations = 0
-                while (iterations < 8) {
+                let bailed = false
+                while (iterations < 6) {
                     iterations++
                     const functionCalls = result.response.functionCalls()
                     if (!functionCalls?.length) break
+
+                    if (overBudget()) { bailed = true; break }
 
                     // Emit a real status line for each tool call BEFORE running it
                     for (const call of functionCalls) emit({ type: 'status', ...statusLabel(call.name, call.args) })
@@ -521,16 +539,29 @@ export async function POST(req) {
                             return { functionResponse: { name: call.name, response: { result: output } } }
                         })
                     )
+
+                    if (overBudget()) { bailed = true; break }
                     result = await chat.sendMessage(toolResults)
                 }
 
-                emit({ type: 'status', icon: 'sparkles', label: 'Putting it together for you' })
-                const payload = await buildPayload(result.response.text(), chat)
-                emit({ type: 'final', payload })
+                if (bailed) {
+                    // Ran out of time mid-loop — tell the user honestly, don't let the function die silently
+                    emit({ type: 'final', payload: { type: 'chat', text: 'That took longer than expected on Kapruka\'s side. Could you tap "Create my order" once more? Everything you entered is still here.' } })
+                } else {
+                    emit({ type: 'status', icon: 'sparkles', label: 'Putting it together for you' })
+                    let payload
+                    try { payload = await buildPayload(result.response.text(), chat) }
+                    catch (e) {
+                        console.error('buildPayload error:', e)
+                        payload = { type: 'chat', text: 'I hit a snag formatting that — give it one more try?' }
+                    }
+                    emit({ type: 'final', payload })
+                }
             } catch (e) {
                 console.error('Route error:', e)
-                emit({ type: 'final', payload: { type: 'chat', text: 'Something went wrong on my side — try that once more?' } })
+                try { emit({ type: 'final', payload: { type: 'chat', text: 'Something went wrong on my side — try that once more?' } }) } catch { }
             } finally {
+                clearInterval(heartbeatTimer)
                 controller.close()
             }
         }
