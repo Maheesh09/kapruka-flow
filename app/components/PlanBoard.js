@@ -1,4 +1,5 @@
 'use client'
+import { t } from '../i18n'
 import { useState } from 'react'
 import Icon from './Icon'
 
@@ -77,7 +78,7 @@ function ItemRow({ item, idx }) {
     )
 }
 
-export default function PlanBoard({ plan, onAddRecipient, onCreateOrder, onAddItem, onEditGift }) {
+export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateOrder, onAddItem, onEditGift }) {
     const [editingGift, setEditingGift] = useState(false)
     const [giftDraft, setGiftDraft] = useState(plan.gift_message || '')
     const delivery = plan.delivery || {}
@@ -119,7 +120,7 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder, onAddIt
                     background: 'rgba(61,39,133,0.06)',
                     border: '1.5px dashed rgba(61,39,133,0.30)', ...rowDelay()
                 }}>
-                    <Icon name="plus" size={14} color="#3D2785" stroke={2.4} /> Add something else
+                    <Icon name="plus" size={14} color="#3D2785" stroke={2.4} /> {t(lang,'planAddItem')}
                 </button>
             )}
 
@@ -139,7 +140,7 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder, onAddIt
                         {plan.delivery.city}{plan.delivery.date && ` · ${fmtDate(plan.delivery.date)}`}
                     </div>
                     <div style={{ fontSize: 12.5, color: 'rgba(26,20,51,0.55)', marginTop: 1 }}>
-                        Delivery fee: {fmtLKR(plan.delivery.fee)}
+                        {t(lang,'planDeliveryTo')}: {fmtLKR(plan.delivery.fee)}
                     </div>
                 </div>
                 {plan.delivery.confirmed && (
@@ -148,7 +149,7 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder, onAddIt
                         background: 'rgba(14,159,110,0.12)', color: '#0E9F6E',
                         fontSize: 13, fontWeight: 600, padding: '5px 11px', borderRadius: 999, flexShrink: 0
                     }}>
-                        <Icon name="check" size={14} color="#0E9F6E" stroke={2.4} /> Confirmed
+                        <Icon name="check" size={14} color="#0E9F6E" stroke={2.4} /> {t(lang,'planConfirmed')}
                     </span>
                 )}
             </div>
@@ -170,7 +171,7 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder, onAddIt
                     {/* Edit pencil — gift messaging bonus, made tangible */}
                     {onEditGift && !editingGift && (
                         <button onClick={() => { setGiftDraft(plan.gift_message); setEditingGift(true) }}
-                            aria-label="Edit gift message"
+                            aria-label={t(lang,'planEditGift')}
                             style={{
                                 position: 'absolute', top: 8, right: 10, width: 26, height: 26,
                                 borderRadius: 8, border: 'none', cursor: 'pointer',
@@ -197,13 +198,13 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder, onAddIt
                                     padding: '7px 14px', borderRadius: 999, border: '1px solid rgba(61,39,133,0.25)',
                                     background: 'transparent', color: '#3D2785', fontSize: 13, fontWeight: 600,
                                     cursor: 'pointer', fontFamily: 'Inter'
-                                }}>Cancel</button>
+                                }}>{t(lang,'planCancel')}</button>
                                 <button onClick={() => { setEditingGift(false); onEditGift(giftDraft) }} style={{
                                     padding: '7px 16px', borderRadius: 999, border: 'none',
                                     background: 'linear-gradient(135deg,#FFE08A,#F5C800)', color: '#3D2785',
                                     fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter',
                                     boxShadow: '0 4px 12px rgba(245,200,0,0.4)'
-                                }}>Save message</button>
+                                }}>{t(lang,'planSaveGift')}</button>
                             </div>
                         </div>
                     ) : (
@@ -275,7 +276,7 @@ export default function PlanBoard({ plan, onAddRecipient, onCreateOrder, onAddIt
                         borderRadius: 14, cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,200,0,0.45)',
                         fontFamily: 'Inter'
                     }}>
-                        Create order <Icon name="arrow-right" size={18} color="#3D2785" stroke={2} />
+                        {t(lang,'planCreateOrder')} <Icon name="arrow-right" size={18} color="#3D2785" stroke={2} />
                     </button>
                 ) : (
                     <button onClick={onAddRecipient} className="plan-cta" style={{

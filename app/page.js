@@ -1,4 +1,5 @@
 'use client'
+import { t } from './i18n'
 import { useState, useRef, useEffect } from 'react'
 import Header from './components/Header'
 import OpeningCanvas, { InputBar } from './components/OpeningCanvas'
@@ -161,7 +162,7 @@ function AmbientLayer({ loading }) {
 }
 
 // ── Flow Presence Widget ────────────────────────────────────────────────────────
-function FlowPresence() {
+function FlowPresence({ lang = 'EN' }) {
   const [hovered, setHovered] = useState(false)
   return (
     <div className="mobile-presence-widget"
@@ -211,13 +212,13 @@ function FlowPresence() {
           <span style={{
             fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
             fontSize: 14, color: '#1A1433', letterSpacing: '-0.01em'
-          }}>Flow</span>
+          }}>{t(lang, 'presenceName')}</span>
         </div>
         <div style={{
           fontFamily: 'Inter', fontSize: 11.5, color: 'rgba(26,20,51,0.55)',
           fontWeight: 400, lineHeight: 1
         }}>
-          Your shopping companion
+          {t(lang, 'presenceRole')}
         </div>
         {/* Online status */}
         <div style={{
@@ -234,7 +235,7 @@ function FlowPresence() {
             fontFamily: 'Inter', fontSize: 11, fontWeight: 500,
             color: 'rgba(26,20,51,0.50)'
           }}>
-            Flow is online
+            {t(lang, 'presenceOnline')}
           </span>
         </div>
       </div>
@@ -270,7 +271,7 @@ function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onT
               <path d="M20 10c0 4.993-5.539 10.193-7.4 11.799a1 1 0 0 1-1.2 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
               <circle cx="12" cy="10" r="3" />
             </svg>
-            Track order
+            {t(lang, 'trackOrder')}
           </button>
           <button onClick={onNewFlow} style={pillStyle}>
             <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#3D2785"
@@ -278,7 +279,7 @@ function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onT
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
               <path d="M3 3v5h5" />
             </svg>
-            Start a new flow
+            {t(lang, 'newFlow')}
           </button>
         </div>
       )}
@@ -379,7 +380,7 @@ export default function Home() {
       setJourneyDone(s.journeyDone ?? [])
       setShowTrackChip(s.showTrackChip ?? false)
       setLastPlan(s.lastPlan ?? null)
-      setLang(s.lang ?? ['EN', 'SI', 'TA'])
+      setLang(['EN', 'SI', 'TA'].includes(s.lang) ? s.lang : 'EN')
     } catch { /* corrupt state → start fresh, never crash */ }
   }, [])
 
@@ -606,6 +607,7 @@ export default function Home() {
           <FlowArea
             messages={messages} loading={loading}
             liveStatus={liveStatus}
+            lang={lang}
             onChoose={handleProductChosen}
             onAddRecipient={handleAddRecipient}
             onCreateOrder={handleCreateOrder}
@@ -626,7 +628,7 @@ export default function Home() {
       )}
 
       {/* Flow Presence widget — only visible on landing */}
-      {phase === 'opening' && <FlowPresence />}
+      {phase === 'opening' && <FlowPresence lang={lang} />}
       {splash && <SplashScreen onDone={() => setSplash(false)} />}
     </div>
   )
