@@ -60,17 +60,9 @@ function KaprukaSmiley({ thinking }) {
 }
 
 // ── Flow Thinking Checklist ────────────────────────────────────────────────────
-const THINKING_ITEMS = [
-    { label: 'Recipient', icon: 'user' },
-    { label: 'Budget', icon: 'coins' },
-    { label: 'Location', icon: 'map-pin' },
-    { label: 'Delivery date', icon: 'calendar' },
-]
-
 export function FlowThinking({ events = [] }) {
     const hasReal = events.length > 0
-    const [visibleItems, setVisibleItems] = useState(0)
-    const [phase, setPhase] = useState(0) // 0=building, cycling through status messages
+    const [phase, setPhase] = useState(0) // cycling through status messages
     const statusMessages = [
         'Flow is figuring things out…',
         'Searching the catalog…',
@@ -80,18 +72,11 @@ export function FlowThinking({ events = [] }) {
     const [statusIdx, setStatusIdx] = useState(0)
 
     useEffect(() => {
-        // Reveal checklist items one by one
-        const timers = THINKING_ITEMS.map((_, i) =>
-            setTimeout(() => setVisibleItems(v => Math.max(v, i + 1)), 350 + i * 380)
-        )
-        // Cycle status message
+        // Cycle the status message while waiting (only matters before real events arrive)
         const statusInterval = setInterval(() => {
             setStatusIdx(s => (s + 1) % statusMessages.length)
         }, 1800)
-        return () => {
-            timers.forEach(clearTimeout)
-            clearInterval(statusInterval)
-        }
+        return () => clearInterval(statusInterval)
     }, [])
 
     return (
@@ -159,47 +144,17 @@ export function FlowThinking({ events = [] }) {
                     </div>
                 )}
 
-                {/* Fallback animated checklist (first moments, before tool calls start) */}
+                {/* Before any tool runs: a simple, honest 'thinking' indicator —
+                    no fabricated checklist of things Flow hasn't actually checked */}
                 {!hasReal && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-                        {THINKING_ITEMS.map((item, i) => {
-                            const visible = i < visibleItems
-                            return (
-                                <div key={item.label} style={{
-                                    display: 'flex', alignItems: 'center', gap: 10,
-                                    opacity: visible ? 1 : 0.2,
-                                    transition: 'opacity .4s'
-                                }}>
-                                    {/* Tick / pending circle */}
-                                    <div style={{
-                                        width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        background: visible
-                                            ? 'linear-gradient(135deg,#FFE08A,#F5C800)'
-                                            : 'rgba(61,39,133,0.08)',
-                                        border: visible ? 'none' : '1.5px dashed rgba(61,39,133,0.25)',
-                                        boxShadow: visible ? '0 2px 8px rgba(245,200,0,0.4)' : 'none',
-                                        animation: visible ? 'tickPop .4s cubic-bezier(.2,.7,.2,1) both' : 'none'
-                                    }}>
-                                        {visible && (
-                                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                                                <path d="M1 4L3.5 6.5L9 1" stroke="#3D2785" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                                            </svg>
-                                        )}
-                                    </div>
-                                    {/* Label */}
-                                    <div style={{
-                                        fontSize: 14, fontWeight: visible ? 600 : 400,
-                                        color: visible ? '#1A1433' : 'rgba(26,20,51,0.4)',
-                                        fontFamily: 'Inter',
-                                        animation: visible ? 'lineSlide .35s ease-out both' : 'none',
-                                        transition: 'color .4s, font-weight .4s'
-                                    }}>
-                                        {item.label}
-                                    </div>
-                                </div>
-                            )
-                        })}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 2 }}>
+                        {[0, 1, 2].map(i => (
+                            <span key={i} style={{
+                                width: 7, height: 7, borderRadius: '50%',
+                                background: 'linear-gradient(135deg,#8a72d0,#3D2785)',
+                                animation: `thinkingDot 1.2s ease-in-out ${i * 0.18}s infinite`
+                            }} />
+                        ))}
                     </div>
                 )}
             </div>
@@ -493,7 +448,7 @@ function ProductTrio({ trio, onChoose }) {
 }
 
 // ── Flow area ──────────────────────────────────────────────────────────────────
-export default function FlowArea({ messages, loading, liveStatus, lang, onChoose, onAddRecipient, onCreateOrder, onAddItem, onEditGift, onChip, flowRef }) {
+export default function FlowArea({ messages = [], loading, liveStatus = [], lang = 'EN', onChoose, onAddRecipient, onCreateOrder, onAddItem, onEditGift, onChip, flowRef }) {
     return (
         <div ref={flowRef} className="flow-area">
             <div className="flow-inner">
