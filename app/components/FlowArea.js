@@ -448,7 +448,7 @@ function ProductTrio({ trio, onChoose }) {
 }
 
 // ── Flow area ──────────────────────────────────────────────────────────────────
-export default function FlowArea({ messages = [], loading, liveStatus = [], lang = 'EN', onChoose, onAddRecipient, onCreateOrder, onAddItem, onEditGift, onChip, flowRef }) {
+export default function FlowArea({ messages = [], loading, liveStatus = [], lang = 'EN', onChoose, onAddRecipient, onCreateOrder, onAddItem, onEditGift, onChip, onComplete, flowRef }) {
     return (
         <div ref={flowRef} className="flow-area">
             <div className="flow-inner">
