@@ -49,7 +49,7 @@ body {
   display: flex;
   flex-direction: column;
   background: var(--bg);
-  font-family: 'Inter', 'Noto Sans Sinhala', sans-serif, 'Noto Sans Tamil';
+  font-family: 'Inter', 'Noto Sans Sinhala', 'Noto Sans Tamil', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--purple-900);

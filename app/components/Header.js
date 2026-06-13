@@ -1,9 +1,10 @@
 'use client'
 import Icon from './Icon'
+import { t } from '../i18n'
 
-const NODES = ['Goal', 'Discover', 'Plan', 'Delivery', 'Done']
 
-function JourneyLine({ active, done }) {
+function JourneyLine({ active, done, lang }) {
+    const NODES = t(lang, 'journey')
     const fill = (active / (NODES.length - 1)) * 100
     return (
         <div className="mobile-journey-line" style={{
@@ -108,7 +109,7 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
                 {/* Journey — hidden on landing screen, centred when visible */}
                 {showJourney && (
                     <div className="mobile-journey-wrapper" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                        <JourneyLine active={journeyActive} done={journeyDone} />
+                        <JourneyLine active={journeyActive} done={journeyDone} lang={lang} />
                     </div>
                 )}
 

@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Icon from './Icon'
+import { t } from '../i18n'
 
 const SPEECH_LANG = { EN: 'en-IN', SI: 'si-LK', TA: 'ta-IN' }
 
@@ -40,7 +41,7 @@ function useSpeech(lang, onResult) {
         const rec = recRef.current
         if (!rec) return
         if (listening) { rec.stop(); return }
-        rec.lang = { EN: 'en-IN', SI: 'si-LK', TA: 'ta-LK' }[lang] || 'en-IN'
+        rec.lang = SPEECH_LANG[lang] || 'en-IN'
         try { rec.start(); setListening(true) }
         catch (err) { console.log('[voice] start threw:', err.message); setListening(false) }
     }
@@ -48,40 +49,14 @@ function useSpeech(lang, onResult) {
     return { listening, supported, toggle }
 }
 
-const CHIPS = [
-    {
-        label: 'Send a gift',
-        sub: 'Surprise someone you love',
-        icon: 'gift',
-        goal: 'I want to send a gift',
-        grad: 'linear-gradient(135deg,#E9E4FF,#C8BFEF)',
-        iconColor: '#3D2785'
-    },
-    {
-        label: 'Celebrate',
-        sub: 'Make moments unforgettable',
-        icon: 'party-popper',
-        goal: 'I need a birthday cake delivered to Kandy this Saturday, budget under LKR 6,000',
-        grad: 'linear-gradient(135deg,#FFF7E0,#FFE08A)',
-        iconColor: '#8a6d00'
-    },
-    {
-        label: 'Say something',
-        sub: 'Gifts that speak for you',
-        icon: 'heart',
-        goal: 'I want to send flowers and chocolates to say thank you, delivery to Colombo tomorrow',
-        grad: 'linear-gradient(135deg,#FFE9F3,#FF9ECF)',
-        iconColor: '#c0336a'
-    },
-    {
-        label: 'Stock up',
-        sub: 'Everyday essentials, delivered',
-        icon: 'shopping-basket',
-        goal: 'I need to order some essentials',
-        grad: 'linear-gradient(135deg,#E0F5E9,#A8DFBA)',
-        iconColor: '#1a7a3a'
-    }
-]
+function getChips(lang) {
+    return [
+        { label: t(lang,'chipGiftLabel'),      icon: 'gift',           goal: t(lang,'chipGiftGoal'),      grad: 'linear-gradient(135deg,#E9E4FF,#C8BFEF)', iconColor: '#3D2785' },
+        { label: t(lang,'chipCelebrateLabel'), icon: 'party-popper',   goal: t(lang,'chipCelebrateGoal'), grad: 'linear-gradient(135deg,#FFF7E0,#FFE08A)', iconColor: '#8a6d00' },
+        { label: t(lang,'chipSayLabel'),       icon: 'heart',          goal: t(lang,'chipSayGoal'),       grad: 'linear-gradient(135deg,#FFE9F3,#FF9ECF)', iconColor: '#c0336a' },
+        { label: t(lang,'chipStockLabel'),     icon: 'shopping-basket', goal: t(lang,'chipStockGoal'),    grad: 'linear-gradient(135deg,#E0F5E9,#A8DFBA)', iconColor: '#1a7a3a' },
+    ]
+}
 
 const HEADLINES = {
     EN: 'What would you like Flow to handle today?',
@@ -96,6 +71,7 @@ const PLACEHOLDERS = {
 const SLOGAN = 'Flow your way to the perfect find'
 
 export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
+    const CHIPS = getChips(lang)
     const words = (HEADLINES[lang] || HEADLINES.EN).split(' ')
 
     return (

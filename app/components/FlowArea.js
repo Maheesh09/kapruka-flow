@@ -1,4 +1,5 @@
 'use client'
+import { t } from '../i18n'
 import { useState, useEffect, useRef } from 'react'
 import Icon from './Icon'
 import PlanBoard from './PlanBoard'
@@ -492,7 +493,7 @@ function ProductTrio({ trio, onChoose }) {
 }
 
 // ── Flow area ──────────────────────────────────────────────────────────────────
-export default function FlowArea({ messages, loading, liveStatus, onChoose, onAddRecipient, onCreateOrder, onAddItem, onEditGift, onChip, flowRef }) {
+export default function FlowArea({ messages, loading, liveStatus, lang, onChoose, onAddRecipient, onCreateOrder, onAddItem, onEditGift, onChip, flowRef }) {
     return (
         <div ref={flowRef} className="flow-area">
             <div className="flow-inner">
@@ -506,7 +507,7 @@ export default function FlowArea({ messages, loading, liveStatus, onChoose, onAd
                             return <ProductTrio key={i} trio={m.trio} onChoose={onChoose} />
                         case 'plan_board':
                             return (
-                                <PlanBoard key={i} plan={m.plan}
+                                <PlanBoard key={i} plan={m.plan} lang={lang}
                                     onAddRecipient={() => onAddRecipient(m.plan)}
                                     onCreateOrder={() => onCreateOrder(m.plan)}
                                     onAddItem={onAddItem}
@@ -517,7 +518,7 @@ export default function FlowArea({ messages, loading, liveStatus, onChoose, onAd
                                 url={m.checkoutData?.url}
                                 orderRef={m.checkoutData?.ref}
                                 expiresAt={m.checkoutData?.expiresAt}
-                                plan={m.plan} />
+                                plan={m.plan} lang={lang} />
                         default:
                             return null
                     }
