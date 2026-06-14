@@ -81,6 +81,22 @@ function ItemRow({ item, idx }) {
 export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateOrder, onAddItem, onEditGift }) {
     const [editingGift, setEditingGift] = useState(false)
     const [giftDraft, setGiftDraft] = useState(plan.gift_message || '')
+    const [showForm, setShowForm] = useState(false)
+    const [form, setForm] = useState({ name: '', phone: '', address: '' })
+    const [errors, setErrors] = useState({})
+
+    function submitRecipient() {
+        const e = {}
+        if (!form.name.trim()) e.name = true
+        const digits = form.phone.replace(/[^\d]/g, '')
+        if (digits.length < 9 || digits.length > 12) e.phone = true
+        if (!form.address.trim()) e.address = true
+        setErrors(e)
+        if (Object.keys(e).length) return
+        // One clean, unambiguous structured message — no free-text parsing guesswork
+        onAddRecipient(`Recipient details — Name: ${form.name.trim()}; Phone: ${form.phone.trim()}; Address: ${form.address.trim()}`)
+        setShowForm(false)
+    }
     const delivery = plan.delivery || {}
     const recipient = plan.recipient || {}
     const hasRecipient = recipient.name
@@ -120,7 +136,7 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                     background: 'rgba(61,39,133,0.06)',
                     border: '1.5px dashed rgba(61,39,133,0.30)', ...rowDelay()
                 }}>
-                    <Icon name="plus" size={14} color="#3D2785" stroke={2.4} /> {t(lang,'planAddItem')}
+                    <Icon name="plus" size={14} color="#3D2785" stroke={2.4} /> {t(lang, 'planAddItem')}
                 </button>
             )}
 
@@ -140,7 +156,7 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                         {plan.delivery.city}{plan.delivery.date && ` · ${fmtDate(plan.delivery.date)}`}
                     </div>
                     <div style={{ fontSize: 12.5, color: 'rgba(26,20,51,0.55)', marginTop: 1 }}>
-                        {t(lang,'planDeliveryTo')}: {fmtLKR(plan.delivery.fee)}
+                        {t(lang, 'planDeliveryTo')}: {fmtLKR(plan.delivery.fee)}
                     </div>
                 </div>
                 {plan.delivery.confirmed && (
@@ -149,7 +165,7 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                         background: 'rgba(14,159,110,0.12)', color: '#0E9F6E',
                         fontSize: 13, fontWeight: 600, padding: '5px 11px', borderRadius: 999, flexShrink: 0
                     }}>
-                        <Icon name="check" size={14} color="#0E9F6E" stroke={2.4} /> {t(lang,'planConfirmed')}
+                        <Icon name="check" size={14} color="#0E9F6E" stroke={2.4} /> {t(lang, 'planConfirmed')}
                     </span>
                 )}
             </div>
@@ -171,7 +187,7 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                     {/* Edit pencil — gift messaging bonus, made tangible */}
                     {onEditGift && !editingGift && (
                         <button onClick={() => { setGiftDraft(plan.gift_message); setEditingGift(true) }}
-                            aria-label={t(lang,'planEditGift')}
+                            aria-label={t(lang, 'planEditGift')}
                             style={{
                                 position: 'absolute', top: 8, right: 10, width: 26, height: 26,
                                 borderRadius: 8, border: 'none', cursor: 'pointer',
@@ -198,13 +214,13 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                                     padding: '7px 14px', borderRadius: 999, border: '1px solid rgba(61,39,133,0.25)',
                                     background: 'transparent', color: '#3D2785', fontSize: 13, fontWeight: 600,
                                     cursor: 'pointer', fontFamily: 'Inter'
-                                }}>{t(lang,'planCancel')}</button>
+                                }}>{t(lang, 'planCancel')}</button>
                                 <button onClick={() => { setEditingGift(false); onEditGift(giftDraft) }} style={{
                                     padding: '7px 16px', borderRadius: 999, border: 'none',
                                     background: 'linear-gradient(135deg,#FFE08A,#F5C800)', color: '#3D2785',
                                     fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter',
                                     boxShadow: '0 4px 12px rgba(245,200,0,0.4)'
-                                }}>{t(lang,'planSaveGift')}</button>
+                                }}>{t(lang, 'planSaveGift')}</button>
                             </div>
                         </div>
                     ) : (
@@ -248,6 +264,67 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                 )}
             </div>
 
+            {/* Inline recipient form — structured fields beat free-text parsing */}
+            {showForm && !hasRecipient && (
+                <div style={{
+                    marginTop: 14, padding: 16, borderRadius: 16,
+                    background: 'rgba(61,39,133,0.04)',
+                    border: '1px solid rgba(61,39,133,0.12)',
+                    animation: 'scaleIn .3s cubic-bezier(.2,.7,.2,1) both'
+                }}>
+                    <div style={{
+                        fontFamily: "'Space Grotesk',sans-serif", fontWeight: 600,
+                        fontSize: 15, color: '#3D2785', marginBottom: 12
+                    }}>{t(lang, 'recipFormTitle')}</div>
+
+                    {[
+                        { key: 'name', label: t(lang, 'recipName'), ph: t(lang, 'recipNamePh'), err: t(lang, 'recipNameErr'), type: 'text', mode: undefined },
+                        { key: 'phone', label: t(lang, 'recipPhone'), ph: t(lang, 'recipPhonePh'), err: t(lang, 'recipPhoneErr'), type: 'tel', mode: 'tel' },
+                        { key: 'address', label: t(lang, 'recipAddress'), ph: t(lang, 'recipAddressPh'), err: t(lang, 'recipAddressErr'), type: 'text', mode: undefined },
+                    ].map(f => (
+                        <div key={f.key} style={{ marginBottom: 12 }}>
+                            <label style={{
+                                display: 'block', fontSize: 12.5, fontWeight: 600,
+                                color: 'rgba(26,20,51,0.6)', marginBottom: 5, fontFamily: 'Inter'
+                            }}>{f.label}</label>
+                            <input
+                                type={f.type}
+                                inputMode={f.mode}
+                                value={form[f.key]}
+                                placeholder={f.ph}
+                                onChange={e => { setForm(p => ({ ...p, [f.key]: e.target.value })); if (errors[f.key]) setErrors(p => ({ ...p, [f.key]: false })) }}
+                                style={{
+                                    width: '100%', boxSizing: 'border-box', padding: '11px 13px',
+                                    borderRadius: 10, fontSize: 15, fontFamily: 'Inter',
+                                    background: '#fff', outline: 'none', color: '#1A1433',
+                                    border: errors[f.key] ? '1.5px solid #E05252' : '1px solid rgba(61,39,133,0.2)',
+                                    transition: 'border-color .2s'
+                                }}
+                                onFocus={e => { if (!errors[f.key]) e.target.style.borderColor = '#5A3FB0' }}
+                                onBlur={e => { if (!errors[f.key]) e.target.style.borderColor = 'rgba(61,39,133,0.2)' }}
+                            />
+                            {errors[f.key] && (
+                                <div style={{ fontSize: 12, color: '#E05252', marginTop: 4, fontFamily: 'Inter' }}>{f.err}</div>
+                            )}
+                        </div>
+                    ))}
+
+                    <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                        <button onClick={() => setShowForm(false)} style={{
+                            padding: '10px 16px', borderRadius: 10, cursor: 'pointer',
+                            background: 'transparent', border: '1px solid rgba(61,39,133,0.25)',
+                            color: '#3D2785', fontSize: 14, fontWeight: 600, fontFamily: 'Inter'
+                        }}>{t(lang, 'recipCancel')}</button>
+                        <button onClick={submitRecipient} style={{
+                            flex: 1, padding: '10px 16px', borderRadius: 10, cursor: 'pointer',
+                            background: 'linear-gradient(135deg,#FFE08A,#F5C800)', border: 'none',
+                            color: '#3D2785', fontSize: 14.5, fontWeight: 700, fontFamily: 'Inter',
+                            boxShadow: '0 4px 14px rgba(245,200,0,0.4)'
+                        }}>{t(lang, 'recipConfirm')}</button>
+                    </div>
+                </div>
+            )}
+
             <div className="rise" style={{ margin: '16px 0 4px', ...rowDelay() }}><Divider /></div>
 
             {/* Footer */}
@@ -276,16 +353,16 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                         borderRadius: 14, cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,200,0,0.45)',
                         fontFamily: 'Inter'
                     }}>
-                        {t(lang,'planCreateOrder')} <Icon name="arrow-right" size={18} color="#3D2785" stroke={2} />
+                        {t(lang, 'planCreateOrder')} <Icon name="arrow-right" size={18} color="#3D2785" stroke={2} />
                     </button>
                 ) : (
-                    <button onClick={onAddRecipient} className="plan-cta" style={{
+                    <button onClick={() => setShowForm(s => !s)} className="plan-cta" style={{
                         display: 'inline-flex', alignItems: 'center',
                         gap: 8, background: 'rgba(255,255,255,0.5)', color: '#3D2785', fontWeight: 600,
                         fontSize: 15, padding: '12px 20px', border: '1px solid rgba(61,39,133,0.3)',
                         borderRadius: 14, cursor: 'pointer', fontFamily: 'Inter'
                     }}>
-                        <Icon name="user" size={17} color="#3D2785" /> Add recipient
+                        <Icon name="user" size={17} color="#3D2785" /> {t(lang, 'planAddRecipient')}
                     </button>
                 )}
             </div>

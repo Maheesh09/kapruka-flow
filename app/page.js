@@ -584,8 +584,13 @@ export default function Home() {
   }
 
   // ── Plan Board actions ────────────────────────────────────────────────────
-  function handleAddRecipient(plan) {
-    send("I'd like to add the recipient. Please ask me for their name, phone, and delivery address.")
+  function handleAddRecipient(recipientText) {
+    // The inline form passes a clean structured string; fall back to a prompt only if called bare
+    if (typeof recipientText === 'string' && recipientText.length) {
+      send(recipientText)
+    } else {
+      send("I'd like to add the recipient. Please ask me for their name, phone, and delivery address.")
+    }
   }
 
   function handleCreateOrder(plan) {

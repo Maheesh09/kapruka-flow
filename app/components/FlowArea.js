@@ -463,7 +463,7 @@ export default function FlowArea({ messages = [], loading, liveStatus = [], lang
                         case 'plan_board':
                             return (
                                 <PlanBoard key={i} plan={m.plan} lang={lang}
-                                    onAddRecipient={() => onAddRecipient(m.plan)}
+                                    onAddRecipient={onAddRecipient}
                                     onCreateOrder={() => onCreateOrder(m.plan)}
                                     onAddItem={onAddItem}
                                     onEditGift={onEditGift} />
