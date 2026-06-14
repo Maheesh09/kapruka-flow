@@ -34,13 +34,14 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
     const TOTAL = 3600
 
     useEffect(() => {
-        const FALLBACK = 3582 // MCP locks prices for 60 min — assume that when expiry is unreadable
-        if (!expiresAt) { setSecs(FALLBACK); return }
-        const end = new Date(expiresAt).getTime()
-        if (isNaN(end)) { setSecs(FALLBACK); return }   // ← Invalid Date guard
+        const FALLBACK_SECONDS = 3582 // MCP locks prices ~60 min; assume this when expiry is unreadable
+        // Determine the end timestamp: real expiry if valid, else now + fallback window.
+        let end = expiresAt ? new Date(expiresAt).getTime() : NaN
+        if (isNaN(end)) end = Date.now() + FALLBACK_SECONDS * 1000
+
         const tick = () => {
             const diff = Math.floor((end - Date.now()) / 1000)
-            setSecs(isNaN(diff) ? FALLBACK : Math.max(0, diff))
+            setSecs(Math.max(0, isNaN(diff) ? 0 : diff))
         }
         tick()
         const id = setInterval(tick, 1000)

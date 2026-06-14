@@ -349,8 +349,10 @@ class KaprukaMCPClient {
     }
 
     async callTool(name, args) {
-        // Read tools must return JSON — the default markdown format omits image_url entirely
-        const callArgs = CACHEABLE.has(name)
+        // Read tools + create_order return JSON: read tools need image_url, create_order
+        // needs structured checkout_url/order_ref/expires_at for a reliable countdown.
+        const wantsJSON = CACHEABLE.has(name) || name === 'kapruka_create_order'
+        const callArgs = wantsJSON
             ? { ...args, response_format: 'json' }
             : args
 
@@ -491,6 +493,8 @@ export async function POST(req) {
                 const DEADLINE = Date.now() + 52000
                 const overBudget = () => Date.now() > DEADLINE
 
+                let orderResult = null  // captured structurally from create_order — never trust model prose for expiry/url
+
                 let result = await chat.sendMessage(lastMessage)
 
                 let iterations = 0
@@ -510,6 +514,19 @@ export async function POST(req) {
                             let output
                             try { output = await mcp.callTool(call.name, call.args) }
                             catch (e) { output = `Error: ${e.message}` }
+                            // Capture the structured order result the moment it's created
+                            if (call.name === 'kapruka_create_order') {
+                                try {
+                                    const j = JSON.parse(output)
+                                    if (j.checkout_url || j.order_ref) {
+                                        orderResult = {
+                                            url: j.checkout_url ?? null,
+                                            ref: j.order_ref ?? null,
+                                            expiresAt: j.expires_at ?? null
+                                        }
+                                    }
+                                } catch { /* not JSON (markdown) — model prose fallback still applies client-side */ }
+                            }
                             return { functionResponse: { name: call.name, response: { result: output } } }
                         })
                     )
@@ -529,6 +546,8 @@ export async function POST(req) {
                         console.error('buildPayload error:', e)
                         payload = { type: 'chat', text: 'I hit a snag formatting that — give it one more try?' }
                     }
+                    // Structured order result (from create_order) overrides any prose-parsed values
+                    if (orderResult) payload.orderResult = orderResult
                     emit({ type: 'final', payload })
                 }
             } catch (e) {
