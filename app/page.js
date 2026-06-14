@@ -656,7 +656,7 @@ export default function Home() {
       {/* Layer 3: Navigation */}
       <Header lang={lang} setLang={setLang}
         journeyActive={journeyActive} journeyDone={journeyDone}
-        showJourney={phase !== 'opening'} />
+        showJourney={phase !== 'opening'} onNewFlow={handleNewFlow} />
 
       {/* Layer 1: Content */}
       {phase === 'opening' && (
