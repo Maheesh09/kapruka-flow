@@ -55,6 +55,19 @@ export const STRINGS = {
     // ── Bottom chips ──
     trackOrder: 'Track order',
     newFlow: 'Start a new flow',
+    // ── Recipient form ──
+    recipFormTitle: 'Who is it going to?',
+    recipName: 'Recipient name',
+    recipNamePh: 'e.g. Priya Silva',
+    recipPhone: 'Phone number',
+    recipPhonePh: 'e.g. 077 123 4567',
+    recipAddress: 'Delivery address',
+    recipAddressPh: 'House/flat no, street, area',
+    recipConfirm: 'Confirm details',
+    recipCancel: 'Cancel',
+    recipNameErr: 'Please enter a name',
+    recipPhoneErr: 'Enter a valid phone number',
+    recipAddressErr: 'Please enter an address',
   },
 
   SI: {
@@ -96,6 +109,18 @@ export const STRINGS = {
     payHint: 'ගෙවීමෙන් පසු, Kapruka ඔබට ඇණවුම් අංකය email කරයි — එය මෙහි භාවිතා කර බෙදාහැරීම සොයන්න.',
     trackOrder: 'ඇණවුම සොයන්න',
     newFlow: 'අලුතින් පටන් ගන්න',
+    recipFormTitle: 'මේක යන්නේ කාටද?',
+    recipName: 'ලබන්නාගේ නම',
+    recipNamePh: 'උදා: ප්‍රියා සිල්වා',
+    recipPhone: 'දුරකථන අංකය',
+    recipPhonePh: 'උදා: 077 123 4567',
+    recipAddress: 'බෙදාහැරීමේ ලිපිනය',
+    recipAddressPh: 'නිවස/මහල් අංකය, වීදිය, ප්‍රදේශය',
+    recipConfirm: 'විස්තර තහවුරු කරන්න',
+    recipCancel: 'අවලංගු කරන්න',
+    recipNameErr: 'කරුණාකර නමක් ඇතුළත් කරන්න',
+    recipPhoneErr: 'වලංගු දුරකථන අංකයක් ඇතුළත් කරන්න',
+    recipAddressErr: 'කරුණාකර ලිපිනයක් ඇතුළත් කරන්න',
   },
 
   TA: {
@@ -138,6 +163,18 @@ export const STRINGS = {
     payHint: 'பணம் செலுத்திய பிறகு, Kapruka உங்களுக்கு ஆர்டர் எண்ணை email செய்யும் — அதை இங்கே பயன்படுத்தி விநியோகத்தைக் கண்காணிக்கவும்.',
     trackOrder: 'ஆர்டரைக் கண்காணி',
     newFlow: 'புதிதாகத் தொடங்கு',
+    recipFormTitle: 'இது யாருக்கு?',
+    recipName: 'பெறுநரின் பெயர்',
+    recipNamePh: 'எ.கா: பிரியா சில்வா',
+    recipPhone: 'தொலைபேசி எண்',
+    recipPhonePh: 'எ.கா: 077 123 4567',
+    recipAddress: 'விநியோக முகவரி',
+    recipAddressPh: 'வீடு/மாடி எண், தெரு, பகுதி',
+    recipConfirm: 'விவரங்களை உறுதிப்படுத்து',
+    recipCancel: 'ரத்து செய்',
+    recipNameErr: 'தயவுசெய்து ஒரு பெயரை உள்ளிடவும்',
+    recipPhoneErr: 'சரியான தொலைபேசி எண்ணை உள்ளிடவும்',
+    recipAddressErr: 'தயவுசெய்து ஒரு முகவரியை உள்ளிடவும்',
   },
 }
 

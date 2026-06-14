@@ -555,9 +555,10 @@ export default function Home() {
         return
       }
 
-      // Checkout URL in response?
-      const checkout = detectCheckout(data.text || '')
-      if (checkout) {
+      // Checkout? Prefer the structured order result from the MCP (reliable expiry/url/ref);
+      // fall back to parsing the model's prose only if it's missing.
+      const checkout = data.orderResult ?? detectCheckout(data.text || '')
+      if (checkout && checkout.url) {
         setJourneyActive(3); setJourneyDone([0, 1, 2])
         setShowTrackChip(true)
         addMsg({
@@ -584,8 +585,13 @@ export default function Home() {
   }
 
   // ── Plan Board actions ────────────────────────────────────────────────────
-  function handleAddRecipient(plan) {
-    send("I'd like to add the recipient. Please ask me for their name, phone, and delivery address.")
+  function handleAddRecipient(recipientText) {
+    // The inline form passes a clean structured string; fall back to a prompt only if called bare
+    if (typeof recipientText === 'string' && recipientText.length) {
+      send(recipientText)
+    } else {
+      send("I'd like to add the recipient. Please ask me for their name, phone, and delivery address.")
+    }
   }
 
   function handleCreateOrder(plan) {
