@@ -84,6 +84,7 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
     const [showForm, setShowForm] = useState(false)
     const [form, setForm] = useState({ name: '', phone: '', address: '' })
     const [errors, setErrors] = useState({})
+    const [confirming, setConfirming] = useState(false)
 
     function submitRecipient() {
         const e = {}
@@ -346,15 +347,40 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                 </div>
 
                 {hasRecipient ? (
-                    <button onClick={onCreateOrder} className="plan-cta" style={{
-                        display: 'inline-flex', alignItems: 'center',
-                        gap: 8, background: 'linear-gradient(135deg,#FFE08A,#F5C800)', color: '#3D2785',
-                        fontWeight: 700, fontSize: 16, padding: '13px 22px', border: 'none',
-                        borderRadius: 14, cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,200,0,0.45)',
-                        fontFamily: 'Inter'
-                    }}>
-                        {t(lang, 'planCreateOrder')} <Icon name="arrow-right" size={18} color="#3D2785" stroke={2} />
-                    </button>
+                    confirming ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
+                            <div style={{
+                                fontSize: 12.5, color: 'rgba(26,20,51,0.6)', fontFamily: 'Inter',
+                                fontWeight: 600, textAlign: 'right'
+                            }}>{t(lang, 'reviewTitle')}</div>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                                <button onClick={() => setConfirming(false)} style={{
+                                    padding: '11px 16px', borderRadius: 12, cursor: 'pointer',
+                                    background: 'transparent', border: '1px solid rgba(61,39,133,0.3)',
+                                    color: '#3D2785', fontSize: 13.5, fontWeight: 600, fontFamily: 'Inter'
+                                }}>{t(lang, 'reviewEdit')}</button>
+                                <button onClick={onCreateOrder} className="plan-cta" style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: 7,
+                                    background: 'linear-gradient(135deg,#FFE08A,#F5C800)', color: '#3D2785',
+                                    fontWeight: 700, fontSize: 14.5, padding: '11px 18px', border: 'none',
+                                    borderRadius: 12, cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,200,0,0.45)',
+                                    fontFamily: 'Inter'
+                                }}>
+                                    <Icon name="check" size={16} color="#3D2785" stroke={2.4} /> {t(lang, 'reviewConfirm')}
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <button onClick={() => setConfirming(true)} className="plan-cta" style={{
+                            display: 'inline-flex', alignItems: 'center',
+                            gap: 8, background: 'linear-gradient(135deg,#FFE08A,#F5C800)', color: '#3D2785',
+                            fontWeight: 700, fontSize: 16, padding: '13px 22px', border: 'none',
+                            borderRadius: 14, cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,200,0,0.45)',
+                            fontFamily: 'Inter'
+                        }}>
+                            {t(lang, 'planCreateOrder')} <Icon name="arrow-right" size={18} color="#3D2785" stroke={2} />
+                        </button>
+                    )
                 ) : (
                     <button onClick={() => setShowForm(s => !s)} className="plan-cta" style={{
                         display: 'inline-flex', alignItems: 'center',

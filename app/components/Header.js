@@ -64,7 +64,7 @@ function JourneyLine({ active, done, lang }) {
     )
 }
 
-export default function Header({ lang, setLang, journeyActive, journeyDone, showJourney = true }) {
+export default function Header({ lang, setLang, journeyActive, journeyDone, showJourney = true, onNewFlow }) {
     const LANGS = [{ code: 'EN', label: 'EN' }, { code: 'SI', label: 'සිං' }, { code: 'TA', label: 'தமி' }]
     return (
         <header style={{
@@ -111,6 +111,25 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
                     <div className="mobile-journey-wrapper" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                         <JourneyLine active={journeyActive} done={journeyDone} lang={lang} />
                     </div>
+                )}
+
+                {/* Start over — escape hatch, only during an active flow */}
+                {showJourney && onNewFlow && (
+                    <button
+                        onClick={() => { if (confirm(t(lang, 'startOverConfirm'))) onNewFlow() }}
+                        title={t(lang, 'startOver')}
+                        aria-label={t(lang, 'startOver')}
+                        style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: 34, height: 34, borderRadius: 999, flexShrink: 0,
+                            border: '1px solid rgba(255,255,255,0.14)', cursor: 'pointer',
+                            background: 'rgba(255,255,255,0.06)', transition: 'all .2s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+                    >
+                        <Icon name="rotate-ccw" size={15} color="rgba(255,255,255,0.7)" stroke={2} />
+                    </button>
                 )}
 
                 {/* Language toggle */}
