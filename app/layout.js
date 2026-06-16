@@ -1,6 +1,7 @@
 import './globals.css'
 
 export const metadata = {
+  metadataBase: new URL('https://kapruka-flow.vercel.app'),
   title: 'Kapruka Flow — AI shopping, the Sri Lankan way',
   description: 'Chat with Flow, your AI shopping companion for Kapruka.com. Find the perfect gift, check delivery anywhere in Sri Lanka, and checkout — all in one conversation. English · සිංහල · தமிழ்.',
   openGraph: {
@@ -16,7 +17,6 @@ export const metadata = {
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
   viewportFit: 'cover',
   themeColor: '#FAF9FF',
 }

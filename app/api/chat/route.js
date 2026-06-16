@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { t } from '../../i18n'
 export const maxDuration = 60
 export const runtime = 'nodejs'  // prevents Vercel edge from buffering the NDJSON stream
 
@@ -282,35 +283,45 @@ const KAPRUKA_TOOLS = [{
     ]
 }]
 
-// ── Human-readable status labels for the live thinking feed ───────────────────
+// ── Status events for the live thinking feed ──────────────────────────────────
+// Emits a translation key + params so the CLIENT can localize (it knows the lang).
+// `label` is kept as an English fallback for safety.
 function statusLabel(name, args = {}) {
     switch (name) {
         case 'kapruka_search_products': {
-            let s = `Searching “${args.q || '…'}”`
-            if (args.category) s += ` in ${args.category}`
-            if (args.max_price) s += ` under LKR ${Number(args.max_price).toLocaleString()}`
-            return { icon: 'search', label: s }
+            const params = { q: args.q || '…' }
+            if (args.category) params.category = args.category
+            if (args.max_price) params.price = Number(args.max_price).toLocaleString()
+            let label = `Searching “${params.q}”`
+            if (params.category) label += ` in ${params.category}`
+            if (params.price) label += ` under LKR ${params.price}`
+            return { icon: 'search', key: 'search', params, label }
         }
         case 'kapruka_get_product':
-            return { icon: 'package', label: 'Pulling product details' }
+            return { icon: 'package', key: 'getProduct', label: 'Pulling product details' }
         case 'kapruka_list_categories':
-            return { icon: 'layout-grid', label: 'Browsing categories' }
+            return { icon: 'layout-grid', key: 'categories', label: 'Browsing categories' }
         case 'kapruka_list_delivery_cities':
-            return { icon: 'map-pin', label: `Finding “${args.query || ''}” in the delivery network` }
-        case 'kapruka_check_delivery':
-            return { icon: 'truck', label: `Checking delivery to ${args.city || '…'}${args.delivery_date ? ` on ${args.delivery_date}` : ''}` }
+            return { icon: 'map-pin', key: 'cities', params: { query: args.query || '' }, label: `Finding “${args.query || ''}” in the delivery network` }
+        case 'kapruka_check_delivery': {
+            const params = { city: args.city || '…' }
+            if (args.delivery_date) params.date = args.delivery_date
+            let label = `Checking delivery to ${params.city}`
+            if (params.date) label += ` on ${params.date}`
+            return { icon: 'truck', key: 'checkDelivery', params, label }
+        }
         case 'kapruka_create_order':
-            return { icon: 'lock', label: 'Locking in your order' }
+            return { icon: 'lock', key: 'createOrder', label: 'Locking in your order' }
         case 'kapruka_track_order':
-            return { icon: 'compass', label: `Tracking ${args.order_number || 'your order'}` }
+            return { icon: 'compass', key: 'track', params: { orderNumber: args.order_number || 'your order' }, label: `Tracking ${args.order_number || 'your order'}` }
         default:
-            return { icon: 'sparkles', label: 'Working on it' }
+            return { icon: 'sparkles', key: 'working', label: 'Working on it' }
     }
 }
 
 // ── MCP Client ─────────────────────────────────────────────────────────────────
 class KaprukaMCPClient {
-    constructor() { this.sessionId = null; this.msgId = 1; this.ready = false }
+    constructor() { this.sessionId = null; this.msgId = 1; this.ready = false; this._initPromise = null }
 
     async _rpc(method, params = {}, isNotif = false) {
         const body = { jsonrpc: '2.0', method, params }
@@ -344,9 +355,16 @@ class KaprukaMCPClient {
 
     async init() {
         if (this.ready) return
-        await this._rpc('initialize', { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'kapruka-flow', version: '1' } })
-        await this._rpc('notifications/initialized', {}, true)
-        this.ready = true
+        // Memoize: parallel tool calls (Promise.all) share ONE initialize handshake,
+        // so we never double-init or clobber the session id.
+        if (!this._initPromise) {
+            this._initPromise = (async () => {
+                await this._rpc('initialize', { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'kapruka-flow', version: '1' } })
+                await this._rpc('notifications/initialized', {}, true)
+                this.ready = true
+            })()
+        }
+        return this._initPromise
     }
 
     async callTool(name, args) {
@@ -541,14 +559,14 @@ export async function POST(req) {
 
                 if (bailed) {
                     // Ran out of time mid-loop — tell the user honestly, don't let the function die silently
-                    emit({ type: 'final', payload: { type: 'chat', text: 'That took longer than expected on Kapruka\'s side. Could you tap "Create my order" once more? Everything you entered is still here.' } })
+                    emit({ type: 'final', payload: { type: 'chat', text: t(lang, 'errTimeout') } })
                 } else {
-                    emit({ type: 'status', icon: 'sparkles', label: 'Putting it together for you' })
+                    emit({ type: 'status', icon: 'sparkles', key: 'statusAssembling', label: 'Putting it together for you' })
                     let payload
                     try { payload = await buildPayload(result.response.text(), chat) }
                     catch (e) {
                         console.error('buildPayload error:', e)
-                        payload = { type: 'chat', text: 'I hit a snag formatting that — give it one more try?' }
+                        payload = { type: 'chat', text: t(lang, 'errFormatting') }
                     }
                     // Structured order result (from create_order) overrides any prose-parsed values
                     if (orderResult) payload.orderResult = orderResult
@@ -556,7 +574,7 @@ export async function POST(req) {
                 }
             } catch (e) {
                 console.error('Route error:', e)
-                try { emit({ type: 'final', payload: { type: 'chat', text: 'Something went wrong on my side — try that once more?' } }) } catch { }
+                try { emit({ type: 'final', payload: { type: 'chat', text: t(lang, 'errGeneric') } }) } catch { }
             } finally {
                 clearInterval(heartbeatTimer)
                 controller.close()

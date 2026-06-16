@@ -51,28 +51,16 @@ function useSpeech(lang, onResult) {
 
 function getChips(lang) {
     return [
-        { label: t(lang,'chipGiftLabel'),      icon: 'gift',           goal: t(lang,'chipGiftGoal'),      grad: 'linear-gradient(135deg,#E9E4FF,#C8BFEF)', iconColor: '#3D2785' },
-        { label: t(lang,'chipCelebrateLabel'), icon: 'party-popper',   goal: t(lang,'chipCelebrateGoal'), grad: 'linear-gradient(135deg,#FFF7E0,#FFE08A)', iconColor: '#8a6d00' },
-        { label: t(lang,'chipSayLabel'),       icon: 'heart',          goal: t(lang,'chipSayGoal'),       grad: 'linear-gradient(135deg,#FFE9F3,#FF9ECF)', iconColor: '#c0336a' },
-        { label: t(lang,'chipStockLabel'),     icon: 'shopping-basket', goal: t(lang,'chipStockGoal'),    grad: 'linear-gradient(135deg,#E0F5E9,#A8DFBA)', iconColor: '#1a7a3a' },
+        { label: t(lang, 'chipGiftLabel'), icon: 'gift', goal: t(lang, 'chipGiftGoal'), grad: 'linear-gradient(135deg,#E9E4FF,#C8BFEF)', iconColor: '#3D2785' },
+        { label: t(lang, 'chipCelebrateLabel'), icon: 'party-popper', goal: t(lang, 'chipCelebrateGoal'), grad: 'linear-gradient(135deg,#FFF7E0,#FFE08A)', iconColor: '#8a6d00' },
+        { label: t(lang, 'chipSayLabel'), icon: 'heart', goal: t(lang, 'chipSayGoal'), grad: 'linear-gradient(135deg,#FFE9F3,#FF9ECF)', iconColor: '#c0336a' },
+        { label: t(lang, 'chipStockLabel'), icon: 'shopping-basket', goal: t(lang, 'chipStockGoal'), grad: 'linear-gradient(135deg,#E0F5E9,#A8DFBA)', iconColor: '#1a7a3a' },
     ]
 }
 
-const HEADLINES = {
-    EN: 'What would you like Flow to handle today?',
-    SI: 'අද Flow එකෙන් කරගන්න ඕනේ මොකක්ද?',
-    TA: 'இன்று Flow மூலம் என்ன செய்ய விரும்புகிறீர்கள்?',
-}
-const PLACEHOLDERS = {
-    EN: 'A gaming laptop, flowers for tomorrow, delivery to Galle…',
-    SI: 'Gaming laptop එකක්, හෙටට මල්, Galle delivery',
-    TA: 'Gaming laptop, நாளைக்கு மலர்கள், Galle delivery…',
-}
-const SLOGAN = 'Flow your way to the perfect find'
-
 export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
     const CHIPS = getChips(lang)
-    const words = (HEADLINES[lang] || HEADLINES.EN).split(' ')
+    const words = t(lang, 'openingHeadline').split(' ')
 
     return (
         <div className="opening-canvas" style={{
@@ -118,7 +106,7 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
                         animation: 'sloganShimmer 15s linear infinite',
                         display: 'inline-block'
                     }}>
-                        {SLOGAN}
+                        {t(lang, 'openingSub')}
                     </span>
                 </div>
             </div>
@@ -127,7 +115,7 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
             <div style={{ animation: 'riseBlur .7s 0.5s ease-out both', width: '100%', maxWidth: 680 }}>
                 <InputBar
                     value={input} onChange={setInput}
-                    placeholder={PLACEHOLDERS[lang] || PLACEHOLDERS.EN}
+                    placeholder={t(lang, 'openingPlaceholderRich')}
                     onSubmit={onSubmit} docked={false} lang={lang}
                 />
             </div>
@@ -269,7 +257,7 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked, loadi
                     }}
                 />
                 {supported && (
-                    <button onClick={toggle} aria-label="Voice input" style={{
+                    <button onClick={toggle} aria-label={t(lang, 'ariaVoice')} style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         width: 42, height: 42, borderRadius: 12, border: 'none', cursor: 'pointer',
                         flexShrink: 0,
@@ -291,7 +279,7 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked, loadi
                     className="chat-input-btn"
                     onClick={() => !loading && onSubmit(value)}
                     disabled={loading}
-                    aria-label="Send"
+                    aria-label={t(lang, 'ariaSend')}
                     style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         width: 46, height: 46, borderRadius: 13, border: 'none', cursor: loading ? 'default' : 'pointer',

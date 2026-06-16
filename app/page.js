@@ -434,6 +434,12 @@ export default function Home() {
     } catch { /* quota exceeded → just skip saving */ }
   }, [messages, phase, journeyActive, journeyDone, showTrackChip, lastPlan, lang])
 
+  // Keep the document language in sync with the selected UI language (a11y/SEO)
+  useEffect(() => {
+    const map = { EN: 'en', SI: 'si', TA: 'ta' }
+    document.documentElement.lang = map[lang] || 'en'
+  }, [lang])
+
   // Auto-scroll flow area
   useEffect(() => {
     if (flowRef.current) {
@@ -484,8 +490,8 @@ export default function Home() {
 
     if (phase === 'opening') {
       setPhase('flow')
-      setJourneyActive(1)
-      setJourneyDone([0])
+      // Stay on "Goal" until a real result (trio/plan/checkout) advances the journey,
+      // so a clarifying question doesn't falsely show "Discover" as reached.
     }
 
     const userMsg = { role: 'user', content: t }
