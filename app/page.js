@@ -320,13 +320,13 @@ function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onT
         </div>
       )}
       <InputBar value={input} onChange={setInput} onSubmit={onSubmit} docked={true} loading={loading} lang={lang}
-        placeholder={loading ? 'Flow is working…' : 'Ask, refine, or tell me what changed…'} />
+        placeholder={loading ? t(lang, 'inputPlaceholderLoading') : t(lang, 'inputPlaceholderDocked')} />
     </div>
   )
 }
 
 // ── Splash screen — brand moment while fonts load ──────────────────────────────
-function SplashScreen({ onDone }) {
+function SplashScreen({ onDone, lang = 'EN' }) {
   const [leaving, setLeaving] = useState(false)
 
   useEffect(() => {
@@ -379,7 +379,7 @@ function SplashScreen({ onDone }) {
         color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em',
         animation: 'fadeIn .6s 1s ease-out both'
       }}>
-        Flow your way to the perfect find
+        {t(lang, 'openingSub')}
       </div>
     </div>
   )
@@ -694,7 +694,7 @@ export default function Home() {
       {/* Flow Presence widget — only visible on landing */}
       {celebrate && <Confetti />}
       {phase === 'opening' && <FlowPresence lang={lang} />}
-      {splash && <SplashScreen onDone={() => setSplash(false)} />}
+      {splash && <SplashScreen onDone={() => setSplash(false)} lang={lang} />}
     </div>
   )
 }

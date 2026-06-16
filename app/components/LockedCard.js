@@ -90,7 +90,7 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
                             fontSize: 16, color: '#3D2785'
                         }}>{t(lang, 'orderLocked')}</div>
                         {orderRef && (
-                            <button onClick={copyRef} title="Copy order number" style={{
+                            <button onClick={copyRef} title={t(lang, 'copyOrderNumber')} style={{
                                 display: 'inline-flex', alignItems: 'center', gap: 5,
                                 fontSize: 12.5, color: copied ? '#0E9F6E' : 'rgba(26,20,51,0.55)',
                                 letterSpacing: '0.03em', marginTop: 1, cursor: 'pointer',

@@ -73,6 +73,10 @@ export const STRINGS = {
     recipNameErr: 'Please enter a name',
     recipPhoneErr: 'Enter a valid phone number',
     recipAddressErr: 'Please enter an address',
+    // ── Misc ──
+    noRecipientYet: 'No recipient yet',
+    planTotal: 'Total',
+    copyOrderNumber: 'Copy order number',
   },
 
   SI: {
@@ -131,6 +135,9 @@ export const STRINGS = {
     recipNameErr: 'කරුණාකර නමක් ඇතුළත් කරන්න',
     recipPhoneErr: 'වලංගු දුරකථන අංකයක් ඇතුළත් කරන්න',
     recipAddressErr: 'කරුණාකර ලිපිනයක් ඇතුළත් කරන්න',
+    noRecipientYet: 'තවම ලබන්නෙක් නැහැ',
+    planTotal: 'එකතුව',
+    copyOrderNumber: 'ඇණවුම් අංකය පිටපත් කරන්න',
   },
 
   TA: {
@@ -190,6 +197,9 @@ export const STRINGS = {
     recipNameErr: 'தயவுசெய்து ஒரு பெயரை உள்ளிடவும்',
     recipPhoneErr: 'சரியான தொலைபேசி எண்ணை உள்ளிடவும்',
     recipAddressErr: 'தயவுசெய்து ஒரு முகவரியை உள்ளிடவும்',
+    noRecipientYet: 'இன்னும் பெறுநர் இல்லை',
+    planTotal: 'மொத்தம்',
+    copyOrderNumber: 'ஆர்டர் எண்ணை நகலெடு',
   },
 }
 
