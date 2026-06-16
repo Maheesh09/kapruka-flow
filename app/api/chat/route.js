@@ -407,11 +407,14 @@ function parseChips(text) {
 // ── History builder (capped — keeps tokens and latency under control) ─────────
 const HISTORY_CAP = 16
 function toGeminiHistory(messages) {
-    return messages.slice(0, -1).slice(-HISTORY_CAP).map(m => ({
+    let h = messages.slice(0, -1).slice(-HISTORY_CAP).map(m => ({
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
     }))
+    while (h.length && h[0].role === 'model') h.shift()   // history must start with 'user'
+    return h
 }
+
 
 // ── Build the final JSON payload from model text ───────────────────────────────
 async function buildPayload(fullText, chat) {
