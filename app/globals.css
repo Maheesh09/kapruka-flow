@@ -494,21 +494,24 @@ a {
     display: none !important;
   }
 
-  /* ── Header: tighter on mobile ── */
+  /* ── Header: compact 2-row mobile layout ── */
   .mobile-header-grid {
-    padding: 10px 16px !important;
-    border-radius: 18px !important;
-    gap: 12px !important;
-    row-gap: 10px !important;
+    padding: 8px 12px !important;
+    border-radius: 16px !important;
+    gap: 8px !important;
+    row-gap: 8px !important;
     width: 97% !important;
     flex-wrap: wrap !important;
+    align-items: center !important;
   }
 
+  /* Wordmark: smaller on mobile */
   .mobile-header-wordmark {
-    font-size: 15px !important;
+    font-size: 14px !important;
     white-space: nowrap !important;
   }
 
+  /* Journey bar: always full-width second row */
   .mobile-journey-wrapper {
     order: 3 !important;
     flex: 1 1 100% !important;
@@ -517,7 +520,7 @@ a {
   .mobile-journey-line {
     width: 100% !important;
     min-width: 0 !important;
-    height: 40px !important;
+    height: 36px !important;
   }
 
   .mobile-journey-node {
@@ -525,13 +528,25 @@ a {
   }
 
   .mobile-journey-label {
-    font-size: 8.5px !important;
+    font-size: 7.5px !important;
     letter-spacing: 0.02em !important;
   }
 
+  /* Lang pills: tighter */
   .header-lang button {
-    padding: 5px 10px !important;
+    padding: 4px 8px !important;
     font-size: 11px !important;
+  }
+
+  /* Start-over button: slightly smaller on mobile */
+  .mobile-start-over {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Header outer padding: tighter on mobile */
+  .mobile-header-outer {
+    padding: 10px 10px 0 !important;
   }
 
   /* ── Opening canvas: allow scroll on short screens, tighten spacing ── */
@@ -635,7 +650,7 @@ a {
   }
 
   .flow-inner {
-    padding: 132px 14px calc(180px + env(safe-area-inset-bottom)) !important;
+    padding: 110px 14px calc(180px + env(safe-area-inset-bottom)) !important;
   }
 
   /* ── Flow thinking card: never overflow narrow screens ── */
@@ -690,7 +705,7 @@ a {
   }
 
   .opening-canvas {
-    padding-top: 120px !important;
+    padding-top: 105px !important;
   }
 
   .plan-board .plan-cta {

@@ -69,7 +69,7 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
     const LANGS = [{ code: 'EN', label: 'EN' }, { code: 'SI', label: 'සිං' }, { code: 'TA', label: 'தமி' }]
     const [confirmOpen, setConfirmOpen] = useState(false)
     return (
-        <header style={{
+        <header className="mobile-header-outer" style={{
             position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30,
             display: 'flex', justifyContent: 'center', padding: '18px 24px 0'
         }}>
@@ -121,6 +121,7 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
                         onClick={() => setConfirmOpen(true)}
                         title={t(lang, 'startOver')}
                         aria-label={t(lang, 'startOver')}
+                        className="mobile-start-over"
                         style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             width: 34, height: 34, borderRadius: 999, flexShrink: 0,
