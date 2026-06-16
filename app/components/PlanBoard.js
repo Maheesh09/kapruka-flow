@@ -260,7 +260,7 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                     </div>
                 ) : (
                     <div style={{ flex: 1, fontSize: 14.5, color: 'rgba(26,20,51,0.5)' }}>
-                        No recipient yet
+                        {t(lang, 'noRecipientYet')}
                     </div>
                 )}
             </div>
@@ -337,7 +337,7 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                     <div style={{
                         fontSize: 12, color: 'rgba(26,20,51,0.55)', textTransform: 'uppercase',
                         letterSpacing: '0.06em', fontWeight: 600
-                    }}>Total</div>
+                    }}>{t(lang, 'planTotal')}</div>
                     <div className="plan-total" style={{
                         fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
                         fontSize: 26, color: '#3D2785', fontVariantNumeric: 'tabular-nums'
