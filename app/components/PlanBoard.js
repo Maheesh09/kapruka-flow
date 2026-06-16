@@ -4,10 +4,15 @@ import { useState } from 'react'
 import Icon from './Icon'
 
 function fmtLKR(n) { return 'LKR ' + Number(n).toLocaleString() }
-function fmtDate(d) {
+const DATE_LOCALE = { EN: 'en-LK', SI: 'si-LK', TA: 'ta-LK' }
+function fmtDate(d, lang = 'EN') {
     if (!d) return ''
     const date = new Date(d + 'T00:00:00')
-    return date.toLocaleDateString('en-LK', { weekday: 'long', month: 'long', day: 'numeric' })
+    try {
+        return date.toLocaleDateString(DATE_LOCALE[lang] || 'en-LK', { weekday: 'long', month: 'long', day: 'numeric' })
+    } catch {
+        return date.toLocaleDateString('en-LK', { weekday: 'long', month: 'long', day: 'numeric' })
+    }
 }
 
 const glass = {
@@ -101,8 +106,18 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
     const delivery = plan.delivery || {}
     const recipient = plan.recipient || {}
     const hasRecipient = recipient.name
-    const locked = !plan.needs_recipient && recipient.name
     const rowDelay = (() => { let i = 0; return () => ({ animationDelay: `${i++ * 0.1}s` }) })()
+
+    // Reopen the form prefilled with current details so a saved recipient can be edited
+    function openEdit() {
+        setForm({
+            name: recipient.name || '',
+            phone: recipient.phone || '',
+            address: recipient.address || ''
+        })
+        setConfirming(false)
+        setShowForm(true)
+    }
 
     const board = (
         <div className="plan-board" style={{
@@ -154,7 +169,7 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                 </div>
                 <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 15, fontWeight: 600, color: '#1A1433' }}>
-                        {plan.delivery.city}{plan.delivery.date && ` · ${fmtDate(plan.delivery.date)}`}
+                        {plan.delivery.city}{plan.delivery.date && ` · ${fmtDate(plan.delivery.date, lang)}`}
                     </div>
                     <div style={{ fontSize: 12.5, color: 'rgba(26,20,51,0.55)', marginTop: 1 }}>
                         {t(lang, 'planDeliveryTo')}: {fmtLKR(plan.delivery.fee)}
@@ -247,15 +262,34 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
                     <Icon name="user" size={18} color={hasRecipient ? '#0E9F6E' : 'rgba(61,39,133,0.7)'} />
                 </div>
                 {hasRecipient ? (
-                    <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 15, fontWeight: 600, color: '#1A1433' }}>{plan.recipient.name}</div>
-                        {plan.recipient.phone && (
-                            <div style={{
-                                display: 'flex', alignItems: 'center', gap: 5, fontSize: 13,
-                                color: 'rgba(26,20,51,0.55)', marginTop: 2
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 15, fontWeight: 600, color: '#1A1433' }}>{plan.recipient.name}</div>
+                            {plan.recipient.phone && (
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', gap: 5, fontSize: 13,
+                                    color: 'rgba(26,20,51,0.55)', marginTop: 2
+                                }}>
+                                    <Icon name="phone" size={13} color="rgba(26,20,51,0.45)" /> {plan.recipient.phone}
+                                </div>
+                            )}
+                            {plan.recipient.address && (
+                                <div style={{
+                                    display: 'flex', alignItems: 'flex-start', gap: 5, fontSize: 13,
+                                    color: 'rgba(26,20,51,0.55)', marginTop: 2
+                                }}>
+                                    <Icon name="map-pin" size={13} color="rgba(26,20,51,0.45)" style={{ marginTop: 2 }} />
+                                    <span style={{ minWidth: 0 }}>{plan.recipient.address}</span>
+                                </div>
+                            )}
+                        </div>
+                        {onAddRecipient && (
+                            <button onClick={openEdit} aria-label={t(lang, 'recipEdit')} title={t(lang, 'recipEdit')} style={{
+                                width: 26, height: 26, borderRadius: 8, border: 'none', cursor: 'pointer', flexShrink: 0,
+                                background: 'rgba(61,39,133,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center'
                             }}>
-                                <Icon name="phone" size={13} color="rgba(26,20,51,0.45)" /> {plan.recipient.phone}
-                            </div>
+                                <Icon name="pencil" size={13} color="#3D2785" />
+                            </button>
                         )}
                     </div>
                 ) : (
@@ -266,7 +300,7 @@ export default function PlanBoard({ plan, lang = 'EN', onAddRecipient, onCreateO
             </div>
 
             {/* Inline recipient form — structured fields beat free-text parsing */}
-            {showForm && !hasRecipient && (
+            {showForm && (
                 <div style={{
                     marginTop: 14, padding: 16, borderRadius: 16,
                     background: 'rgba(61,39,133,0.04)',

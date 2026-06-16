@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import Icon from './Icon'
 import { t } from '../i18n'
 
@@ -66,6 +67,7 @@ function JourneyLine({ active, done, lang }) {
 
 export default function Header({ lang, setLang, journeyActive, journeyDone, showJourney = true, onNewFlow }) {
     const LANGS = [{ code: 'EN', label: 'EN' }, { code: 'SI', label: 'සිං' }, { code: 'TA', label: 'தமி' }]
+    const [confirmOpen, setConfirmOpen] = useState(false)
     return (
         <header style={{
             position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30,
@@ -116,7 +118,7 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
                 {/* Start over — escape hatch, only during an active flow */}
                 {showJourney && onNewFlow && (
                     <button
-                        onClick={() => { if (confirm(t(lang, 'startOverConfirm'))) onNewFlow() }}
+                        onClick={() => setConfirmOpen(true)}
                         title={t(lang, 'startOver')}
                         aria-label={t(lang, 'startOver')}
                         style={{
@@ -155,6 +157,59 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
                     })}
                 </div>
             </div>
+
+            {/* Custom "start over" confirm — keeps the glass aesthetic (no native confirm()) */}
+            {confirmOpen && (
+                <div
+                    onClick={() => setConfirmOpen(false)}
+                    style={{
+                        position: 'fixed', inset: 0, zIndex: 80,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        padding: 24, background: 'rgba(26,20,51,0.42)',
+                        backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+                        animation: 'fadeIn .2s ease-out'
+                    }}
+                >
+                    <div
+                        onClick={e => e.stopPropagation()}
+                        role="dialog" aria-modal="true"
+                        style={{
+                            width: 'min(380px, 100%)', borderRadius: 22, padding: 24,
+                            background: 'linear-gradient(135deg,rgba(255,255,255,0.96),rgba(255,255,255,0.88))',
+                            border: '1px solid rgba(255,255,255,0.9)',
+                            boxShadow: '0 24px 60px rgba(26,20,51,0.32)',
+                            animation: 'scaleIn .25s cubic-bezier(.2,.7,.2,1) both', color: '#1A1433'
+                        }}
+                    >
+                        <div style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: 44, height: 44, borderRadius: 12, margin: '0 auto 14px',
+                            background: 'rgba(61,39,133,0.08)'
+                        }}>
+                            <Icon name="rotate-ccw" size={20} color="#3D2785" stroke={2} />
+                        </div>
+                        <div style={{
+                            fontFamily: "'Space Grotesk',sans-serif", fontWeight: 600, fontSize: 16,
+                            textAlign: 'center', lineHeight: 1.45, marginBottom: 18
+                        }}>
+                            {t(lang, 'startOverConfirm')}
+                        </div>
+                        <div style={{ display: 'flex', gap: 10 }}>
+                            <button onClick={() => setConfirmOpen(false)} style={{
+                                flex: 1, padding: '12px 16px', borderRadius: 12, cursor: 'pointer',
+                                background: 'transparent', border: '1px solid rgba(61,39,133,0.25)',
+                                color: '#3D2785', fontSize: 14, fontWeight: 600, fontFamily: 'Inter'
+                            }}>{t(lang, 'planCancel')}</button>
+                            <button onClick={() => { setConfirmOpen(false); onNewFlow() }} style={{
+                                flex: 1, padding: '12px 16px', borderRadius: 12, cursor: 'pointer',
+                                background: 'linear-gradient(135deg,#FFE08A,#F5C800)', border: 'none',
+                                color: '#3D2785', fontSize: 14, fontWeight: 700, fontFamily: 'Inter',
+                                boxShadow: '0 6px 18px rgba(245,200,0,0.4)'
+                            }}>{t(lang, 'startOver')}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </header>
     )
 }

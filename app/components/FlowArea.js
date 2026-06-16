@@ -1,5 +1,5 @@
 'use client'
-import { t } from '../i18n'
+import { t, fmt } from '../i18n'
 import { useState, useEffect, useRef } from 'react'
 import Icon from './Icon'
 import PlanBoard from './PlanBoard'
@@ -59,25 +59,45 @@ function KaprukaSmiley({ thinking }) {
     )
 }
 
+// ── Live status → localized label ─────────────────────────────────────────────
+function localizeStatus(ev, lang) {
+    if (!ev?.key) return ev?.label || ''
+    const p = ev.params || {}
+    switch (ev.key) {
+        case 'search': {
+            let s = fmt(t(lang, 'statusSearch'), p)
+            if (p.category) s += fmt(t(lang, 'statusInCategory'), p)
+            if (p.price) s += fmt(t(lang, 'statusUnderPrice'), p)
+            return s
+        }
+        case 'getProduct': return t(lang, 'statusGetProduct')
+        case 'categories': return t(lang, 'statusCategories')
+        case 'cities': return fmt(t(lang, 'statusCities'), p)
+        case 'checkDelivery': {
+            let s = fmt(t(lang, 'statusCheckDelivery'), p)
+            if (p.date) s += fmt(t(lang, 'statusOnDate'), p)
+            return s
+        }
+        case 'createOrder': return t(lang, 'statusCreateOrder')
+        case 'track': return fmt(t(lang, 'statusTrack'), p)
+        case 'statusAssembling': return t(lang, 'statusAssembling')
+        default: return ev.label || t(lang, 'statusWorking')
+    }
+}
+
 // ── Flow Thinking Checklist ────────────────────────────────────────────────────
-export function FlowThinking({ events = [] }) {
+export function FlowThinking({ events = [], lang = 'EN' }) {
     const hasReal = events.length > 0
-    const [phase, setPhase] = useState(0) // cycling through status messages
-    const statusMessages = [
-        'Flow is figuring things out…',
-        'Searching the catalog…',
-        'Checking delivery options…',
-        'Comparing choices for you…',
-    ]
+    const statusMessages = t(lang, 'thinkingMessages') || []
     const [statusIdx, setStatusIdx] = useState(0)
 
     useEffect(() => {
         // Cycle the status message while waiting (only matters before real events arrive)
         const statusInterval = setInterval(() => {
-            setStatusIdx(s => (s + 1) % statusMessages.length)
+            setStatusIdx(s => (s + 1) % (statusMessages.length || 1))
         }, 1800)
         return () => clearInterval(statusInterval)
-    }, [])
+    }, [statusMessages.length])
 
     return (
         <div style={{
@@ -101,7 +121,7 @@ export function FlowThinking({ events = [] }) {
                     fontFamily: "'Space Grotesk',sans-serif",
                     marginBottom: 14, animation: 'fadeIn .35s ease-out'
                 }}>
-                    {hasReal ? 'Flow is on it…' : statusMessages[statusIdx]}
+                    {hasReal ? t(lang, 'flowOnIt') : (statusMessages[statusIdx] || '')}
                 </div>
 
                 {/* Real tool activity — streamed live from the agent */}
@@ -136,7 +156,7 @@ export function FlowThinking({ events = [] }) {
                                         color: isLast ? '#1A1433' : 'rgba(26,20,51,0.6)',
                                         fontFamily: 'Inter'
                                     }}>
-                                        {ev.label}
+                                        {localizeStatus(ev, lang)}
                                     </div>
                                 </div>
                             )
@@ -265,7 +285,7 @@ function AgentMessage({ text, stream, chips, onChip }) {
                 boxShadow: '0 8px 28px rgba(61,39,133,0.09)',
                 color: '#1A1433', fontSize: 17, lineHeight: 1.65, fontFamily: 'Inter'
             }}>
-                {stream ? <StreamingText text={text} /> : text}
+                {stream ? <StreamingText text={text} /> : <FormattedText text={text} />}
                 {chips?.length > 0 && (
                     <div style={{
                         display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12,
@@ -295,7 +315,7 @@ function AgentMessage({ text, stream, chips, onChip }) {
 }
 
 // ── Product trio ───────────────────────────────────────────────────────────────
-function ProductCard({ product, idx, onChoose }) {
+function ProductCard({ product, idx, onChoose, lang = 'EN' }) {
     const [hovered, setHovered] = useState(false)
     const [imgErr, setImgErr] = useState(false)
     const [tilt, setTilt] = useState({ x: 0, y: 0 })
@@ -368,7 +388,7 @@ function ProductCard({ product, idx, onChoose }) {
                     background: 'linear-gradient(135deg,rgba(245,200,0,0.16),rgba(245,200,0,0.08))',
                     border: '1px solid rgba(245,200,0,0.4)', color: '#8a6d00', fontSize: 11.5, fontWeight: 700
                 }}>
-                    <Icon name="compass" size={13} color="#b08900" /> Flow's pick
+                    <Icon name="compass" size={13} color="#b08900" /> {t(lang, 'flowPick')}
                 </div>
             )}
 
@@ -402,7 +422,7 @@ function ProductCard({ product, idx, onChoose }) {
                     <span className="choose-label" style={{
                         fontSize: 13, fontWeight: 600, color: '#fff',
                         display: hovered ? 'inline' : 'none'
-                    }}>Choose</span>
+                    }}>{t(lang, 'choose')}</span>
                     <Icon name="arrow-right" size={17} color={hovered ? '#fff' : '#3D2785'} stroke={2} />
                 </div>
             </div>
@@ -417,7 +437,7 @@ function ProductCard({ product, idx, onChoose }) {
         : inner
 }
 
-function ProductTrio({ trio, onChoose }) {
+function ProductTrio({ trio, onChoose, lang = 'EN' }) {
     return (
         <div style={{ margin: '8px 0 6px' }}>
             {trio.context && (
@@ -440,7 +460,7 @@ function ProductTrio({ trio, onChoose }) {
                 gap: 16, alignItems: 'center'
             }}>
                 {trio.products.map((p, i) => (
-                    <ProductCard key={p.product_id || i} product={p} idx={i} onChoose={onChoose} />
+                    <ProductCard key={p.product_id || i} product={p} idx={i} onChoose={onChoose} lang={lang} />
                 ))}
             </div>
         </div>
@@ -459,7 +479,7 @@ export default function FlowArea({ messages = [], loading, liveStatus = [], lang
                         case 'agent':
                             return <AgentMessage key={i} text={m.content} stream={m.stream} chips={m.chips} onChip={onChip} />
                         case 'product_trio':
-                            return <ProductTrio key={i} trio={m.trio} onChoose={onChoose} />
+                            return <ProductTrio key={i} trio={m.trio} onChoose={onChoose} lang={lang} />
                         case 'plan_board':
                             return (
                                 <PlanBoard key={i} plan={m.plan} lang={lang}
@@ -479,7 +499,7 @@ export default function FlowArea({ messages = [], loading, liveStatus = [], lang
                             return null
                     }
                 })}
-                {loading && <FlowThinking events={liveStatus} />}
+                {loading && <FlowThinking events={liveStatus} lang={lang} />}
             </div>
         </div>
     )

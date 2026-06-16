@@ -2,7 +2,7 @@
 // Hand-written UI strings for all three modes. These are the FIXED chrome of the
 // app (buttons, labels, headings) — NOT agent dialogue (the model speaks those).
 //
-// ⚠️ The SI and TG values below are a solid first draft. Have a native Sinhala
+// ⚠️ The SI and TA values below are a solid first draft. Have a native Sinhala
 // speaker review them — register and warmth matter more than literal accuracy.
 // Lines marked  // review  are the ones most worth a second pair of eyes.
 
@@ -20,7 +20,7 @@ export const STRINGS = {
     chipGiftLabel: 'Send a gift',
     chipGiftGoal: 'I want to send a gift',
     chipCelebrateLabel: 'Celebrate',
-    chipCelebrateGoal: 'I need to celebrate an occassion',
+    chipCelebrateGoal: 'I need to celebrate an occasion',
     chipSayLabel: 'Say it',
     chipSayGoal: 'I want to express my feelings',
     chipStockLabel: 'Stock up',
@@ -39,7 +39,7 @@ export const STRINGS = {
     planCancel: 'Cancel',
     planAddRecipient: 'Add recipient details',
     planCreateOrder: 'Create my order',
-    planDeliveryTo: 'Delivery to',
+    planDeliveryTo: 'Delivery',
     planConfirmed: 'Delivery confirmed',
     // ── Locked card ──
     orderLocked: 'Order locked',
@@ -77,6 +77,35 @@ export const STRINGS = {
     noRecipientYet: 'No recipient yet',
     planTotal: 'Total',
     copyOrderNumber: 'Copy order number',
+    // ── Thinking feed (live agent status) ──
+    flowOnIt: 'Flow is on it…',
+    thinkingMessages: ['Flow is figuring things out…', 'Searching the catalog…', 'Checking delivery options…', 'Comparing choices for you…'],
+    statusSearch: 'Searching “{q}”',
+    statusInCategory: ' in {category}',
+    statusUnderPrice: ' under LKR {price}',
+    statusGetProduct: 'Pulling product details',
+    statusCategories: 'Browsing categories',
+    statusCities: 'Finding “{query}” in the delivery network',
+    statusCheckDelivery: 'Checking delivery to {city}',
+    statusOnDate: ' on {date}',
+    statusCreateOrder: 'Locking in your order',
+    statusTrack: 'Tracking {orderNumber}',
+    statusWorking: 'Working on it',
+    statusAssembling: 'Putting it together for you',
+    // ── Product trio ──
+    flowPick: "Flow's pick",
+    choose: 'Choose',
+    // ── Opening canvas / input ──
+    openingPlaceholderRich: 'A gaming laptop, flowers for tomorrow, delivery to Galle…',
+    ariaVoice: 'Voice input',
+    ariaSend: 'Send',
+    // ── Recipient ──
+    recipEdit: 'Edit recipient',
+    recipAddressLabel: 'Delivery address',
+    // ── Agent-voice error fallbacks ──
+    errTimeout: 'That took longer than expected on Kapruka\u2019s side. Tap "Create my order" once more — everything you entered is still here.',
+    errFormatting: 'I hit a snag formatting that — give it one more try?',
+    errGeneric: 'Something went wrong on my side — try that once more?',
   },
 
   SI: {
@@ -138,6 +167,31 @@ export const STRINGS = {
     noRecipientYet: 'තවම ලබන්නෙක් නැහැ',
     planTotal: 'එකතුව',
     copyOrderNumber: 'ඇණවුම් අංකය පිටපත් කරන්න',
+    // ── Thinking feed ──                                          // review
+    flowOnIt: 'Flow ඒක කරගෙන යනවා…',
+    thinkingMessages: ['Flow හිතනවා…', 'නාමාවලිය සොයමින්…', 'බෙදාහැරීම් විකල්ප බලමින්…', 'ඔබට හොඳම දේ සංසන්දනය කරමින්…'],
+    statusSearch: '“{q}” සොයමින්',
+    statusInCategory: ' {category} තුළ',
+    statusUnderPrice: ' LKR {price}ට අඩුවෙන්',
+    statusGetProduct: 'නිෂ්පාදන විස්තර ලබාගනිමින්',
+    statusCategories: 'ප්‍රවර්ග බලමින්',
+    statusCities: 'බෙදාහැරීම් ජාලයේ “{query}” සොයමින්',
+    statusCheckDelivery: '{city}ට බෙදාහැරීම පරීක්ෂා කරමින්',
+    statusOnDate: ' {date} දින',
+    statusCreateOrder: 'ඔබේ ඇණවුම තහවුරු කරමින්',
+    statusTrack: '{orderNumber} සොයමින්',
+    statusWorking: 'වැඩ කරමින්',
+    statusAssembling: 'ඔබට එක්කරමින්…',
+    flowPick: 'Flow ගේ තේරීම',
+    choose: 'තෝරන්න',
+    openingPlaceholderRich: 'Gaming laptop එකක්, හෙටට මල්, Galle delivery…',
+    ariaVoice: 'හඬ ආදානය',
+    ariaSend: 'යවන්න',
+    recipEdit: 'ලබන්නා සංස්කරණය',
+    recipAddressLabel: 'බෙදාහැරීමේ ලිපිනය',
+    errTimeout: 'Kapruka පැත්තෙන් මේකට ටිකක් වෙලා ගියා. "මගේ ඇණවුම සාදන්න" තව පාරක් press කරන්න — ඔබ දැම්ම ඔක්කොම තාම තියෙනවා.',
+    errFormatting: 'මේක format කරද්දී පොඩි ප්‍රශ්නයක් ආවා — තව පාරක් උත්සාහ කරමුද?',
+    errGeneric: 'මගේ පැත්තෙන් මොකක්හරි වැරදුණා — තව පාරක් උත්සාහ කරන්න?',
   },
 
   TA: {
@@ -200,7 +254,36 @@ export const STRINGS = {
     noRecipientYet: 'இன்னும் பெறுநர் இல்லை',
     planTotal: 'மொத்தம்',
     copyOrderNumber: 'ஆர்டர் எண்ணை நகலெடு',
+    // ── Thinking feed ──                                          // review
+    flowOnIt: 'Flow அதைப் பார்த்துக்கொள்கிறது…',
+    thinkingMessages: ['Flow யோசிக்கிறது…', 'அட்டவணையில் தேடுகிறது…', 'விநியோக விருப்பங்களை சரிபார்க்கிறது…', 'உங்களுக்கான சிறந்ததை ஒப்பிடுகிறது…'],
+    statusSearch: '“{q}” தேடுகிறது',
+    statusInCategory: ' {category} இல்',
+    statusUnderPrice: ' LKR {price}க்கு கீழ்',
+    statusGetProduct: 'பொருள் விவரங்களைப் பெறுகிறது',
+    statusCategories: 'வகைகளைப் பார்க்கிறது',
+    statusCities: 'விநியோக வலையில் “{query}” தேடுகிறது',
+    statusCheckDelivery: '{city}க்கு விநியோகம் சரிபார்க்கிறது',
+    statusOnDate: ' {date} அன்று',
+    statusCreateOrder: 'உங்கள் ஆர்டரை உறுதிசெய்கிறது',
+    statusTrack: '{orderNumber} கண்காணிக்கிறது',
+    statusWorking: 'வேலை செய்கிறது',
+    statusAssembling: 'உங்களுக்காக சேர்க்கிறது…',
+    flowPick: 'Flow இன் தேர்வு',
+    choose: 'தேர்வு',
+    openingPlaceholderRich: 'Gaming laptop, நாளைக்கு மலர்கள், Galle delivery…',
+    ariaVoice: 'குரல் உள்ளீடு',
+    ariaSend: 'அனுப்பு',
+    recipEdit: 'பெறுநரைத் திருத்து',
+    recipAddressLabel: 'விநியோக முகவரி',
+    errTimeout: 'Kapruka பக்கத்தில் இது சற்று நேரம் எடுத்தது. "எனது ஆர்டரை உருவாக்கு" ஐ மீண்டும் தட்டவும் — நீங்கள் கொடுத்த அனைத்தும் இங்கே உள்ளன.',
+    errFormatting: 'அதை வடிவமைக்கையில் ஒரு சிக்கல் — மீண்டும் முயற்சிக்கலாமா?',
+    errGeneric: 'என் பக்கத்தில் ஏதோ தவறு — மீண்டும் முயற்சிக்கவும்?',
   },
 }
 
 export const t = (lang, key) => (STRINGS[lang] && STRINGS[lang][key]) ?? STRINGS.EN[key]
+
+// Fill {placeholders} in a localized template, e.g. fmt(t(lang,'statusSearch'), { q: 'cake' })
+export const fmt = (str, params = {}) =>
+  (typeof str === 'string' ? str : '').replace(/\{(\w+)\}/g, (_, k) => (params[k] ?? ''))

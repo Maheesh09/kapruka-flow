@@ -136,6 +136,20 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
                                 <span style={{ fontVariantNumeric: 'tabular-nums' }}>LKR {Number(plan.total).toLocaleString()}</span>
                             </div>
                         )}
+                        {(plan.recipient?.name || plan.delivery?.city) && (
+                            <div style={{
+                                display: 'flex', alignItems: 'flex-start', gap: 6, marginTop: 9,
+                                paddingTop: 8, borderTop: '1px solid rgba(61,39,133,0.12)',
+                                fontSize: 12.5, color: 'rgba(26,20,51,0.6)', fontFamily: 'Inter'
+                            }}>
+                                <Icon name="map-pin" size={13} color="rgba(61,39,133,0.55)" style={{ marginTop: 1, flexShrink: 0 }} />
+                                <span style={{ minWidth: 0 }}>
+                                    {plan.recipient?.name ? <strong style={{ fontWeight: 600, color: '#1A1433' }}>{plan.recipient.name}</strong> : null}
+                                    {plan.recipient?.address ? ` · ${plan.recipient.address}` : ''}
+                                    {plan.delivery?.city ? `${plan.recipient?.address ? ', ' : ' · '}${plan.delivery.city}` : ''}
+                                </span>
+                            </div>
+                        )}
                     </div>
                 )}
 

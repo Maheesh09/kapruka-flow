@@ -452,6 +452,13 @@ a {
   user-select: none;
 }
 
+/* Staggered row reveal (PlanBoard rows, gift card, etc.).
+   The inline animation-delay on each .rise element drives the stagger;
+   without this rule those delays were no-ops and nothing animated. */
+.rise {
+  animation: riseBlur .5s cubic-bezier(.2, .7, .2, 1) both;
+}
+
 @media (max-width: 600px) {
   .trio-grid {
     grid-template-columns: 1fr !important;
@@ -701,17 +708,17 @@ a {
   }
 }
 
-/* Respect users who prefer reduced motion */
+/* Respect users who prefer reduced motion — collapse all motion to ~instant
+   (keeps animation end-states so 'animate-in' elements still end visible) */
 @media (prefers-reduced-motion: reduce) {
 
-  .kf-blob,
-  .drift-a,
-  .drift-b,
-  .drift-c,
-  .opening-canvas *,
-  [style*="floatUp"],
-  [style*="confettiFall"] {
-    animation: none !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
