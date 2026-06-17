@@ -59,64 +59,6 @@ function useSpeech(lang, onFinal) {
     return { listening, supported, toggle, transcript }
 }
 
-// Real audio-reactive levels for the waveform bars in the listening dock.
-// SpeechRecognition doesn't expose amplitude, so this opens its own short-lived
-// getUserMedia stream purely for visualization and tears it down the moment
-// listening stops. If the user declines/blocks this second permission prompt,
-// `supported` stays false and the dock falls back to a CSS idle animation.
-function useMicLevel(active) {
-    const [level, setLevel] = useState(0)
-    const [supported, setSupported] = useState(true)
-    const streamRef = useRef(null)
-    const ctxRef = useRef(null)
-    const rafRef = useRef(null)
-
-    useEffect(() => {
-        if (!active) { setLevel(0); return }
-        let cancelled = false
-
-            ; (async () => {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-                    if (cancelled) { stream.getTracks().forEach(tr => tr.stop()); return }
-                    streamRef.current = stream
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext
-                    const ctx = new AudioCtx()
-                    ctxRef.current = ctx
-                    const source = ctx.createMediaStreamSource(stream)
-                    const analyser = ctx.createAnalyser()
-                    analyser.fftSize = 256
-                    analyser.smoothingTimeConstant = 0.75
-                    source.connect(analyser)
-                    const data = new Uint8Array(analyser.frequencyBinCount)
-
-                    const tick = () => {
-                        analyser.getByteFrequencyData(data)
-                        let sum = 0
-                        for (let i = 0; i < data.length; i++) sum += data[i]
-                        setLevel(sum / data.length / 255)
-                        rafRef.current = requestAnimationFrame(tick)
-                    }
-                    tick()
-                } catch (err) {
-                    console.log('[voice] mic level unavailable:', err.message)
-                    if (!cancelled) setSupported(false)
-                }
-            })()
-
-        return () => {
-            cancelled = true
-            if (rafRef.current) cancelAnimationFrame(rafRef.current)
-            if (streamRef.current) streamRef.current.getTracks().forEach(tr => tr.stop())
-            if (ctxRef.current) ctxRef.current.close()
-            streamRef.current = null
-            ctxRef.current = null
-        }
-    }, [active])
-
-    return { level, supported }
-}
-
 function getChips(lang) {
     return [
         { label: t(lang, 'chipGiftLabel'), icon: 'gift', goal: t(lang, 'chipGiftGoal'), grad: 'linear-gradient(135deg,#E9E4FF,#C8BFEF)', iconColor: '#3D2785' },
@@ -267,9 +209,10 @@ function LuxuryChip({ chip, onSubmit, idx }) {
 // Speech-bubble-style dock that appears above the input while Flow is
 // listening. Shows the live transcript settling word by word, with the last
 // couple of words dimmed to read as "still being heard" rather than final,
-// plus a small waveform that reacts to real mic volume (falls back to a
-// gentle idle wave if the visualization stream isn't available).
-function ListeningDock({ lang, transcript, level, levelSupported }) {
+// plus a small idle waveform for visual liveliness. (Deliberately not wired
+// to real mic amplitude — a second audio stream for that purpose competes
+// with the browser's speech engine for the mic and degrades recognition.)
+function ListeningDock({ lang, transcript }) {
     const words = transcript.trim().length ? transcript.trim().split(/\s+/) : []
     const dockBg = 'linear-gradient(135deg,rgba(61,39,133,0.97),rgba(43,26,99,0.97))'
 
@@ -321,24 +264,16 @@ function ListeningDock({ lang, transcript, level, levelSupported }) {
                 )}
             </div>
 
-            {/* Waveform — real mic level when available, idle wave otherwise */}
+            {/* Idle waveform — decorative only, not tied to real mic amplitude */}
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 20, flexShrink: 0 }}>
-                {Array.from({ length: 9 }).map((_, i) => {
-                    const mult = 0.65 + (i % 3) * 0.18
-                    const scale = levelSupported
-                        ? Math.max(0.25, Math.min(1.6, level * 3.2 * mult + 0.22))
-                        : undefined
-                    return (
-                        <span key={i} style={{
-                            width: 3, height: 18, borderRadius: 2,
-                            background: 'rgba(255,255,255,0.85)',
-                            transformOrigin: 'bottom',
-                            transform: levelSupported ? `scaleY(${scale})` : undefined,
-                            transition: levelSupported ? 'transform 90ms ease-out' : undefined,
-                            animation: levelSupported ? undefined : `voiceBarIdle 1.1s ease-in-out ${i * 0.09}s infinite`
-                        }} />
-                    )
-                })}
+                {Array.from({ length: 9 }).map((_, i) => (
+                    <span key={i} style={{
+                        width: 3, height: 18, borderRadius: 2,
+                        background: 'rgba(255,255,255,0.85)',
+                        transformOrigin: 'bottom',
+                        animation: `voiceBarIdle 1.1s ease-in-out ${i * 0.09}s infinite`
+                    }} />
+                ))}
             </div>
 
             {/* Speech-bubble tail pointing down at the mic button */}
@@ -354,7 +289,6 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked, loadi
     const [focused, setFocused] = useState(false)
     const handleFinal = useCallback((text) => { onChange(text) }, [onChange])
     const { listening, supported, toggle, transcript } = useSpeech(lang, handleFinal)
-    const { level, supported: levelSupported } = useMicLevel(listening)
     return (
         <div style={{
             position: 'relative',
@@ -362,7 +296,7 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked, loadi
             borderRadius: 999
         }}>
             {listening && (
-                <ListeningDock lang={lang} transcript={transcript} level={level} levelSupported={levelSupported} />
+                <ListeningDock lang={lang} transcript={transcript} />
             )}
             {/* Spinning conic border outline */}
             <div style={{
