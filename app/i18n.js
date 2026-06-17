@@ -99,6 +99,7 @@ export const STRINGS = {
     openingPlaceholderRich: 'A gaming laptop, flowers for tomorrow, delivery to Galle…',
     ariaVoice: 'Voice input',
     ariaSend: 'Send',
+    voiceListening: 'Listening',
     // ── Recipient ──
     recipEdit: 'Edit recipient',
     recipAddressLabel: 'Delivery address',
@@ -187,6 +188,7 @@ export const STRINGS = {
     openingPlaceholderRich: 'Gaming laptop එකක්, හෙටට මල්, Galle delivery…',
     ariaVoice: 'හඬ ආදානය',
     ariaSend: 'යවන්න',
+    voiceListening: 'අහගන් ඉන්නවා',
     recipEdit: 'ලබන්නා සංස්කරණය',
     recipAddressLabel: 'බෙදාහැරීමේ ලිපිනය',
     errTimeout: 'Kapruka පැත්තෙන් මේකට ටිකක් වෙලා ගියා. "මගේ ඇණවුම සාදන්න" තව පාරක් press කරන්න — ඔබ දැම්ම ඔක්කොම තාම තියෙනවා.',
@@ -274,6 +276,7 @@ export const STRINGS = {
     openingPlaceholderRich: 'Gaming laptop, நாளைக்கு மலர்கள், Galle delivery…',
     ariaVoice: 'குரல் உள்ளீடு',
     ariaSend: 'அனுப்பு',
+    voiceListening: 'கேட்டுக்கொண்டிருக்கிறேன்',
     recipEdit: 'பெறுநரைத் திருத்து',
     recipAddressLabel: 'விநியோக முகவரி',
     errTimeout: 'Kapruka பக்கத்தில் இது சற்று நேரம் எடுத்தது. "எனது ஆர்டரை உருவாக்கு" ஐ மீண்டும் தட்டவும் — நீங்கள் கொடுத்த அனைத்தும் இங்கே உள்ளன.',
