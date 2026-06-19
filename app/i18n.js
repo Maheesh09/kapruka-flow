@@ -95,6 +95,17 @@ export const STRINGS = {
     // ── Product trio ──
     flowPick: "Flow's pick",
     choose: 'Choose',
+    // ── Product detail view ──
+    detailsBtn: 'Details',
+    detailsAria: 'View product details',
+    aboutItem: 'About this item',
+    flowTake: "Flow's take",
+    inStock: 'In stock',
+    lowStock: 'Selling fast',
+    viewOnKapruka: 'View full details on Kapruka',
+    chooseThis: 'Choose this',
+    backToOptions: 'Back to options',
+    closeAria: 'Close',
     // ── Opening canvas / input ──
     openingPlaceholderRich: 'A gaming laptop, flowers for tomorrow, delivery to Galle…',
     ariaVoice: 'Voice input',
@@ -185,6 +196,17 @@ export const STRINGS = {
     statusAssembling: 'ඔබට එක්කරමින්…',
     flowPick: 'Flow ගේ තේරීම',
     choose: 'තෝරන්න',
+    // ── Product detail view ──                                    // review
+    detailsBtn: 'විස්තර',                                          // review
+    detailsAria: 'නිෂ්පාදන විස්තර බලන්න',                          // review
+    aboutItem: 'මේ භාණ්ඩය ගැන',                                   // review
+    flowTake: 'Flow ගේ අදහස',                                     // review
+    inStock: 'තොගයේ ඇත',                                          // review
+    lowStock: 'ඉක්මනින් අවසන් වෙමින්',                              // review
+    viewOnKapruka: 'Kapruka හි සම්පූර්ණ විස්තර බලන්න',             // review
+    chooseThis: 'මේක තෝරන්න',                                     // review
+    backToOptions: 'විකල්ප වෙත ආපසු',                              // review
+    closeAria: 'වසන්න',                                           // review
     openingPlaceholderRich: 'Gaming laptop එකක්, හෙටට මල්, Galle delivery…',
     ariaVoice: 'හඬ ආදානය',
     ariaSend: 'යවන්න',
@@ -273,6 +295,17 @@ export const STRINGS = {
     statusAssembling: 'உங்களுக்காக சேர்க்கிறது…',
     flowPick: 'Flow இன் தேர்வு',
     choose: 'தேர்வு',
+    // ── Product detail view ──                                    // review
+    detailsBtn: 'விவரங்கள்',                                       // review
+    detailsAria: 'பொருள் விவரங்களைப் பார்',                        // review
+    aboutItem: 'இந்தப் பொருள் பற்றி',                              // review
+    flowTake: 'Flow இன் கருத்து',                                  // review
+    inStock: 'கையிருப்பில் உள்ளது',                                // review
+    lowStock: 'விரைவில் தீர்ந்துவிடும்',                            // review
+    viewOnKapruka: 'Kapruka இல் முழு விவரங்களைப் பார்',           // review
+    chooseThis: 'இதைத் தேர்வுசெய்',                                // review
+    backToOptions: 'விருப்பங்களுக்குத் திரும்பு',                   // review
+    closeAria: 'மூடு',                                            // review
     openingPlaceholderRich: 'Gaming laptop, நாளைக்கு மலர்கள், Galle delivery…',
     ariaVoice: 'குரல் உள்ளீடு',
     ariaSend: 'அனுப்பு',
