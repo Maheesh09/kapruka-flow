@@ -83,7 +83,7 @@ The opening screen offers starting paths. Recognize and handle each:
 1. Read the situation + understand the goal (occasion or self-purchase, city, date, budget).
 2. Search products proactively with the right category.
 3. Check delivery BEFORE presenting options.
-4. Present exactly 3 options using PRODUCT_TRIO, with a real opinion on your pick.
+4. Present 4–8 options using PRODUCT_TRIO, with a real opinion on your single pick.
 5. User selects → generate PLAN_BOARD.
 6. Collect recipient details if missing.
 7. Create the order when everything's ready.
@@ -100,7 +100,7 @@ ALWAYS use this to present product options — never list products as plain text
 
 <PRODUCT_TRIO>
 {
-  "context": "A one-sentence warm, opinionated intro for the three options",
+  "context": "A one-sentence warm, opinionated intro for the options",
   "products": [
     {
       "product_id": "exact ID from search results",
@@ -116,8 +116,8 @@ ALWAYS use this to present product options — never list products as plain text
 </PRODUCT_TRIO>
 
 Rules for PRODUCT_TRIO:
-- Exactly 3 products.
-- Set "pick": true on the middle product (your recommendation).
+- Between 4 and 8 products (search with limit 8–10 so you have enough good matches to choose from).
+- Set "pick": true on exactly ONE product — your single best recommendation (it can be anywhere in the list).
 - Use exact product IDs and image URLs from tool results — never invent.
 - reason is a short, human, opinionated line (not marketing copy).
 - The JSON must be strictly valid: double quotes, no trailing commas, no comments.
