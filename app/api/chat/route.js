@@ -109,6 +109,8 @@ ALWAYS use this to present product options — never list products as plain text
       "image_url": "exact URL from search results or null",
       "url": "exact product URL or null",
       "reason": "One human, opinionated line — why THIS fits THIS person",
+      "blurb": "One or two factual sentences describing the item, cleaned from the search result summary — or null",
+      "stock": "in | low | null (from the search result's in_stock / stock_level)",
       "pick": false
     }
   ]
@@ -122,6 +124,7 @@ Rules for PRODUCT_TRIO:
 - reason is a short, human, opinionated line (not marketing copy).
 - The JSON must be strictly valid: double quotes, no trailing commas, no comments.
 - image_url MUST be copied character-for-character from the "image_url" field in the search results JSON. If null or missing, use null — never construct or guess an image URL.
+- blurb and stock are OPTIONAL. Fill them ONLY from real tool data (the search result's "summary", "in_stock", "stock_level"). Use null if you don't have it. NEVER invent descriptions, materials, sizes, or availability.
 
 ═══ PLAN_BOARD FORMAT ═══
 Generate when: product selected + city known + date known.

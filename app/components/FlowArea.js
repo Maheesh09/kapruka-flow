@@ -314,8 +314,191 @@ function AgentMessage({ text, stream, chips, onChip }) {
     )
 }
 
+// ── Product detail / quick-view modal ─────────────────────────────────────────
+// Opens when a customer wants a closer look before committing. Shows everything
+// the trio payload carries (untruncated name + reason, big image, price, stock,
+// optional blurb) plus a link out to the full Kapruka product page. Choosing here
+// is the same commit as the card's Choose pill.
+function ProductDetail({ product, lang = 'EN', onClose, onChoose }) {
+    const [imgErr, setImgErr] = useState(false)
+
+    useEffect(() => {
+        const onKey = (e) => { if (e.key === 'Escape') onClose() }
+        window.addEventListener('keydown', onKey)
+        return () => window.removeEventListener('keydown', onKey)
+    }, [onClose])
+
+    const stockLow = product.stock === 'low'
+    const stockLabel = stockLow ? t(lang, 'lowStock') : (product.stock ? t(lang, 'inStock') : null)
+
+    return (
+        <div onClick={onClose} style={{
+            position: 'fixed', inset: 0, zIndex: 95,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 20, background: 'rgba(26,20,51,0.46)',
+            backdropFilter: 'blur(7px)', WebkitBackdropFilter: 'blur(7px)',
+            animation: 'fadeIn .22s ease-out'
+        }}>
+            <div onClick={e => e.stopPropagation()} role="dialog" aria-modal="true"
+                className="detail-modal" style={{
+                    width: 'min(440px, 94vw)', maxHeight: '88vh', overflowY: 'auto',
+                    borderRadius: 24,
+                    background: 'linear-gradient(160deg,rgba(255,255,255,0.97),rgba(255,255,255,0.92))',
+                    border: '1px solid rgba(255,255,255,0.9)',
+                    boxShadow: '0 28px 70px rgba(26,20,51,0.34)',
+                    animation: 'scaleIn .28s cubic-bezier(.2,.7,.2,1) both', color: '#1A1433'
+                }}>
+
+                {/* Image header */}
+                <div style={{
+                    position: 'relative', height: 'clamp(170px, 44vw, 224px)',
+                    background: 'rgba(61,39,133,0.08)', overflow: 'hidden',
+                    borderTopLeftRadius: 24, borderTopRightRadius: 24
+                }}>
+                    {(product.image_url && !imgErr)
+                        ? <img src={product.image_url} alt={product.name} referrerPolicy="no-referrer"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={() => setImgErr(true)} />
+                        : <div style={{
+                            width: '100%', height: '100%', display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', background: 'linear-gradient(135deg,#E9E4FF,#C8BFEF)'
+                        }}><Icon name="gift" size={48} color="rgba(61,39,133,0.3)" /></div>}
+
+                    {product.pick && (
+                        <div style={{
+                            position: 'absolute', top: 12, left: 12,
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            padding: '4px 11px', borderRadius: 999,
+                            background: 'linear-gradient(135deg,#FFE08A,#F5C800)',
+                            color: '#3D2785', fontSize: 12, fontWeight: 700,
+                            boxShadow: '0 3px 10px rgba(245,200,0,0.45)'
+                        }}>
+                            <Icon name="compass" size={13} color="#3D2785" /> {t(lang, 'flowPick')}
+                        </div>
+                    )}
+
+                    {/* Close */}
+                    <button onClick={onClose} aria-label={t(lang, 'closeAria')} style={{
+                        position: 'absolute', top: 10, right: 10, width: 34, height: 34, borderRadius: '50%',
+                        border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: 'rgba(26,20,51,0.5)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)'
+                    }}>
+                        <Icon name="x" size={17} color="#fff" stroke={2.2} />
+                    </button>
+                </div>
+
+                {/* Body */}
+                <div style={{ padding: '18px 20px 20px' }}>
+                    <div style={{
+                        fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
+                        fontSize: 19, lineHeight: 1.25
+                    }}>
+                        {product.name}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
+                        <span style={{
+                            fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
+                            fontSize: 20, color: '#3D2785', fontVariantNumeric: 'tabular-nums'
+                        }}>
+                            LKR {Number(product.price).toLocaleString()}
+                        </span>
+                        {stockLabel && (
+                            <span style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 5,
+                                padding: '4px 11px', borderRadius: 999, fontSize: 12.5, fontWeight: 600,
+                                background: stockLow ? 'rgba(245,158,11,0.14)' : 'rgba(14,159,110,0.12)',
+                                color: stockLow ? '#B45309' : '#0E9F6E'
+                            }}>
+                                <span style={{
+                                    width: 7, height: 7, borderRadius: '50%',
+                                    background: stockLow ? '#F59E0B' : '#0E9F6E'
+                                }} />
+                                {stockLabel}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Flow's take — the opinionated reasoning */}
+                    {product.reason && (
+                        <div style={{
+                            marginTop: 16, padding: '13px 15px', borderRadius: 14,
+                            background: 'rgba(107,82,200,0.07)', border: '1px solid rgba(107,82,200,0.16)'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
+                                <div style={{
+                                    width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                                    background: 'radial-gradient(circle at 34% 30%, #8a72d0, #3D2785 72%)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}>
+                                    <Icon name="sparkles" size={11} color="#F5C800" />
+                                </div>
+                                <span style={{
+                                    fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
+                                    fontSize: 13, color: '#3D2785'
+                                }}>
+                                    {t(lang, 'flowTake')}
+                                </span>
+                            </div>
+                            <div style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(26,20,51,0.78)' }}>
+                                {product.reason}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* About this item — factual blurb (only if the agent had real data) */}
+                    {product.blurb && (
+                        <div style={{ marginTop: 14 }}>
+                            <div style={{
+                                fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
+                                fontSize: 13, color: '#1A1433', marginBottom: 5
+                            }}>
+                                {t(lang, 'aboutItem')}
+                            </div>
+                            <div style={{ fontSize: 13.5, lineHeight: 1.55, color: 'rgba(26,20,51,0.62)' }}>
+                                {product.blurb}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Out to the real Kapruka page for the exhaustive detail */}
+                    {product.url && (
+                        <a href={product.url} target="_blank" rel="noopener noreferrer" style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 14,
+                            fontSize: 13.5, fontWeight: 600, color: '#3D2785'
+                        }}>
+                            {t(lang, 'viewOnKapruka')}
+                            <Icon name="external-link" size={14} color="#3D2785" stroke={2} />
+                        </a>
+                    )}
+
+                    {/* CTAs */}
+                    <button onClick={() => onChoose(product)} style={{
+                        marginTop: 18, width: '100%', padding: '13px 16px', borderRadius: 14,
+                        border: 'none', cursor: 'pointer',
+                        fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: '#3D2785',
+                        background: 'linear-gradient(135deg,#FFE08A,#F5C800)',
+                        boxShadow: '0 10px 26px rgba(245,200,0,0.4)'
+                    }}>
+                        {t(lang, 'chooseThis')}
+                    </button>
+                    <button onClick={onClose} style={{
+                        marginTop: 10, width: '100%', padding: '11px 16px', borderRadius: 14, cursor: 'pointer',
+                        background: 'transparent', border: '1px solid rgba(61,39,133,0.22)',
+                        fontFamily: 'Inter', fontWeight: 600, fontSize: 14, color: '#3D2785'
+                    }}>
+                        {t(lang, 'backToOptions')}
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ── Product card (compact, uniform — lives on a horizontal rail) ───────────────
-function ProductCard({ product, idx, onChoose, lang = 'EN' }) {
+// Tapping the card opens the detail view (a closer look before committing).
+// The Choose pill is the direct commit. The ⓘ badge makes "more details" obvious.
+function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN' }) {
     const [hovered, setHovered] = useState(false)
     const [imgErr, setImgErr] = useState(false)
 
@@ -323,7 +506,7 @@ function ProductCard({ product, idx, onChoose, lang = 'EN' }) {
         <div
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            onClick={() => onChoose(product)}
+            onClick={() => onDetails(product)}
             className="rail-card"
             style={{
                 background: hovered
@@ -363,6 +546,7 @@ function ProductCard({ product, idx, onChoose, lang = 'EN' }) {
                         <Icon name="gift" size={34} color="rgba(61,39,133,0.3)" />
                     </div>
                 }
+
                 {/* Flow's pick ribbon — overlaid so every card keeps the same height */}
                 {product.pick && (
                     <div style={{
@@ -376,6 +560,21 @@ function ProductCard({ product, idx, onChoose, lang = 'EN' }) {
                         <Icon name="compass" size={12} color="#3D2785" /> {t(lang, 'flowPick')}
                     </div>
                 )}
+
+                {/* Quick-view (details) badge */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); onDetails(product) }}
+                    aria-label={t(lang, 'detailsAria')} title={t(lang, 'detailsBtn')}
+                    style={{
+                        position: 'absolute', top: 8, right: 8, zIndex: 3,
+                        width: 28, height: 28, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: 'rgba(26,20,51,0.42)',
+                        backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+                        boxShadow: '0 2px 8px rgba(26,20,51,0.22)'
+                    }}>
+                    <Icon name="info" size={15} color="#fff" stroke={2} />
+                </button>
             </div>
 
             {/* Name + price + reason */}
@@ -385,14 +584,27 @@ function ProductCard({ product, idx, onChoose, lang = 'EN' }) {
                 <div className="rail-reason">{product.reason}</div>
             </div>
 
-            {/* Choose */}
-            <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
-                <div className="choose-pill" style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6,
-                    padding: '7px 12px', borderRadius: 999, transition: 'all .25s',
-                    background: hovered ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'rgba(61,39,133,0.10)',
-                    boxShadow: hovered ? '0 6px 16px rgba(61,39,133,0.4)' : 'none'
-                }}>
+            {/* Actions: Details (explicit, discoverable) + Choose (commit) */}
+            <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                <button
+                    onClick={(e) => { e.stopPropagation(); onDetails(product) }}
+                    style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 4,
+                        background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px',
+                        fontFamily: 'Inter', fontSize: 12.5, fontWeight: 600, color: '#6B52C8',
+                        flexShrink: 0
+                    }}>
+                    <Icon name="info" size={13} color="#6B52C8" stroke={2} /> {t(lang, 'detailsBtn')}
+                </button>
+
+                <div className="choose-pill"
+                    onClick={(e) => { e.stopPropagation(); onChoose(product) }}
+                    style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        padding: '7px 12px', borderRadius: 999, transition: 'all .25s', cursor: 'pointer',
+                        background: hovered ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'rgba(61,39,133,0.10)',
+                        boxShadow: hovered ? '0 6px 16px rgba(61,39,133,0.4)' : 'none'
+                    }}>
                     <span className="choose-label" style={{
                         fontSize: 13, fontWeight: 600, color: '#fff',
                         display: hovered ? 'inline' : 'none'
@@ -421,6 +633,7 @@ function ProductCarousel({ trio, onChoose, lang = 'EN' }) {
     const [atStart, setAtStart] = useState(true)
     const [atEnd, setAtEnd] = useState(false)
     const [activeIdx, setActiveIdx] = useState(0)
+    const [detail, setDetail] = useState(null) // product currently open in the detail view
 
     const cardStep = () => {
         const el = railRef.current
@@ -492,7 +705,8 @@ function ProductCarousel({ trio, onChoose, lang = 'EN' }) {
                 {/* The rail */}
                 <div className={`rail${scrollable ? '' : ' rail--center'}`} ref={railRef} onScroll={sync}>
                     {products.map((p, i) => (
-                        <ProductCard key={p.product_id || i} product={p} idx={i} onChoose={onChoose} lang={lang} />
+                        <ProductCard key={p.product_id || i} product={p} idx={i}
+                            onChoose={onChoose} onDetails={setDetail} lang={lang} />
                     ))}
                 </div>
             </div>
@@ -504,6 +718,14 @@ function ProductCarousel({ trio, onChoose, lang = 'EN' }) {
                         <span key={i} className={`rail-dot${i === activeIdx ? ' active' : ''}`} />
                     ))}
                 </div>
+            )}
+
+            {/* Detail / quick-view overlay */}
+            {detail && (
+                <ProductDetail
+                    product={detail} lang={lang}
+                    onClose={() => setDetail(null)}
+                    onChoose={(p) => { setDetail(null); onChoose(p) }} />
             )}
         </div>
     )
