@@ -169,13 +169,13 @@ export default function TrackingCard({ data, lang = 'EN', onTrackAnother }) {
                                         width: 24, height: 24, borderRadius: '50%',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         background: done
-                                            ? (active ? 'linear-gradient(135deg,#FFE08A,#F5C800)' : 'rgba(61,39,133,0.12)')
+                                            ? 'linear-gradient(135deg,#FFE08A,#F5C800)'
                                             : 'transparent',
                                         border: done ? 'none' : '1.5px dashed rgba(61,39,133,0.30)',
                                         boxShadow: active ? '0 0 0 4px rgba(245,200,0,0.18)' : 'none'
                                     }}>
                                         <Icon
-                                            name={stepIcon(step.label, isLastStep)}
+                                            name={done ? 'check' : stepIcon(step.label, isLastStep)}
                                             size={12}
                                             color={done ? '#3D2785' : 'rgba(61,39,133,0.35)'}
                                             stroke={2.4}
