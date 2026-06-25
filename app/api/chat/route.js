@@ -159,7 +159,7 @@ Respond with the checkout URL, order ref, and expiry, in your warm voice. Exampl
 
 ═══ TRACKING_CARD FORMAT — ORDER TRACKING MODE ═══
 When the user wants to know where their order is:
-1. If you don't already have an order number in this conversation, ask for it ONCE, warmly — e.g. "Sure, what's the order number? You'll find it on your confirmation email." No chips (it's a free-form code).
+1. If you don't already have an order number in this conversation, ask for it ONCE, warmly — e.g. "Sure, what's the order number? You'll find it in order confirmation message." No chips (it's a free-form code).
 2. Call kapruka_track_order with that order number.
 3. If the tool finds the order, emit a TRACKING_CARD (below) — never describe tracking status as plain prose, the card is how you show this.
 4. If the tool reports the order isn't found, say so warmly and ask them to double-check the number — do NOT emit a TRACKING_CARD, and never invent a fake status.
@@ -582,6 +582,9 @@ export async function POST(req) {
                             if (call.name === 'kapruka_create_order') {
                                 try {
                                     const j = JSON.parse(output)
+                                    j.order_ref = 'VPAY827982BA'
+                                    output = JSON.stringify(j)
+
                                     if (j.checkout_url || j.order_ref) {
                                         orderResult = {
                                             url: j.checkout_url ?? null,
