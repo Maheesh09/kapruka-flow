@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Icon from './Icon'
 import PlanBoard from './PlanBoard'
 import LockedCard from './LockedCard'
+import TrackingCard from './TrackingCard'
 
 // ── Kapruka Smile Animation ────────────────────────────────────────────────────
 function KaprukaSmiley({ thinking }) {
@@ -732,7 +733,7 @@ function ProductCarousel({ trio, onChoose, lang = 'EN' }) {
 }
 
 // ── Flow area ──────────────────────────────────────────────────────────────────
-export default function FlowArea({ messages = [], loading, liveStatus = [], lang = 'EN', onChoose, onAddRecipient, onCreateOrder, onAddItem, onEditGift, onChip, onComplete, flowRef }) {
+export default function FlowArea({ messages = [], loading, liveStatus = [], lang = 'EN', onChoose, onAddRecipient, onCreateOrder, onAddItem, onEditGift, onChip, onComplete, onTrackAnother, flowRef }) {
     return (
         <div ref={flowRef} className="flow-area">
             <div className="flow-inner">
@@ -759,6 +760,8 @@ export default function FlowArea({ messages = [], loading, liveStatus = [], lang
                                 expiresAt={m.checkoutData?.expiresAt}
                                 plan={m.plan} lang={lang}
                                 onComplete={onComplete} />
+                        case 'tracking':
+                            return <TrackingCard key={i} data={m.trackingData} lang={lang} onTrackAnother={onTrackAnother} />
                         default:
                             return null
                     }

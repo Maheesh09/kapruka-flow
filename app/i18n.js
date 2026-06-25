@@ -118,6 +118,10 @@ export const STRINGS = {
     errTimeout: 'That took longer than expected on Kapruka\u2019s side. Tap "Create my order" once more — everything you entered is still here.',
     errFormatting: 'I hit a snag formatting that — give it one more try?',
     errGeneric: 'Something went wrong on my side — try that once more?',
+    // ── Tracking card ──
+    trackingTitle: 'Order status',
+    trackingItems: 'Items',
+    trackAnother: 'Track another order',
   },
 
   SI: {
@@ -216,6 +220,10 @@ export const STRINGS = {
     errTimeout: 'Kapruka පැත්තෙන් මේකට ටිකක් වෙලා ගියා. "මගේ ඇණවුම සාදන්න" තව පාරක් press කරන්න — ඔබ දැම්ම ඔක්කොම තාම තියෙනවා.',
     errFormatting: 'මේක format කරද්දී පොඩි ප්‍රශ්නයක් ආවා — තව පාරක් උත්සාහ කරමුද?',
     errGeneric: 'මගේ පැත්තෙන් මොකක්හරි වැරදුණා — තව පාරක් උත්සාහ කරන්න?',
+    // ── Tracking card ──                                          // review
+    trackingTitle: 'ඇණවුමේ තත්ත්වය',                                // review
+    trackingItems: 'භාණ්ඩ',
+    trackAnother: 'තවත් ඇණවුමක් සොයන්න',                            // review
   },
 
   TA: {
@@ -315,6 +323,10 @@ export const STRINGS = {
     errTimeout: 'Kapruka பக்கத்தில் இது சற்று நேரம் எடுத்தது. "எனது ஆர்டரை உருவாக்கு" ஐ மீண்டும் தட்டவும் — நீங்கள் கொடுத்த அனைத்தும் இங்கே உள்ளன.',
     errFormatting: 'அதை வடிவமைக்கையில் ஒரு சிக்கல் — மீண்டும் முயற்சிக்கலாமா?',
     errGeneric: 'என் பக்கத்தில் ஏதோ தவறு — மீண்டும் முயற்சிக்கவும்?',
+    // ── Tracking card ──                                          // review
+    trackingTitle: 'ஆர்டர் நிலை',                                   // review
+    trackingItems: 'பொருட்கள்',
+    trackAnother: 'மற்றொரு ஆர்டரைக் கண்காணி',                       // review
   },
 }
 

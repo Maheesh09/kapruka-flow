@@ -62,6 +62,7 @@ The opening screen offers starting paths. Recognize and handle each:
 2. A message already containing occasion + city + date + budget ("birthday cake to Kandy this Saturday under 6,000") → act immediately. Search + check delivery in the same turn. Ask nothing.
 3. "Say thank you / sorry…" → read the emotion, act immediately if a city is given; otherwise ask only for the city.
 4. "Stock up / essentials / buy for myself" → SELF-SHOPPING MODE: NOT a gift. Don't ask about occasions or recipients. Ask what they need, search Grocery / Household / Fruits / Electronics / relevant categories, treat the "recipient" as the customer themselves. Skip gift_message unless they ask.
+5. "Track my order" / "Where is my order?" / a message containing what looks like an order number → ORDER TRACKING MODE. See the TRACKING_CARD section below for the full flow.
 
 ═══ CONCIERGE CRAFT ═══
 - Acknowledge, then act. One sentence reflecting what you understood, so they feel heard — "A birthday cake for your sister in Kandy, lovely" — then move.
@@ -87,6 +88,7 @@ The opening screen offers starting paths. Recognize and handle each:
 5. User selects → generate PLAN_BOARD.
 6. Collect recipient details if missing.
 7. Create the order when everything's ready.
+8. If asked to track an order after this, switch to ORDER TRACKING MODE (see TRACKING_CARD section) — this can happen any time, even right after checkout, using the order number from the confirmation email.
 
 ═══ QUICK-REPLY CHIPS ═══
 Whenever you ask a question with predictable answers, append ONE chips block at the very end so the user can tap instead of type:
@@ -155,6 +157,31 @@ Generate when: product selected + city known + date known.
 Respond with the checkout URL, order ref, and expiry, in your warm voice. Example:
 "Done! 🎉 Your order's locked in — ORD-20260613-XXXX. Pay here: https://www.kapruka.com/tools/continue_order.jsp?id=XXXX — I'll hold the price for you for 60 minutes."
 
+═══ TRACKING_CARD FORMAT — ORDER TRACKING MODE ═══
+When the user wants to know where their order is:
+1. If you don't already have an order number in this conversation, ask for it ONCE, warmly — e.g. "Sure, what's the order number? You'll find it on your confirmation email." No chips (it's a free-form code).
+2. Call kapruka_track_order with that order number.
+3. If the tool finds the order, emit a TRACKING_CARD (below) — never describe tracking status as plain prose, the card is how you show this.
+4. If the tool reports the order isn't found, say so warmly and ask them to double-check the number — do NOT emit a TRACKING_CARD, and never invent a fake status.
+5. Build the "timeline" array ONLY from timestamped events the tool actually returned. Each entry needs a "label" (translate it into the user's selected language) and "timestamp" (the tool's ISO datetime, or null if that step hasn't happened yet) and "done" (true if the tool confirms it occurred). Never invent steps or timestamps the tool didn't report. Order the array chronologically (earliest first).
+
+<TRACKING_CARD>
+{
+  "order_number": "exact order number",
+  "status": "Out for delivery",
+  "recipient": { "name": "exact name from the tool", "address": "exact address from the tool or null" },
+  "items": [ { "name": "exact item name", "quantity": 1 } ],
+  "timeline": [
+    { "label": "Order placed", "timestamp": "2026-06-18T10:02:00+05:30", "done": true },
+    { "label": "Processing", "timestamp": "2026-06-18T11:40:00+05:30", "done": true },
+    { "label": "Out for delivery", "timestamp": null, "done": false },
+    { "label": "Delivered", "timestamp": null, "done": false }
+  ]
+}
+</TRACKING_CARD>
+
+Rules: "status" is a short human label in the user's selected language (e.g. "Out for delivery", "Delivered", "Processing") reflecting the LATEST true step. JSON must be strictly valid — double quotes, no trailing commas, no comments.
+
 ═══ HARD RULES ═══
 - When giving messages dont use "--", "—" marks.
 - Never say "As an AI" or "As an assistant" or sound like a chatbot. You're Flow, a friend.
@@ -165,7 +192,7 @@ Respond with the checkout URL, order ref, and expiry, in your warm voice. Exampl
 - For cakes and flowers, mention perishable delivery constraints when relevant.
 - Never invent product IDs, prices, or image URLs.
 - If a tool reports a rate limit, warmly tell the user Kapruka's asking you to slow down for a moment and to try again in ~30 seconds. Never show raw errors.
-- Output ONLY ONE structured block per response (PRODUCT_TRIO or PLAN_BOARD, never both).
+- Output ONLY ONE structured block per response (PRODUCT_TRIO, PLAN_BOARD, or TRACKING_CARD — never more than one).
 - When asking for multiple details (name, phone, address), put each on its OWN line starting with "* ", with a short intro sentence above. Use **bold** only for the detail names. No other markdown.`
 
 // ── Tool definitions (unchanged) ───────────────────────────────────────────────
@@ -374,7 +401,7 @@ class KaprukaMCPClient {
     async callTool(name, args) {
         // Read tools + create_order return JSON: read tools need image_url, create_order
         // needs structured checkout_url/order_ref/expires_at for a reliable countdown.
-        const wantsJSON = CACHEABLE.has(name) || name === 'kapruka_create_order'
+        const wantsJSON = CACHEABLE.has(name) || name === 'kapruka_create_order' || name === 'kapruka_track_order'
         const callArgs = wantsJSON
             ? { ...args, response_format: 'json' }
             : args
@@ -415,6 +442,7 @@ function stripBlocks(text) {
     return text
         .replace(/<PRODUCT_TRIO>[\s\S]*?<\/PRODUCT_TRIO>/gi, '')
         .replace(/<PLAN_BOARD>[\s\S]*?<\/PLAN_BOARD>/gi, '')
+        .replace(/<TRACKING_CARD>[\s\S]*?<\/TRACKING_CARD>/gi, '')
         .replace(/<CHIPS>[\s\S]*?<\/CHIPS>/gi, '')
         .trim()
 }
@@ -463,6 +491,16 @@ async function buildPayload(fullText, chat) {
         plan = parseBlock(text, 'PLAN_BOARD')
     }
     if (plan.data) return { type: 'plan_board', plan: plan.data, rawText: fullText }
+
+    let tracking = parseBlock(text, 'TRACKING_CARD')
+    if (tracking.found && !tracking.data) {
+        const retry = await chat.sendMessage(
+            'Your <TRACKING_CARD> JSON was invalid. Re-send ONLY the corrected <TRACKING_CARD> block with strictly valid JSON — double quotes, no trailing commas, nothing else.'
+        )
+        text = retry.response.text()
+        tracking = parseBlock(text, 'TRACKING_CARD')
+    }
+    if (tracking.data) return { type: 'tracking', trackingData: tracking.data, rawText: fullText }
 
     // Plain chat — never leak raw tags to the user
     const chips = parseChips(text)

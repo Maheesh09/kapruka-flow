@@ -561,6 +561,14 @@ export default function Home() {
         return
       }
 
+      if (data.type === 'tracking') {
+        addMsg({
+          role: 'assistant', msgType: 'tracking', trackingData: data.trackingData,
+          rawContent: data.rawText
+        })
+        return
+      }
+
       // Checkout? Prefer the structured order result from the MCP (reliable expiry/url/ref);
       // fall back to parsing the model's prose only if it's missing.
       const checkout = data.orderResult ?? detectCheckout(data.text || '')
@@ -611,6 +619,10 @@ export default function Home() {
 
   function handleTrack() {
     send('Track my order.')
+  }
+
+  function handleTrackAnother() {
+    send('I want to track a different order.')
   }
 
   function handleNewFlow() {
@@ -684,6 +696,7 @@ export default function Home() {
             onEditGift={handleEditGift}
             onChip={handleChip}
             onComplete={handleOrderComplete}
+            onTrackAnother={handleTrackAnother}
             flowRef={flowRef} />
 
           {/* Layer 2: Docked input */}
