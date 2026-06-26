@@ -1,6 +1,6 @@
 'use client'
 import { t } from './i18n'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import Header from './components/Header'
 import OpeningCanvas, { InputBar } from './components/OpeningCanvas'
 import FlowArea from './components/FlowArea'
@@ -198,6 +198,33 @@ function Confetti() {
   )
 }
 
+// ── Launch ghost — the input bar's journey from landing to docked ──────────────
+// A purely decorative stand-in: an empty glassy pill, styled to match
+// InputBar's own unfocused look exactly. By the moment this plays, the real
+// input text has already been cleared and sent, so there's nothing to lose by
+// using a plain div instead of the real component — which means the real
+// InputBar (voice, focus, autocomplete) is never touched by this at all.
+// It starts at `from` (the real opening bar's measured position), then on the
+// next animation frame eases to `to` (the docked target) — a classic FLIP.
+// At both ends, a pixel-identical real element is swapped in/out underneath
+// it, so the handoff is invisible.
+function LaunchGhost({ from, to }) {
+  const rect = to || from
+  return (
+    <div aria-hidden="true" style={{
+      position: 'fixed', zIndex: 60, pointerEvents: 'none',
+      top: rect.top, left: rect.left, width: rect.width, height: rect.height,
+      borderRadius: 999,
+      background: 'linear-gradient(135deg,rgba(255,255,255,0.82),rgba(255,255,255,0.68))',
+      backdropFilter: 'blur(28px) saturate(200%)',
+      WebkitBackdropFilter: 'blur(28px) saturate(200%)',
+      border: '1px solid rgba(255,255,255,0.9)',
+      boxShadow: '0 8px 28px rgba(61,39,133,0.10)',
+      transition: 'top .52s cubic-bezier(.2,.7,.2,1), left .52s cubic-bezier(.2,.7,.2,1), width .52s cubic-bezier(.2,.7,.2,1), height .52s cubic-bezier(.2,.7,.2,1)'
+    }} />
+  )
+}
+
 function FlowPresence({ lang = 'EN' }) {
   const [hovered, setHovered] = useState(false)
   return (
@@ -280,7 +307,7 @@ function FlowPresence({ lang = 'EN' }) {
 }
 
 // ── Docked input bar (flow state) ─────────────────────────────────────────────
-function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onTrack, onNewFlow, lang }) {
+function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onTrack, onNewFlow, lang, hidden, anchorRef }) {
   const pillStyle = {
     display: 'inline-flex', alignItems: 'center', gap: 8,
     padding: '9px 18px', borderRadius: 999, cursor: 'pointer', fontFamily: 'Inter',
@@ -297,7 +324,8 @@ function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onT
       position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30,
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
       padding: '16px 20px calc(28px + env(safe-area-inset-bottom))',
-      background: 'linear-gradient(to top, rgba(250,249,255,0.96) 50%, rgba(250,249,255,0))'
+      background: 'linear-gradient(to top, rgba(250,249,255,0.96) 50%, rgba(250,249,255,0))',
+      opacity: hidden ? 0 : 1, pointerEvents: hidden ? 'none' : 'auto'
     }}>
       {showTrackChip && (
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -319,8 +347,10 @@ function DockedInputBar({ input, setInput, onSubmit, loading, showTrackChip, onT
           </button>
         </div>
       )}
-      <InputBar value={input} onChange={setInput} onSubmit={onSubmit} docked={true} loading={loading} lang={lang}
-        placeholder={loading ? t(lang, 'inputPlaceholderLoading') : t(lang, 'inputPlaceholderDocked')} />
+      <div ref={anchorRef} style={{ width: 'min(700px,94vw)' }}>
+        <InputBar value={input} onChange={setInput} onSubmit={onSubmit} docked={true} loading={loading} lang={lang}
+          placeholder={loading ? t(lang, 'inputPlaceholderLoading') : t(lang, 'inputPlaceholderDocked')} />
+      </div>
     </div>
   )
 }
@@ -404,6 +434,16 @@ export default function Home() {
   const [splash, setSplash] = useState(true)
   const autoTrackedRef = useRef(false) // guards the silent post-payment auto-track from double-firing
 
+  // ── Opening → flow launch transition ──────────────────────────────────────
+  // The input bar visually travels from its centered landing position to its
+  // docked home instead of teleporting. See LaunchGhost below for the why.
+  const [launching, setLaunching] = useState(false)
+  const [ghostFrom, setGhostFrom] = useState(null)
+  const [ghostTo, setGhostTo] = useState(null)
+  const openingAnchorRef = useRef(null) // measures the real opening input bar at submit time
+  const dockedAnchorRef = useRef(null)  // measures the docked target (hidden measurer, then the real bar)
+  const LAUNCH_MS = 600
+
   // ── Restore on mount (must be in useEffect — SSR has no sessionStorage) ──
   useEffect(() => {
     try {
@@ -423,6 +463,32 @@ export default function Home() {
       setLang(['EN', 'SI', 'TA'].includes(s.lang) ? s.lang : 'EN')
     } catch { /* corrupt state → start fresh, never crash */ }
   }, [])
+
+  // ── Launch transition: measure the docked target, then animate to it ─────
+  // ghostFrom is set synchronously in send() (see below). Once that render
+  // commits, this measures where the input bar is actually headed — a hidden
+  // measurer div while still 'opening', the real docked bar's own position
+  // once 'flow' is reached for any reason. Double-rAF guarantees the browser
+  // paints the "from" position at least once before we apply "to", or the
+  // CSS transition has nothing to animate from and the bar would just teleport.
+  useLayoutEffect(() => {
+    if (!launching) return
+    const toEl = dockedAnchorRef.current
+    if (!toEl) return
+    const r = toEl.getBoundingClientRect()
+    const target = { top: r.top, left: r.left, width: r.width, height: r.height }
+    let raf2
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => setGhostTo(target))
+    })
+    const timer = setTimeout(() => {
+      setPhase('flow')
+      setLaunching(false)
+      setGhostFrom(null)
+      setGhostTo(null)
+    }, LAUNCH_MS)
+    return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); clearTimeout(timer) }
+  }, [launching])
 
   // ── Save on every meaningful change ──
   useEffect(() => {
@@ -490,9 +556,16 @@ export default function Home() {
     setShowTrackChip(false)
 
     if (phase === 'opening') {
-      setPhase('flow')
       // Stay on "Goal" until a real result (trio/plan/checkout) advances the journey,
       // so a clarifying question doesn't falsely show "Discover" as reached.
+      const fromEl = openingAnchorRef.current
+      const r = fromEl?.getBoundingClientRect()
+      if (r) {
+        setGhostFrom({ top: r.top, left: r.left, width: r.width, height: r.height })
+        setLaunching(true) // useLayoutEffect above measures the docked target and flips phase after LAUNCH_MS
+      } else {
+        setPhase('flow') // couldn't measure (e.g. ref not ready) — never block sending, just skip the animation
+      }
     }
 
     const userMsg = { role: 'user', content: t }
@@ -710,14 +783,31 @@ export default function Home() {
       {/* Layer 3: Navigation */}
       <Header lang={lang} setLang={setLang}
         journeyActive={journeyActive} journeyDone={journeyDone}
-        showJourney={phase !== 'opening'} onNewFlow={handleNewFlow} />
+        showJourney={phase !== 'opening' || launching} onNewFlow={handleNewFlow} />
 
       {/* Layer 1: Content */}
       {phase === 'opening' && (
         <OpeningCanvas
           input={input} setInput={setInput}
-          onSubmit={send} lang={lang} />
+          onSubmit={send} lang={lang}
+          leaving={launching} anchorRef={openingAnchorRef} />
       )}
+
+      {/* Hidden measurer — exists only while launching, gives the ghost an accurate
+          landing target without ever mounting the real (autofocusing) input early. */}
+      {launching && (
+        <div aria-hidden="true" style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          padding: '16px 20px calc(28px + env(safe-area-inset-bottom))',
+          display: 'flex', justifyContent: 'center',
+          opacity: 0, pointerEvents: 'none'
+        }}>
+          <div ref={dockedAnchorRef} style={{ width: 'min(700px,94vw)', height: 62 }} />
+        </div>
+      )}
+
+      {/* The traveling input bar — purely visual, see LaunchGhost above */}
+      {launching && ghostFrom && <LaunchGhost from={ghostFrom} to={ghostTo} />}
 
       {phase === 'flow' && (
         <>
@@ -742,13 +832,13 @@ export default function Home() {
             showTrackChip={showTrackChip}
             onTrack={handleTrack}
             onNewFlow={handleNewFlow}
-            lang={lang} />
+            lang={lang} anchorRef={dockedAnchorRef} />
         </>
       )}
 
       {/* Flow Presence widget — only visible on landing */}
       {celebrate && <Confetti />}
-      {phase === 'opening' && <FlowPresence lang={lang} />}
+      {phase === 'opening' && !launching && <FlowPresence lang={lang} />}
       {splash && <SplashScreen onDone={() => setSplash(false)} lang={lang} />}
     </div>
   )

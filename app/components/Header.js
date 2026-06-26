@@ -110,7 +110,10 @@ export default function Header({ lang, setLang, journeyActive, journeyDone, show
 
                 {/* Journey — hidden on landing screen, centred when visible */}
                 {showJourney && (
-                    <div className="mobile-journey-wrapper" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                    <div className="mobile-journey-wrapper" style={{
+                        flex: 1, display: 'flex', justifyContent: 'center',
+                        animation: 'riseBlur .45s ease-out both'
+                    }}>
                         <JourneyLine active={journeyActive} done={journeyDone} lang={lang} />
                     </div>
                 )}
