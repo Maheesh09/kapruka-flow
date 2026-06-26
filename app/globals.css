@@ -808,6 +808,74 @@ a {
   }
 }
 
+/* ── Order wrap-morph ribbon (OrderStageCard) ─────────────────────────────────
+   Two gold strips cross the locked card like wrapping ribbon while the face
+   underneath crossfades from "paid" to "tracking". Pure CSS, one-shot. */
+.wrap-ribbon {
+  position: absolute;
+  width: 220%;
+  height: 20px;
+  background: linear-gradient(90deg,
+      rgba(245, 200, 0, 0) 0%,
+      #FFE08A 16%,
+      #F5C800 50%,
+      #FFE08A 84%,
+      rgba(245, 200, 0, 0) 100%);
+  box-shadow: 0 2px 10px rgba(245, 200, 0, 0.45);
+  border-radius: 10px;
+  opacity: 0;
+}
+
+.wrap-ribbon-a {
+  animation: ribbonSweepA .82s cubic-bezier(.3, 0, .2, 1) both;
+}
+
+.wrap-ribbon-b {
+  animation: ribbonSweepB .82s .06s cubic-bezier(.3, 0, .2, 1) both;
+}
+
+@keyframes ribbonSweepA {
+  0% {
+    transform: rotate(28deg) translateX(-140%);
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  55% {
+    transform: rotate(28deg) translateX(0%);
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(28deg) translateX(140%);
+    opacity: 0;
+  }
+}
+
+@keyframes ribbonSweepB {
+  0% {
+    transform: rotate(-28deg) translateX(-140%);
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  55% {
+    transform: rotate(-28deg) translateX(0%);
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(-28deg) translateX(140%);
+    opacity: 0;
+  }
+}
+
 /* ── Product carousel (horizontal rail) ───────────────────────────────────────
    Replaces the old stacked .trio-grid. Products live on one swipeable/scroll-snap
    line, so a set of 3 or 10 is the same single-row height and never forces the

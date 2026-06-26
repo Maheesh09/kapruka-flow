@@ -52,6 +52,7 @@ export const STRINGS = {
     securePay: 'Secure payment on Kapruka.com — no account needed',
     copied: 'Copied',
     payHint: 'After payment, Kapruka emails your order number — use it here to track delivery.',
+    wrappingGift: 'Wrapping your gift…',
     // ── Bottom chips ──
     trackOrder: 'Track order',
     newFlow: 'Start a new flow',
@@ -161,6 +162,7 @@ export const STRINGS = {
     securePay: 'Kapruka.com හි ආරක්ෂිත ගෙවීම — ගිණුමක් අවශ්‍ය නැත',
     copied: 'පිටපත් කළා',
     payHint: 'ගෙවීමෙන් පසු, Kapruka ඔබට ඇණවුම් අංකය email කරයි — එය මෙහි භාවිතා කර බෙදාහැරීම සොයන්න.',
+    wrappingGift: 'ඔබේ තෑග්ග ඔතනවා…',                              // review
     trackOrder: 'ඇණවුම සොයන්න',
     newFlow: 'අලුතින් පටන් ගන්න',
     reviewTitle: 'තහවුරු කරන්න කලින් එක පාරක් බලමු',
@@ -264,6 +266,7 @@ export const STRINGS = {
     securePay: 'Kapruka.com இல் பாதுகாப்பான பணம் — கணக்கு தேவையில்லை',
     copied: 'நகலெடுக்கப்பட்டது',
     payHint: 'பணம் செலுத்திய பிறகு, Kapruka உங்களுக்கு ஆர்டர் எண்ணை email செய்யும் — அதை இங்கே பயன்படுத்தி விநியோகத்தைக் கண்காணிக்கவும்.',
+    wrappingGift: 'உங்கள் பரிசை மூடி வருகிறோம்…',                // review
     trackOrder: 'ஆர்டரைக் கண்காணி',
     newFlow: 'புதிதாகத் தொடங்கு',
     reviewTitle: 'உறுதிப்படுத்தும் முன் ஒரு முறை பார்ப்போம்',

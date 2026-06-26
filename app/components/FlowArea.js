@@ -3,61 +3,16 @@ import { t, fmt } from '../i18n'
 import { useState, useEffect, useRef } from 'react'
 import Icon from './Icon'
 import PlanBoard from './PlanBoard'
-import LockedCard from './LockedCard'
 import TrackingCard from './TrackingCard'
+import FlowOrb from './FlowOrb'
+import OrderStageCard from './OrderStageCard'
 
 // ── Kapruka Smile Animation ────────────────────────────────────────────────────
+// Now a thin wrapper around FlowOrb, so every avatar in the app (chat rows,
+// the thinking checklist, the carousel context line) shares one real orb
+// implementation instead of duplicating this markup three times.
 function KaprukaSmiley({ thinking }) {
-    return (
-        <div className="mobile-bot-avatar-wrapper" style={{
-            position: 'relative', width: 52, height: 52, flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-            {/* Outer ripple rings */}
-            {thinking && (
-                <>
-                    <div style={{
-                        position: 'absolute', inset: 0, borderRadius: '50%',
-                        border: '1.5px solid rgba(61,39,133,0.35)',
-                        animation: 'ripple 2.4s ease-out infinite'
-                    }} />
-                    <div style={{
-                        position: 'absolute', inset: 0, borderRadius: '50%',
-                        border: '1.5px solid rgba(61,39,133,0.20)',
-                        animation: 'ripple 2.4s ease-out infinite',
-                        animationDelay: '0.8s'
-                    }} />
-                </>
-            )}
-            {/* Orb background */}
-            <div className="mobile-bot-avatar-orb" style={{
-                width: 44, height: 44, borderRadius: '50%',
-                background: 'radial-gradient(circle at 34% 30%, #8a72d0, #3D2785 72%)',
-                boxShadow: thinking
-                    ? '0 0 20px rgba(61,39,133,0.65), 0 0 40px rgba(61,39,133,0.2)'
-                    : '0 0 14px rgba(61,39,133,0.4)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                animation: thinking ? 'orbPulse 2.4s ease-in-out infinite' : 'none',
-                transition: 'box-shadow .5s'
-            }}>
-                {/* Kapruka smile arc — draw-in animation */}
-                <svg width="24" height="15" viewBox="0 0 24 15" fill="none" style={{ marginTop: 5 }}>
-                    <path
-                        d="M3.5 2.5 A 8.5 8.5 0 0 0 20.5 2.5"
-                        stroke="#F5C800"
-                        strokeWidth="4.2"
-                        strokeLinecap="round"
-                        fill="none"
-                        style={{
-                            strokeDasharray: 28,
-                            strokeDashoffset: 0,
-                            animation: thinking ? 'smileDraw 1.8s ease-in-out infinite' : 'none'
-                        }}
-                    />
-                </svg>
-            </div>
-        </div>
-    )
+    return <FlowOrb state={thinking ? 'thinking' : 'idle'} size={44} />
 }
 
 // ── Live status → localized label ─────────────────────────────────────────────
@@ -738,7 +693,7 @@ export default function FlowArea({ messages = [], loading, liveStatus = [], lang
         <div ref={flowRef} className="flow-area">
             <div className="flow-inner">
                 {messages.map((m, i) => {
-                    if (m.role === 'user') return <UserMessage key={i} text={m.content} />
+                    if (m.role === 'user') return m.hidden ? null : <UserMessage key={i} text={m.content} />
 
                     switch (m.msgType) {
                         case 'agent':
@@ -754,12 +709,13 @@ export default function FlowArea({ messages = [], loading, liveStatus = [], lang
                                     onEditGift={onEditGift} />
                             )
                         case 'checkout':
-                            return <LockedCard key={i}
-                                url={m.checkoutData?.url}
-                                orderRef={m.checkoutData?.ref}
-                                expiresAt={m.checkoutData?.expiresAt}
-                                plan={m.plan} lang={lang}
-                                onComplete={onComplete} />
+                            return <OrderStageCard key={i}
+                                checkoutData={m.checkoutData}
+                                plan={m.plan}
+                                trackingData={m.trackingData}
+                                lang={lang}
+                                onComplete={onComplete}
+                                onTrackAnother={onTrackAnother} />
                         case 'tracking':
                             return <TrackingCard key={i} data={m.trackingData} lang={lang} onTrackAnother={onTrackAnother} />
                         default:
