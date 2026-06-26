@@ -18,7 +18,9 @@ function detectCheckout(text) {
 function ParticlesLayer() {
   const [particles, setParticles] = useState([])
   useEffect(() => {
-    // Generate 20 random particles
+    // Generate 20 random particles — drift is always positive (rightward),
+    // so every particle leans the same direction. That's the whole point:
+    // a current, not scattered floating dust.
     const p = Array.from({ length: 20 }).map((_, i) => ({
       id: i,
       left: Math.random() * 100,
@@ -26,6 +28,7 @@ function ParticlesLayer() {
       size: Math.random() * 4 + 2,
       duration: Math.random() * 20 + 15,
       delay: Math.random() * -20,
+      drift: 6 + Math.random() * 8, // vw — how far right it leans over its full rise
     }))
     setParticles(p)
   }, [])
@@ -41,7 +44,9 @@ function ParticlesLayer() {
           borderRadius: '50%',
           background: 'rgba(255,255,255,0.8)',
           boxShadow: '0 0 8px rgba(255,255,255,0.8)',
-          animation: `floatUp ${p.duration}s linear infinite`,
+          // CSS custom prop consumed by the flowCurrent keyframe
+          '--drift': `${p.drift}vw`,
+          animation: `flowCurrent ${p.duration}s linear infinite`,
           animationDelay: `${p.delay}s`,
           opacity: 0
         }} />
