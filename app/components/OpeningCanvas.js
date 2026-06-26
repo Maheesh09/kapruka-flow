@@ -68,20 +68,33 @@ function getChips(lang) {
     ]
 }
 
-export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
+export default function OpeningCanvas({ onSubmit, input, setInput, lang, leaving = false, anchorRef }) {
     const CHIPS = getChips(lang)
     const words = t(lang, 'openingHeadline').split(' ')
+
+    // The headline/slogan and the chips fade+scale away together (same treatment
+    // as SplashScreen's exit) while the input bar's real instance disappears
+    // instantly — at that exact moment LaunchGhost (in page.js) takes over the
+    // identical pixels, so the handoff is invisible. No fade on the input wrapper
+    // itself, or the ghost and the real bar would briefly show through each other.
+    const fadeAway = {
+        opacity: leaving ? 0 : 1,
+        transform: leaving ? 'scale(1.04)' : 'scale(1)',
+        transition: 'opacity .45s ease, transform .45s ease',
+        pointerEvents: leaving ? 'none' : 'auto'
+    }
 
     return (
         <div className="opening-canvas" style={{
             position: 'absolute', inset: 0, zIndex: 5, display: 'flex',
             flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             gap: 28, padding: '108px 24px 60px', textAlign: 'center',
-            overflowY: 'auto', WebkitOverflowScrolling: 'touch'
+            overflowY: 'auto', WebkitOverflowScrolling: 'touch',
+            pointerEvents: leaving ? 'none' : 'auto'
         }}>
 
             {/* Headline + slogan */}
-            <div style={{ maxWidth: 860 }}>
+            <div style={{ maxWidth: 860, ...fadeAway }}>
                 <h1 style={{
                     margin: 0, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
                     fontSize: 'clamp(28px,5vw,52px)', lineHeight: 1.08, letterSpacing: '-0.025em',
@@ -121,8 +134,12 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
                 </div>
             </div>
 
-            {/* Input */}
-            <div style={{ animation: 'riseBlur .7s 0.5s ease-out both', width: '100%', maxWidth: 680 }}>
+            {/* Input — hidden the instant we leave, no transition. LaunchGhost
+                takes over the exact same pixels at the exact same moment. */}
+            <div ref={anchorRef} style={{
+                animation: 'riseBlur .7s 0.5s ease-out both', width: '100%', maxWidth: 680,
+                opacity: leaving ? 0 : 1
+            }}>
                 <InputBar
                     value={input} onChange={setInput}
                     placeholder={t(lang, 'openingPlaceholderRich')}
@@ -135,7 +152,8 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang }) {
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
                 gap: 12, maxWidth: 620, width: '100%',
-                animation: 'riseBlur .7s 0.7s ease-out both'
+                animation: 'riseBlur .7s 0.7s ease-out both',
+                ...fadeAway
             }}>
                 {CHIPS.map((chip, idx) => (
                     <LuxuryChip key={chip.label} chip={chip} onSubmit={onSubmit} idx={idx} />
