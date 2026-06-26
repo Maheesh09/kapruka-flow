@@ -402,6 +402,7 @@ export default function Home() {
   const [lastPlan, setLastPlan] = useState(null)
   const flowRef = useRef(null)
   const [splash, setSplash] = useState(true)
+  const autoTrackedRef = useRef(false) // guards the silent post-payment auto-track from double-firing
 
   // ── Restore on mount (must be in useEffect — SSR has no sessionStorage) ──
   useEffect(() => {
@@ -462,8 +463,8 @@ export default function Home() {
     setMessages(prev => [...prev, msg])
   }
 
-  function addUserMsg(text) {
-    addMsg({ role: 'user', content: text })
+  function addUserMsg(text, opts = {}) {
+    addMsg({ role: 'user', content: text, ...opts })
   }
 
   function addAgentMsg(text, stream = true) {
@@ -482,7 +483,7 @@ export default function Home() {
   }
 
   // ── Core send ─────────────────────────────────────────────────────────────
-  async function send(text) {
+  async function send(text, { silent = false } = {}) {
     const t = (text ?? input).trim()
     if (!t || loading) return
     setInput('')
@@ -496,7 +497,7 @@ export default function Home() {
 
     const userMsg = { role: 'user', content: t }
     const updatedMsgs = [...messages, userMsg]
-    addUserMsg(t)
+    addUserMsg(t, silent ? { hidden: true } : {})
     setLoading(true)
 
     setLiveStatus([])
@@ -511,7 +512,7 @@ export default function Home() {
       })
 
       if (!res.ok || !res.body) {
-        addAgentMsg('The server is busy right now — please try that once more.', false)
+        if (!silent) addAgentMsg('The server is busy right now — please try that once more.', false)
         return
       }
 
@@ -540,7 +541,7 @@ export default function Home() {
         }
       }
 
-      if (!data) { addAgentMsg('Something went wrong. Please try again.', false); return }
+      if (!data) { if (!silent) addAgentMsg('Something went wrong. Please try again.', false); return }
 
       if (data.type === 'product_trio') {
         setJourneyActive(1); setJourneyDone([0])
@@ -562,10 +563,32 @@ export default function Home() {
       }
 
       if (data.type === 'tracking') {
-        addMsg({
-          role: 'assistant', msgType: 'tracking', trackingData: data.trackingData,
-          rawContent: data.rawText
-        })
+        if (silent) {
+          // Merge into the most recent un-tracked checkout message so
+          // OrderStageCard plays the wrap-morph in the same card position,
+          // instead of a new TrackingCard appearing further down the log.
+          setMessages(prev => {
+            const revIdx = [...prev].reverse()
+              .findIndex(m => m.msgType === 'checkout' && !m.trackingData)
+            if (revIdx === -1) {
+              // No matching checkout card to wrap (edge case) — fall back to
+              // showing it as a normal standalone tracking card.
+              return [...prev, {
+                role: 'assistant', msgType: 'tracking', trackingData: data.trackingData,
+                rawContent: data.rawText
+              }]
+            }
+            const idx = prev.length - 1 - revIdx
+            const next = [...prev]
+            next[idx] = { ...next[idx], trackingData: data.trackingData }
+            return next
+          })
+        } else {
+          addMsg({
+            role: 'assistant', msgType: 'tracking', trackingData: data.trackingData,
+            rawContent: data.rawText
+          })
+        }
         return
       }
 
@@ -575,6 +598,7 @@ export default function Home() {
       if (checkout && checkout.url) {
         setJourneyActive(3); setJourneyDone([0, 1, 2])
         setShowTrackChip(true)
+        autoTrackedRef.current = false // a fresh order — let the next "I've paid" auto-track once
         addMsg({
           role: 'assistant', msgType: 'checkout', checkoutData: checkout,
           plan: lastPlan,
@@ -591,7 +615,7 @@ export default function Home() {
 
     } catch (e) {
       console.error('send error:', e)
-      addAgentMsg('That didn\'t go through — your details are saved, just try once more.', false)
+      if (!silent) addAgentMsg('That didn\'t go through — your details are saved, just try once more.', false)
     } finally {
       setLoading(false)
       setLiveStatus([])
@@ -636,6 +660,7 @@ export default function Home() {
     setInput('')
     setLiveStatus([])
     setCelebrate(false)
+    autoTrackedRef.current = false
   }
 
   function handleAddItem() {
@@ -658,6 +683,17 @@ export default function Home() {
     setJourneyDone([0, 1, 2, 3])
     setCelebrate(true)
     setTimeout(() => setCelebrate(false), 2600)
+
+    // Let the confetti have its moment, then quietly fetch tracking in the
+    // background. The result merges into this same checkout message (see the
+    // `data.type === 'tracking'` branch in send()) and OrderStageCard plays
+    // the ribbon-wrap as it turns into the tracking card — one continuous
+    // beat instead of a second message popping in below. Guarded so a stray
+    // double-click on the pay button can't fire this twice.
+    if (!autoTrackedRef.current) {
+      autoTrackedRef.current = true
+      setTimeout(() => send('Track my order.', { silent: true }), 700)
+    }
   }
 
   return (
