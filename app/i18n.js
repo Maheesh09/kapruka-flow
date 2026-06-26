@@ -1,10 +1,6 @@
 // app/i18n.js
 // Hand-written UI strings for all three modes. These are the FIXED chrome of the
 // app (buttons, labels, headings) — NOT agent dialogue (the model speaks those).
-//
-// ⚠️ The SI and TA values below are a solid first draft. Have a native Sinhala
-// speaker review them — register and warmth matter more than literal accuracy.
-// Lines marked  // review  are the ones most worth a second pair of eyes.
 
 export const STRINGS = {
   EN: {
@@ -126,10 +122,10 @@ export const STRINGS = {
   },
 
   SI: {
-    tagline: 'ඔබේ සාප්පු සහායකයා',                                    // review
-    journey: ['ඉලක්කය', 'සොයමු', 'සැලසුම', 'බෙදාහැරීම', 'නිමයි'],   // review
-    openingHeadline: 'අද Flow එකෙන් කරගන්න ඕනේ මොකක්ද?',                    // review
-    openingSub: 'හරියටම ගැලපෙන තෑග්ග සොයාගමු',                      // review
+    tagline: 'ඔබේ සාප්පු සහායකයා',
+    journey: ['ඉලක්කය', 'සොයමු', 'සැලසුම', 'බෙදාහැරීම', 'නිමයි'],
+    openingHeadline: 'අද Flow එකෙන් කරගන්න ඕනේ මොකක්ද?',
+    openingSub: 'Flow එක්ක හොඳම තෑග්ග සොයාගමු',
     inputPlaceholderOpening: 'ඔබට අවශ්‍ය දේ කියන්න…',
     chipGiftLabel: 'තෑග්ගක් යවන්න',
     chipGiftGoal: 'මට කෙනෙකුට තෑග්ගක් යවන්න ඕනේ',
@@ -162,7 +158,7 @@ export const STRINGS = {
     securePay: 'Kapruka.com හි ආරක්ෂිත ගෙවීම — ගිණුමක් අවශ්‍ය නැත',
     copied: 'පිටපත් කළා',
     payHint: 'ගෙවීමෙන් පසු, Kapruka ඔබට ඇණවුම් අංකය email කරයි — එය මෙහි භාවිතා කර බෙදාහැරීම සොයන්න.',
-    wrappingGift: 'ඔබේ තෑග්ග ඔතනවා…',                              // review
+    wrappingGift: 'ඔබේ තෑග්ග ඔතනවා…',
     trackOrder: 'ඇණවුම සොයන්න',
     newFlow: 'අලුතින් පටන් ගන්න',
     reviewTitle: 'තහවුරු කරන්න කලින් එක පාරක් බලමු',
@@ -185,7 +181,7 @@ export const STRINGS = {
     noRecipientYet: 'තවම ලබන්නෙක් නැහැ',
     planTotal: 'එකතුව',
     copyOrderNumber: 'ඇණවුම් අංකය පිටපත් කරන්න',
-    // ── Thinking feed ──                                          // review
+    // ── Thinking feed ──                                          
     flowOnIt: 'Flow ඒක කරගෙන යනවා…',
     thinkingMessages: ['Flow හිතනවා…', 'නාමාවලිය සොයමින්…', 'බෙදාහැරීම් විකල්ප බලමින්…', 'ඔබට හොඳම දේ සංසන්දනය කරමින්…'],
     statusSearch: '“{q}” සොයමින්',
@@ -202,38 +198,38 @@ export const STRINGS = {
     statusAssembling: 'ඔබට එක්කරමින්…',
     flowPick: 'Flow ගේ තේරීම',
     choose: 'තෝරන්න',
-    // ── Product detail view ──                                    // review
-    detailsBtn: 'විස්තර',                                          // review
-    detailsAria: 'නිෂ්පාදන විස්තර බලන්න',                          // review
-    aboutItem: 'මේ භාණ්ඩය ගැන',                                   // review
-    flowTake: 'Flow ගේ අදහස',                                     // review
-    inStock: 'තොගයේ ඇත',                                          // review
-    lowStock: 'ඉක්මනින් අවසන් වෙමින්',                              // review
-    viewOnKapruka: 'Kapruka හි සම්පූර්ණ විස්තර බලන්න',             // review
-    chooseThis: 'මේක තෝරන්න',                                     // review
-    backToOptions: 'විකල්ප වෙත ආපසු',                              // review
-    closeAria: 'වසන්න',                                           // review
+    // ── Product detail view ──                                   
+    detailsBtn: 'විස්තර',
+    detailsAria: 'නිෂ්පාදන විස්තර බලන්න',
+    aboutItem: 'මේ භාණ්ඩය ගැන',
+    flowTake: 'Flow ගේ අදහස',
+    inStock: 'තොගයේ ඇත',
+    lowStock: 'ඉක්මනින් අවසන් වෙමින්',
+    viewOnKapruka: 'Kapruka හි සම්පූර්ණ විස්තර බලන්න',
+    chooseThis: 'මේක තෝරන්න',
+    backToOptions: 'විකල්ප වෙත ආපසු',
+    closeAria: 'වසන්න',
     openingPlaceholderRich: 'Gaming laptop එකක්, හෙටට මල්, Galle delivery…',
     ariaVoice: 'හඬ ආදානය',
     ariaSend: 'යවන්න',
-    voiceListening: 'අහගන් ඉන්නවා',
+    voiceListening: 'අහගෙන ඉන්නේ',
     recipEdit: 'ලබන්නා සංස්කරණය',
     recipAddressLabel: 'බෙදාහැරීමේ ලිපිනය',
     errTimeout: 'Kapruka පැත්තෙන් මේකට ටිකක් වෙලා ගියා. "මගේ ඇණවුම සාදන්න" තව පාරක් press කරන්න — ඔබ දැම්ම ඔක්කොම තාම තියෙනවා.',
     errFormatting: 'මේක format කරද්දී පොඩි ප්‍රශ්නයක් ආවා — තව පාරක් උත්සාහ කරමුද?',
     errGeneric: 'මගේ පැත්තෙන් මොකක්හරි වැරදුණා — තව පාරක් උත්සාහ කරන්න?',
-    // ── Tracking card ──                                          // review
-    trackingTitle: 'ඇණවුමේ තත්ත්වය',                                // review
+    // ── Tracking card ──                                          
+    trackingTitle: 'ඇණවුමේ තත්ත්වය',
     trackingItems: 'භාණ්ඩ',
-    trackAnother: 'තවත් ඇණවුමක් සොයන්න',                            // review
+    trackAnother: 'තවත් ඇණවුමක් සොයන්න',
   },
 
   TA: {
-    // Tamil — natural Sri Lankan Tamil. Have a native speaker review the // review lines.
-    tagline: 'உங்கள் ஷாப்பிங் துணை',                                    // review
-    journey: ['இலக்கு', 'தேடல்', 'திட்டம்', 'விநியோகம்', 'முடிந்தது'],   // review
-    openingHeadline: 'இன்று Flow என்ன செய்ய வேண்டும்?',                 // review
-    openingSub: 'சரியான பரிசை எளிதாகக் கண்டுபிடிப்போம்',                // review
+    // Tamil — natural Sri Lankan Tamil. Have a native speaker review the 
+    tagline: 'உங்கள் ஷாப்பிங் துணை',
+    journey: ['இலக்கு', 'தேடல்', 'திட்டம்', 'விநியோகம்', 'முடிந்தது'],
+    openingHeadline: 'இன்று Flow என்ன செய்ய வேண்டும்?',
+    openingSub: 'சரியான பரிசை எளிதாகக் கண்டுபிடிப்போம்',
     inputPlaceholderOpening: 'உங்களுக்கு என்ன வேண்டும் என்று சொல்லுங்கள்…',
     chipGiftLabel: 'பரிசு அனுப்பு',
     chipGiftGoal: 'நான் ஒருவருக்கு பரிசு அனுப்ப விரும்புகிறேன்',
@@ -266,7 +262,7 @@ export const STRINGS = {
     securePay: 'Kapruka.com இல் பாதுகாப்பான பணம் — கணக்கு தேவையில்லை',
     copied: 'நகலெடுக்கப்பட்டது',
     payHint: 'பணம் செலுத்திய பிறகு, Kapruka உங்களுக்கு ஆர்டர் எண்ணை email செய்யும் — அதை இங்கே பயன்படுத்தி விநியோகத்தைக் கண்காணிக்கவும்.',
-    wrappingGift: 'உங்கள் பரிசை மூடி வருகிறோம்…',                // review
+    wrappingGift: 'உங்கள் பரிசை மூடி வருகிறோம்…',
     trackOrder: 'ஆர்டரைக் கண்காணி',
     newFlow: 'புதிதாகத் தொடங்கு',
     reviewTitle: 'உறுதிப்படுத்தும் முன் ஒரு முறை பார்ப்போம்',
@@ -289,7 +285,7 @@ export const STRINGS = {
     noRecipientYet: 'இன்னும் பெறுநர் இல்லை',
     planTotal: 'மொத்தம்',
     copyOrderNumber: 'ஆர்டர் எண்ணை நகலெடு',
-    // ── Thinking feed ──                                          // review
+    // ── Thinking feed ──                                          
     flowOnIt: 'Flow அதைப் பார்த்துக்கொள்கிறது…',
     thinkingMessages: ['Flow யோசிக்கிறது…', 'அட்டவணையில் தேடுகிறது…', 'விநியோக விருப்பங்களை சரிபார்க்கிறது…', 'உங்களுக்கான சிறந்ததை ஒப்பிடுகிறது…'],
     statusSearch: '“{q}” தேடுகிறது',
@@ -306,17 +302,17 @@ export const STRINGS = {
     statusAssembling: 'உங்களுக்காக சேர்க்கிறது…',
     flowPick: 'Flow இன் தேர்வு',
     choose: 'தேர்வு',
-    // ── Product detail view ──                                    // review
-    detailsBtn: 'விவரங்கள்',                                       // review
-    detailsAria: 'பொருள் விவரங்களைப் பார்',                        // review
-    aboutItem: 'இந்தப் பொருள் பற்றி',                              // review
-    flowTake: 'Flow இன் கருத்து',                                  // review
-    inStock: 'கையிருப்பில் உள்ளது',                                // review
-    lowStock: 'விரைவில் தீர்ந்துவிடும்',                            // review
-    viewOnKapruka: 'Kapruka இல் முழு விவரங்களைப் பார்',           // review
-    chooseThis: 'இதைத் தேர்வுசெய்',                                // review
-    backToOptions: 'விருப்பங்களுக்குத் திரும்பு',                   // review
-    closeAria: 'மூடு',                                            // review
+    // ── Product detail view ──                                   
+    detailsBtn: 'விவரங்கள்',
+    detailsAria: 'பொருள் விவரங்களைப் பார்',
+    aboutItem: 'இந்தப் பொருள் பற்றி',
+    flowTake: 'Flow இன் கருத்து',
+    inStock: 'கையிருப்பில் உள்ளது',
+    lowStock: 'விரைவில் தீர்ந்துவிடும்',
+    viewOnKapruka: 'Kapruka இல் முழு விவரங்களைப் பார்',
+    chooseThis: 'இதைத் தேர்வுசெய்',
+    backToOptions: 'விருப்பங்களுக்குத் திரும்பு',
+    closeAria: 'மூடு',
     openingPlaceholderRich: 'Gaming laptop, நாளைக்கு மலர்கள், Galle delivery…',
     ariaVoice: 'குரல் உள்ளீடு',
     ariaSend: 'அனுப்பு',
@@ -326,10 +322,10 @@ export const STRINGS = {
     errTimeout: 'Kapruka பக்கத்தில் இது சற்று நேரம் எடுத்தது. "எனது ஆர்டரை உருவாக்கு" ஐ மீண்டும் தட்டவும் — நீங்கள் கொடுத்த அனைத்தும் இங்கே உள்ளன.',
     errFormatting: 'அதை வடிவமைக்கையில் ஒரு சிக்கல் — மீண்டும் முயற்சிக்கலாமா?',
     errGeneric: 'என் பக்கத்தில் ஏதோ தவறு — மீண்டும் முயற்சிக்கவும்?',
-    // ── Tracking card ──                                          // review
-    trackingTitle: 'ஆர்டர் நிலை',                                   // review
+    // ── Tracking card ──                                        
+    trackingTitle: 'ஆர்டர் நிலை',
     trackingItems: 'பொருட்கள்',
-    trackAnother: 'மற்றொரு ஆர்டரைக் கண்காணி',                       // review
+    trackAnother: 'மற்றொரு ஆர்டரைக் கண்காணி',
   },
 }
 
