@@ -1068,4 +1068,61 @@ a {
   .rail-reason {
     font-size: 12px;
   }
+
+  /* Actions row no longer fits "Details"/"Compare" as words at 152px —
+     drop to icon-only so nothing gets clipped by .rail-card's overflow:hidden */
+  .rail-action-text {
+    display: none;
+  }
+
+  .rail-actions-left {
+    gap: 6px !important;
+  }
+
+  .rail-compare-toggle input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+/* ── Comparison modal — desktop: fixed-width cards, side by side ──────────────
+   mobile: one dominant card + a peek of the next, swipe to see more (same
+   language as the product rail, so the gesture is already familiar) */
+.compare-rail {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.compare-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.compare-card {
+  flex: 0 0 220px;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 600px) {
+  .compare-card {
+    flex: 0 0 78vw;
+  }
+}
+
+/* ── Category rail (opening screen) ───────────────────────────────────────── */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 380px) {
+  .category-grid {
+    grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
+    gap: 8px;
+  }
 }
