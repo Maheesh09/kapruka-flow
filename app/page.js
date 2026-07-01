@@ -33,7 +33,7 @@ function ParticlesLayer() {
     setParticles(p)
   }, [])
   return (
-    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1, overflow: 'hidden' }}>
+    <div className="ambient-particles" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1, overflow: 'hidden' }}>
       {particles.map(p => (
         <div key={p.id} style={{
           position: 'absolute',
@@ -82,8 +82,8 @@ function AmbientLayer({ loading }) {
       pointerEvents: 'none', zIndex: 0,
       perspective: '1200px'
     }}>
-      {/* Blurred Background Image */}
-      <div style={{
+      {/* Blurred Background Image — hidden on mobile (ambient-bg-photo) */}
+      <div className="ambient-bg-photo" style={{
         position: 'absolute', inset: -50,
         backgroundImage: 'url("/back.jpg")',
         backgroundSize: 'cover',
@@ -95,6 +95,10 @@ function AmbientLayer({ loading }) {
         transition: 'transform 0.4s ease-out, filter 1.5s ease',
         transformStyle: 'preserve-3d'
       }} />
+
+      {/* Plain CSS gradient fallback for mobile — no GPU compositing cost */}
+      <div className="ambient-mobile-gradient" />
+
       {/* Layer 0: Deep ambient color blobs */}
       <div className="kf-blob drift-a" style={{
         width: '58vw', height: '58vw',
@@ -117,15 +121,16 @@ function AmbientLayer({ loading }) {
         background: 'radial-gradient(circle at 50% 50%, rgba(233,228,255,0.70), rgba(233,228,255,0))'
       }} />
 
-      {/* Layer 1: Mid-depth floating accent glows */}
-      <div style={{
+      {/* Layer 1: Mid-depth floating accent glows — hidden on mobile (ambient-glow-layer)
+          filter:blur() on animated elements forces repaint every frame on mobile GPUs */}
+      <div className="ambient-glow-layer" style={{
         position: 'absolute', left: '22%', top: '18%', width: 320, height: 320,
         borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(107,82,200,0.08) 0%, rgba(107,82,200,0) 70%)',
         animation: 'glowPulse 6s ease-in-out infinite',
         filter: 'blur(2px)'
       }} />
-      <div style={{
+      <div className="ambient-glow-layer" style={{
         position: 'absolute', right: '18%', top: '35%', width: 260, height: 260,
         borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(245,200,0,0.07) 0%, rgba(245,200,0,0) 70%)',
@@ -133,7 +138,7 @@ function AmbientLayer({ loading }) {
         animationDelay: '2s',
         filter: 'blur(2px)'
       }} />
-      <div style={{
+      <div className="ambient-glow-layer" style={{
         position: 'absolute', left: '55%', bottom: '22%', width: 200, height: 200,
         borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(255,158,207,0.06) 0%, rgba(255,158,207,0) 70%)',
@@ -667,12 +672,12 @@ export default function Home() {
             const merged = {
               ...data.trackingData,
               recipient: plan?.recipient?.name
-              ? {
-                name: plan.recipient.name,
-                address:[plan.recipient.address, plan.delivery?.city]
-                     .filter(Boolean).join(', ') || null
-              }
-              : data.trackingData.recipient,
+                ? {
+                  name: plan.recipient.name,
+                  address: [plan.recipient.address, plan.delivery?.city]
+                    .filter(Boolean).join(', ') || null
+                }
+                : data.trackingData.recipient,
               items: plan?.items?.length
                 ? plan.items.map(i => ({ name: i.name, quantity: i.quantity || 1 }))
                 : data.trackingData.items
@@ -681,15 +686,15 @@ export default function Home() {
             next[idx] = {
               ...next[idx],
               trackingData: merged
-              }
-              return next
-          })
-            } else{
-              addMsg({
-                role: 'assistant', msgType: 'tracking', trackingData: data.trackingData,
-                rawContent: data.rawText
-              })
             }
+            return next
+          })
+        } else {
+          addMsg({
+            role: 'assistant', msgType: 'tracking', trackingData: data.trackingData,
+            rawContent: data.rawText
+          })
+        }
         return
       }
 
@@ -780,19 +785,19 @@ export default function Home() {
   // off-platform and unobservable via MCP) — so we treat the click as the completion
   // signal to light the Done node and celebrate.
   function handleOrderComplete(orderRef) {
-  setJourneyActive(4)
-  setJourneyDone([0, 1, 2, 3])
-  setCelebrate(true)
-  setTimeout(() => setCelebrate(false), 2600)
+    setJourneyActive(4)
+    setJourneyDone([0, 1, 2, 3])
+    setCelebrate(true)
+    setTimeout(() => setCelebrate(false), 2600)
 
-  if (!autoTrackedRef.current) {
-    autoTrackedRef.current = true
-    const trackMsg = orderRef
-      ? `[AUTO-TRACK] Please check delivery status now for order number ${orderRef}.`
-      : 'Track my order.'
-    setTimeout(() => send(trackMsg, { silent: true }), 700)
+    if (!autoTrackedRef.current) {
+      autoTrackedRef.current = true
+      const trackMsg = orderRef
+        ? `[AUTO-TRACK] Please check delivery status now for order number ${orderRef}.`
+        : 'Track my order.'
+      setTimeout(() => send(trackMsg, { silent: true }), 700)
+    }
   }
-}
 
   return (
     <div style={{

@@ -48,7 +48,8 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: url('/back.jpg') no-repeat center center fixed;
+  background-size: cover;
   font-family: 'Inter', 'Noto Sans Sinhala', 'Noto Sans Tamil', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -465,6 +466,34 @@ a {
 @media (max-width: 600px) {
   .trio-grid {
     grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Opening screen: mobile layout tightening ──────────────────────────────────
+   The desktop layout centres everything with generous gaps. On a 390px phone
+   that creates 7 stacked sections which is too many for one screen to ask
+   a user to parse at once. These rules collapse the space to reduce density
+   without removing any functionality. */
+@media (max-width: 600px) {
+
+  /* Chips: 2 per row instead of 4 in one line, more readable */
+  .opening-chips-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  /* Category label: slightly smaller, stays readable */
+  .opening-cat-label {
+    font-size: 11px !important;
+    margin-bottom: 6px !important;
+  }
+}
+
+@media (max-width: 380px) {
+
+  /* Very small phones: hide the slogan to save one full line of vertical space */
+  .opening-slogan {
+    display: none;
   }
 }
 
@@ -1085,6 +1114,52 @@ a {
   }
 }
 
+/* ── Mobile performance: strip the expensive ambient layers ────────────────────
+   The particles (20 animated DOM nodes), the 3D blurred BG image, and the
+   filter:blur() glow divs are all pure decoration. On mobile GPUs they cost
+   real frames — removing them leaves the two gradient blobs (GPU-composited
+   via will-change:transform, no blur) which still give the colour story. */
+@media (hover: none),
+(max-width: 768px) {
+
+  /* Kill the 20 particles — biggest single bang for buck */
+  .ambient-particles {
+    display: none !important;
+  }
+
+  /* Kill the 3D-transformed blurred photo background — full-screen CSS filter
+     on a 3D-transformed element is the heaviest single item in the scene */
+  .ambient-bg-photo {
+    display: none !important;
+  }
+
+  /* Kill the filter:blur() glow divs — animated blur forces repaint every frame.
+     The colour blobs beneath already give the ambient feel without blur cost. */
+  .ambient-glow-layer {
+    display: none !important;
+  }
+
+  /* Reduce blob animation cost: drop the 1px blur filter so each blob
+     composites cleanly without a paint step every frame */
+  .kf-blob {
+    filter: none;
+  }
+
+  /* Replace the expensive blurred photo with a plain CSS gradient that's
+     already available on mobile GPUs without any compositing overhead */
+  .ambient-mobile-gradient {
+    display: block !important;
+  }
+}
+
+.ambient-mobile-gradient {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #E9E4FF 0%, #FAF9FF 45%, #FFF7E0 80%, #FFE9F3 100%);
+  z-index: -1;
+}
+
 /* ── Comparison modal — desktop: fixed-width cards, side by side ──────────────
    mobile: one dominant card + a peek of the next, swipe to see more (same
    language as the product rail, so the gesture is already familiar) */
@@ -1114,15 +1189,36 @@ a {
 }
 
 /* ── Category rail (opening screen) ───────────────────────────────────────── */
+/* Desktop: 6-column auto grid */
 .category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
   gap: 10px;
 }
 
-@media (max-width: 380px) {
+/* Mobile: single horizontal scroll strip — much less visual weight than 2 rows */
+@media (max-width: 600px) {
   .category-grid {
-    grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
     gap: 8px;
+    padding-bottom: 4px;
   }
+
+  .category-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-grid>* {
+    flex: 0 0 70px;
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 380px) {
+  /* desktop grid only — not needed for mobile where it's a flex row */
 }
