@@ -509,6 +509,7 @@ a {
   /* "Choose" label must be visible without hover on touch devices */
   .choose-label {
     display: inline !important;
+    color: #fff !important;
   }
 
   .choose-pill {
