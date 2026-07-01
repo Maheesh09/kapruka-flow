@@ -646,7 +646,7 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN', onToggleC
                     </button>
 
                     {onToggleCompare && (
-                        <label className="rail-compare-toggle" onClick={(e) => e.stopPropagation()} style={{
+                        <button className="rail-compare-toggle" onClick={(e) => { e.stopPropagation(); onToggleCompare(product); }} style={{
                             display: 'inline-flex', alignItems: 'center', gap: 5, cursor: 'pointer',
                             fontFamily: 'Inter', fontSize: 12, fontWeight: 600, flexShrink: 0,
                             padding: '4px 8px', borderRadius: 999, transition: 'all .2s',
@@ -655,14 +655,14 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN', onToggleC
                             color: compared ? '#3D2785' : 'rgba(26,20,51,0.5)'
                         }}>
                             <input type="checkbox" checked={!!compared}
-                                onChange={() => onToggleCompare(product)}
+                                readOnly
                                 aria-label={t(lang, 'compareLabel')}
-                                style={{ width: 13, height: 13, accentColor: '#6B52C8', cursor: 'pointer', flexShrink: 0 }} />
+                                style={{ width: 13, height: 13, accentColor: '#6B52C8', cursor: 'pointer', flexShrink: 0, pointerEvents: 'none' }} />
                             {/* Always visible, even when the text label hides on mobile — a bare
                                 checkbox with no icon and no label is meaningless on a phone. */}
                             <Icon name="compare" size={12} color={compared ? '#3D2785' : 'rgba(26,20,51,0.45)'} />
                             <span className="rail-action-text">{t(lang, 'compareLabel')}</span>
-                        </label>
+                        </button>
                     )}
                 </div>
 
