@@ -277,6 +277,7 @@ function AgentMessage({ text, stream, chips, onChip }) {
 // is the same commit as the card's Choose pill.
 function ProductDetail({ product, lang = 'EN', onClose, onChoose }) {
     const [imgErr, setImgErr] = useState(false)
+    const [zoomed, setZoomed] = useState(false)
 
     useEffect(() => {
         const onKey = (e) => { if (e.key === 'Escape') onClose() }
@@ -306,10 +307,11 @@ function ProductDetail({ product, lang = 'EN', onClose, onChoose }) {
                 }}>
 
                 {/* Image header */}
-                <div style={{
+                <div onClick={() => product.image_url && !imgErr && setZoomed(true)} style={{
                     position: 'relative', height: 'clamp(170px, 44vw, 224px)',
                     background: 'rgba(61,39,133,0.08)', overflow: 'hidden',
-                    borderTopLeftRadius: 24, borderTopRightRadius: 24
+                    borderTopLeftRadius: 24, borderTopRightRadius: 24,
+                    cursor: (product.image_url && !imgErr) ? 'zoom-in' : 'default'
                 }}>
                     {(product.image_url && !imgErr)
                         ? <img src={product.image_url} alt={product.name} referrerPolicy="no-referrer"
@@ -333,8 +335,21 @@ function ProductDetail({ product, lang = 'EN', onClose, onChoose }) {
                         </div>
                     )}
 
+                    {/* Zoom hint */}
+                    {product.image_url && !imgErr && (
+                        <div style={{
+                            position: 'absolute', bottom: 10, right: 10, zIndex: 3,
+                            width: 30, height: 30, borderRadius: '50%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            background: 'rgba(26,20,51,0.42)',
+                            backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)'
+                        }}>
+                            <Icon name="search" size={14} color="#fff" stroke={2} />
+                        </div>
+                    )}
+
                     {/* Close */}
-                    <button onClick={onClose} aria-label={t(lang, 'closeAria')} style={{
+                    <button onClick={(e) => { e.stopPropagation(); onClose() }} aria-label={t(lang, 'closeAria')} style={{
                         position: 'absolute', top: 10, right: 10, width: 34, height: 34, borderRadius: '50%',
                         border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                         background: 'rgba(26,20,51,0.5)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)'
@@ -447,6 +462,31 @@ function ProductDetail({ product, lang = 'EN', onClose, onChoose }) {
                     </button>
                 </div>
             </div>
+
+            {zoomed && (
+                <div onClick={(e) => { e.stopPropagation(); setZoomed(false) }} style={{
+                    position: 'fixed', inset: 0, zIndex: 97,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(10,6,24,0.88)', backdropFilter: 'blur(4px)',
+                    WebkitBackdropFilter: 'blur(4px)',
+                    animation: 'fadeIn .2s ease-out', cursor: 'zoom-out', padding: 24
+                }}>
+                    <img src={product.image_url} alt={product.name} referrerPolicy="no-referrer"
+                        style={{
+                            maxWidth: '92vw', maxHeight: '86vh', objectFit: 'contain', borderRadius: 12,
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                            animation: 'scaleIn .25s cubic-bezier(.2,.7,.2,1) both'
+                        }} />
+                    <button onClick={(e) => { e.stopPropagation(); setZoomed(false) }}
+                        aria-label={t(lang, 'closeAria')} style={{
+                            position: 'absolute', top: 18, right: 18, width: 38, height: 38, borderRadius: '50%',
+                            border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(6px)'
+                        }}>
+                        <Icon name="x" size={18} color="#fff" stroke={2.2} />
+                    </button>
+                </div>
+            )}
         </div>
     )
 }
@@ -454,7 +494,7 @@ function ProductDetail({ product, lang = 'EN', onClose, onChoose }) {
 // ── Product card (compact, uniform — lives on a horizontal rail) ───────────────
 // Tapping the card opens the detail view (a closer look before committing).
 // The Choose pill is the direct commit. The ⓘ badge makes "more details" obvious.
-function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN' }) {
+function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN', onToggleCompare, compared }) {
     const [hovered, setHovered] = useState(false)
     const [imgErr, setImgErr] = useState(false)
 
@@ -540,18 +580,39 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN' }) {
                 <div className="rail-reason">{product.reason}</div>
             </div>
 
-            {/* Actions: Details (explicit, discoverable) + Choose (commit) */}
-            <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                <button
-                    onClick={(e) => { e.stopPropagation(); onDetails(product) }}
-                    style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 4,
-                        background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px',
-                        fontFamily: 'Inter', fontSize: 12.5, fontWeight: 600, color: '#6B52C8',
-                        flexShrink: 0
-                    }}>
-                    <Icon name="info" size={13} color="#6B52C8" stroke={2} /> {t(lang, 'detailsBtn')}
-                </button>
+            {/* Actions: Details (explicit, discoverable) + Choose (commit).
+                Text labels wrap in .rail-action-text so globals.css can hide them
+                at 152px card width instead of letting .rail-card's overflow:hidden
+                silently clip them mid-word. */}
+            <div className="rail-actions" style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, minWidth: 0 }}>
+                <div className="rail-actions-left" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                    <button
+                        className="rail-details-btn"
+                        onClick={(e) => { e.stopPropagation(); onDetails(product) }}
+                        style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 4,
+                            background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px',
+                            fontFamily: 'Inter', fontSize: 12.5, fontWeight: 600, color: '#6B52C8',
+                            flexShrink: 0
+                        }}>
+                        <Icon name="info" size={13} color="#6B52C8" stroke={2} />
+                        <span className="rail-action-text">{t(lang, 'detailsBtn')}</span>
+                    </button>
+
+                    {onToggleCompare && (
+                        <label className="rail-compare-toggle" onClick={(e) => e.stopPropagation()} style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5, cursor: 'pointer',
+                            fontFamily: 'Inter', fontSize: 12, fontWeight: 600, flexShrink: 0,
+                            color: compared ? '#3D2785' : 'rgba(26,20,51,0.42)'
+                        }}>
+                            <input type="checkbox" checked={!!compared}
+                                onChange={() => onToggleCompare(product)}
+                                aria-label={t(lang, 'compareLabel')}
+                                style={{ width: 14, height: 14, accentColor: '#6B52C8', cursor: 'pointer', flexShrink: 0 }} />
+                            <span className="rail-action-text">{t(lang, 'compareLabel')}</span>
+                        </label>
+                    )}
+                </div>
 
                 <div className="choose-pill"
                     onClick={(e) => { e.stopPropagation(); onChoose(product) }}
@@ -559,7 +620,8 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN' }) {
                         display: 'inline-flex', alignItems: 'center', gap: 6,
                         padding: '7px 12px', borderRadius: 999, transition: 'all .25s', cursor: 'pointer',
                         background: hovered ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'rgba(61,39,133,0.10)',
-                        boxShadow: hovered ? '0 6px 16px rgba(61,39,133,0.4)' : 'none'
+                        boxShadow: hovered ? '0 6px 16px rgba(61,39,133,0.4)' : 'none',
+                        flexShrink: 0
                     }}>
                     <span className="choose-label" style={{
                         fontSize: 13, fontWeight: 600, color: '#fff',
@@ -578,6 +640,173 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN' }) {
     )
 }
 
+// ── Floating compare bar — appears once 1+ items are selected ─────────────────
+function CompareBar({ items, onCompare, onClear, lang }) {
+    if (!items.length) return null
+    return (
+        <div style={{
+            display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center',
+            margin: '14px auto 0', maxWidth: 420, width: '100%',
+            padding: '10px 10px 10px 14px', borderRadius: 999,
+            background: 'linear-gradient(135deg,rgba(61,39,133,0.94),rgba(43,26,99,0.94))',
+            boxShadow: '0 12px 32px rgba(61,39,133,0.35)',
+            animation: 'riseBlur .35s cubic-bezier(.2,.7,.2,1) both'
+        }}>
+            <div style={{ display: 'flex' }}>
+                {items.slice(0, 3).map((p, i) => (
+                    <div key={p.product_id} style={{
+                        width: 28, height: 28, borderRadius: '50%', overflow: 'hidden',
+                        border: '2px solid rgba(255,255,255,0.9)', marginLeft: i === 0 ? 0 : -10,
+                        background: '#fff', flexShrink: 0
+                    }}>
+                        {p.image_url
+                            ? <img src={p.image_url} alt="" referrerPolicy="no-referrer"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            : <div style={{ width: '100%', height: '100%', background: '#E9E4FF' }} />}
+                    </div>
+                ))}
+            </div>
+            <span style={{ color: '#fff', fontFamily: 'Inter', fontWeight: 600, fontSize: 13.5, flex: 1 }}>
+                {items.length}
+            </span>
+            <button onClick={onClear} aria-label="Clear" style={{
+                background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+                display: 'flex', alignItems: 'center', flexShrink: 0
+            }}>
+                <Icon name="x" size={16} color="rgba(255,255,255,0.7)" />
+            </button>
+            <button onClick={onCompare} disabled={items.length < 2} style={{
+                display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999,
+                border: 'none', cursor: items.length < 2 ? 'default' : 'pointer',
+                background: items.length < 2 ? 'rgba(255,255,255,0.15)' : 'linear-gradient(135deg,#FFE08A,#F5C800)',
+                color: items.length < 2 ? 'rgba(255,255,255,0.5)' : '#3D2785',
+                fontFamily: 'Inter', fontWeight: 700, fontSize: 13.5, flexShrink: 0, whiteSpace: 'nowrap'
+            }}>
+                {t(lang, 'compareBtn')}
+                <Icon name="arrow-right" size={14} color={items.length < 2 ? 'rgba(255,255,255,0.5)' : '#3D2785'} />
+            </button>
+        </div>
+    )
+}
+
+// ── Comparison modal ────────────────────────────────────────────────────────────
+// Card sizing/scroll behaviour lives in globals.css (.compare-rail / .compare-card):
+// fixed-width cards side by side on desktop, one dominant card + a peek of the
+// next on mobile (same swipe language as the product rail, so it's a gesture
+// the user already learned there). Deliberately NOT a dynamic inline
+// grid-template-columns — that can't be overridden per-breakpoint from CSS
+// without an !important fight, which is what made this unreadable on phones.
+function ComparisonView({ products, lang = 'EN', onClose, onChoose }) {
+    const railRef = useRef(null)
+    const [activeIdx, setActiveIdx] = useState(0)
+
+    useEffect(() => {
+        const onKey = (e) => { if (e.key === 'Escape') onClose() }
+        window.addEventListener('keydown', onKey)
+        return () => window.removeEventListener('keydown', onKey)
+    }, [onClose])
+
+    const sync = () => {
+        const el = railRef.current
+        if (!el) return
+        const first = el.querySelector('.compare-card')
+        const step = first ? first.getBoundingClientRect().width + 14 : 220
+        setActiveIdx(Math.min(products.length - 1, Math.round(el.scrollLeft / step)))
+    }
+
+    return (
+        <div onClick={onClose} style={{
+            position: 'fixed', inset: 0, zIndex: 96,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 20, background: 'rgba(26,20,51,0.46)',
+            backdropFilter: 'blur(7px)', WebkitBackdropFilter: 'blur(7px)',
+            animation: 'fadeIn .22s ease-out'
+        }}>
+            <div onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" style={{
+                width: 'min(760px, 96vw)', maxHeight: '88vh', overflowY: 'auto',
+                borderRadius: 24,
+                background: 'linear-gradient(160deg,rgba(255,255,255,0.97),rgba(255,255,255,0.92))',
+                border: '1px solid rgba(255,255,255,0.9)',
+                boxShadow: '0 28px 70px rgba(26,20,51,0.34)',
+                animation: 'scaleIn .28s cubic-bezier(.2,.7,.2,1) both',
+                padding: 20
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                    <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 18, color: '#1A1433' }}>
+                        {t(lang, 'compareTitle')}
+                    </div>
+                    <button onClick={onClose} aria-label={t(lang, 'closeAria')} style={{
+                        width: 32, height: 32, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(61,39,133,0.08)',
+                        flexShrink: 0
+                    }}>
+                        <Icon name="x" size={16} color="#3D2785" stroke={2.2} />
+                    </button>
+                </div>
+
+                <div className="compare-rail" ref={railRef} onScroll={sync}>
+                    {products.map(p => (
+                        <div key={p.product_id} className="compare-card" style={{
+                            borderRadius: 18, border: '1px solid rgba(61,39,133,0.12)',
+                            background: 'rgba(255,255,255,0.6)', padding: 14,
+                            display: 'flex', flexDirection: 'column', gap: 8
+                        }}>
+                            <div style={{
+                                width: '100%', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden',
+                                background: 'rgba(61,39,133,0.06)'
+                            }}>
+                                {p.image_url
+                                    ? <img src={p.image_url} alt={p.name} referrerPolicy="no-referrer"
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Icon name="gift" size={28} color="rgba(61,39,133,0.3)" />
+                                    </div>}
+                            </div>
+                            <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 14, lineHeight: 1.3 }}>
+                                {p.name}
+                            </div>
+                            <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: '#3D2785' }}>
+                                LKR {Number(p.price).toLocaleString()}
+                            </div>
+                            {p.stock && (
+                                <div style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: 5, alignSelf: 'flex-start',
+                                    padding: '3px 9px', borderRadius: 999, fontSize: 11.5, fontWeight: 600,
+                                    background: p.stock === 'low' ? 'rgba(245,158,11,0.14)' : 'rgba(14,159,110,0.12)',
+                                    color: p.stock === 'low' ? '#B45309' : '#0E9F6E'
+                                }}>
+                                    {p.stock === 'low' ? t(lang, 'lowStock') : t(lang, 'inStock')}
+                                </div>
+                            )}
+                            {p.reason && (
+                                <div style={{ fontSize: 12.5, color: 'rgba(26,20,51,0.65)', lineHeight: 1.45, flex: 1 }}>
+                                    {p.reason}
+                                </div>
+                            )}
+                            <button onClick={() => onChoose(p)} style={{
+                                marginTop: 4, padding: '9px 12px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                                fontFamily: 'Inter', fontWeight: 700, fontSize: 13, color: '#3D2785',
+                                background: 'linear-gradient(135deg,#FFE08A,#F5C800)'
+                            }}>
+                                {t(lang, 'chooseThis')}
+                            </button>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Position dots — mobile-relevant only, harmless (and unobtrusive) on desktop */}
+                {products.length > 1 && (
+                    <div className="rail-dots" style={{ marginTop: 10 }}>
+                        {products.map((_, i) => (
+                            <span key={i} className={`rail-dot${i === activeIdx ? ' active' : ''}`} />
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
 // ── Product carousel — a horizontal, swipeable/scroll-snap rail ────────────────
 // One row tall (no vertical stacking), so 3 or 10 products read the same way and
 // the message never forces the page to scroll up and down. Desktop gets arrow
@@ -590,6 +819,16 @@ function ProductCarousel({ trio, onChoose, lang = 'EN' }) {
     const [atEnd, setAtEnd] = useState(false)
     const [activeIdx, setActiveIdx] = useState(0)
     const [detail, setDetail] = useState(null) // product currently open in the detail view
+    const [compareIds, setCompareIds] = useState([])
+    const [comparing, setComparing] = useState(false)
+
+    function toggleCompare(product) {
+        setCompareIds(prev => prev.includes(product.product_id)
+            ? prev.filter(id => id !== product.product_id)
+            : (prev.length >= 3 ? prev : [...prev, product.product_id]) // cap at 3 for a clean layout
+        )
+    }
+    const compareProducts = products.filter(p => compareIds.includes(p.product_id))
 
     const cardStep = () => {
         const el = railRef.current
@@ -662,7 +901,9 @@ function ProductCarousel({ trio, onChoose, lang = 'EN' }) {
                 <div className={`rail${scrollable ? '' : ' rail--center'}`} ref={railRef} onScroll={sync}>
                     {products.map((p, i) => (
                         <ProductCard key={p.product_id || i} product={p} idx={i}
-                            onChoose={onChoose} onDetails={setDetail} lang={lang} />
+                            onChoose={onChoose} onDetails={setDetail} lang={lang}
+                            onToggleCompare={products.length > 1 ? toggleCompare : undefined}
+                            compared={compareIds.includes(p.product_id)} />
                     ))}
                 </div>
             </div>
@@ -674,6 +915,18 @@ function ProductCarousel({ trio, onChoose, lang = 'EN' }) {
                         <span key={i} className={`rail-dot${i === activeIdx ? ' active' : ''}`} />
                     ))}
                 </div>
+            )}
+
+            {products.length > 1 && (
+                <CompareBar items={compareProducts} lang={lang}
+                    onClear={() => setCompareIds([])}
+                    onCompare={() => setComparing(true)} />
+            )}
+
+            {comparing && (
+                <ComparisonView products={compareProducts} lang={lang}
+                    onClose={() => setComparing(false)}
+                    onChoose={(p) => { setComparing(false); onChoose(p) }} />
             )}
 
             {/* Detail / quick-view overlay */}

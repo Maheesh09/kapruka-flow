@@ -68,6 +68,62 @@ function getChips(lang) {
     ]
 }
 
+function getCategories(lang) {
+    return [
+        { label: t(lang, 'catCakes'), value: 'cakes', icon: 'cake', grad: 'linear-gradient(135deg,#FFE9F3,#FFB8D9)', iconColor: '#c0336a' },
+        { label: t(lang, 'catFlowers'), value: 'flowers', icon: 'flower', grad: 'linear-gradient(135deg,#F3FFE9,#C8F0A8)', iconColor: '#3a7a1a' },
+        { label: t(lang, 'catGrocery'), value: 'Grocery', icon: 'shopping-basket', grad: 'linear-gradient(135deg,#E0F5E9,#A8DFBA)', iconColor: '#1a7a3a' },
+        { label: t(lang, 'catFashion'), value: 'Clothing', icon: 'shirt', grad: 'linear-gradient(135deg,#E9E4FF,#C8BFEF)', iconColor: '#3D2785' },
+        { label: t(lang, 'catBooks'), value: 'Books', icon: 'book', grad: 'linear-gradient(135deg,#FFF7E0,#FFE08A)', iconColor: '#8a6d00' },
+        { label: t(lang, 'catGifts'), value: 'Giftset', icon: 'gift', grad: 'linear-gradient(135deg,#FFE9F3,#FF9ECF)', iconColor: '#c0336a' },
+    ]
+}
+
+// Grid layout (column count + gap) lives in globals.css (.category-grid), so it
+// can be tuned per breakpoint in CSS. Only per-item, non-responsive styling stays
+// inline here. Label deliberately does NOT use whiteSpace:'nowrap' — Sinhala/Tamil
+// labels run longer than English and must be free to wrap onto a second line
+// instead of overflowing their column on narrow screens.
+function CategoryPill({ cat, onSubmit, idx }) {
+    const [hovered, setHovered] = useState(false)
+    return (
+        <button
+            className="category-pill"
+            onClick={() => onSubmit(`I want to browse the ${cat.value} category.`)}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
+                padding: '12px 4px', borderRadius: 18, cursor: 'pointer', border: 'none',
+                background: hovered
+                    ? 'linear-gradient(135deg,rgba(255,255,255,0.84),rgba(255,255,255,0.68))'
+                    : 'linear-gradient(135deg,rgba(255,255,255,0.56),rgba(255,255,255,0.38))',
+                backdropFilter: 'blur(16px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                boxShadow: hovered ? '0 12px 26px rgba(61,39,133,0.18)' : '0 4px 12px rgba(61,39,133,0.06)',
+                transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
+                transition: 'all .25s ease',
+                animation: `riseBlur .6s ${0.9 + idx * 0.06}s cubic-bezier(.2,.7,.2,1) both`,
+                minWidth: 0
+            }}
+        >
+            <div style={{
+                width: 40, height: 40, borderRadius: '50%', background: cat.grad, flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                transform: hovered ? 'scale(1.1) rotate(-4deg)' : 'scale(1)',
+                transition: 'transform .25s'
+            }}>
+                <Icon name={cat.icon} size={19} color={cat.iconColor} />
+            </div>
+            <span style={{
+                fontFamily: 'Inter', fontWeight: 600, fontSize: 12, color: '#1A1433',
+                lineHeight: 1.2, textAlign: 'center', wordBreak: 'break-word'
+            }}>{cat.label}</span>
+        </button>
+    )
+}
+
 export default function OpeningCanvas({ onSubmit, input, setInput, lang, leaving = false, anchorRef }) {
     const CHIPS = getChips(lang)
     const words = t(lang, 'openingHeadline').split(' ')
@@ -158,6 +214,23 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang, leaving
                 {CHIPS.map((chip, idx) => (
                     <LuxuryChip key={chip.label} chip={chip} onSubmit={onSubmit} idx={idx} />
                 ))}
+            </div>
+
+            {/* Category rail — a visual, no-typing-required browse entry.
+                Grid column count is defined in globals.css (.category-grid) so it
+                can be tuned per breakpoint without fighting inline-style specificity. */}
+            <div style={{ ...fadeAway, animation: 'riseBlur .7s 0.85s ease-out both', width: '100%', maxWidth: 520 }}>
+                <div style={{
+                    fontFamily: 'Inter', fontSize: 12.5, fontWeight: 500,
+                    color: 'rgba(26,20,51,0.5)', marginBottom: 10
+                }}>
+                    {t(lang, 'categoryRailLabel')}
+                </div>
+                <div className="category-grid">
+                    {getCategories(lang).map((cat, idx) => (
+                        <CategoryPill key={cat.value} cat={cat} onSubmit={onSubmit} idx={idx} />
+                    ))}
+                </div>
             </div>
         </div>
     )
