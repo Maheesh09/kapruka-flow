@@ -414,6 +414,9 @@ a {
   scroll-behavior: smooth;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  /* Fade old messages out at the top — soft visual boundary */
+  mask-image: linear-gradient(to bottom, transparent 0px, black 72px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 72px);
 }
 
 .flow-area::-webkit-scrollbar {
