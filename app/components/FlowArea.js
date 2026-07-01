@@ -584,7 +584,7 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN', onToggleC
                 Text labels wrap in .rail-action-text so globals.css can hide them
                 at 152px card width instead of letting .rail-card's overflow:hidden
                 silently clip them mid-word. */}
-            <div className="rail-actions" style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, minWidth: 0 }}>
+            <div className="rail-actions" style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8, minWidth: 0 }}>
                 <div className="rail-actions-left" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                     <button
                         className="rail-details-btn"
@@ -624,15 +624,15 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN', onToggleC
                 <div className="choose-pill"
                     onClick={(e) => { e.stopPropagation(); onChoose(product) }}
                     style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                         padding: '7px 12px', borderRadius: 999, transition: 'all .25s', cursor: 'pointer',
                         background: hovered ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'rgba(61,39,133,0.10)',
                         boxShadow: hovered ? '0 6px 16px rgba(61,39,133,0.4)' : 'none',
-                        flexShrink: 0
+                        flexShrink: 0, width: '100%'
                     }}>
                     <span className="choose-label" style={{
-                        fontSize: 13, fontWeight: 600, color: '#fff',
-                        display: hovered ? 'inline' : 'none'
+                        fontSize: 13, fontWeight: 600, color: hovered ? '#fff' : '#3D2785',
+                        display: 'inline'
                     }}>{t(lang, 'choose')}</span>
                     <Icon name="arrow-right" size={16} color={hovered ? '#fff' : '#3D2785'} stroke={2} />
                 </div>
