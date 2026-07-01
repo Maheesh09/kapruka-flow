@@ -191,7 +191,7 @@ export default function LockedCard({ url, orderRef, expiresAt, plan, lang = 'EN'
 
                 {/* Pay button */}
                 <a href={expired ? undefined : url} target="_blank" rel="noopener noreferrer"
-                    onClick={() => { if (!expired) { setPaid(true); onComplete?.() } }}
+                    onClick={() => { if (!expired) { setPaid(true); onComplete?.(orderRef) } }}
                     style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                         width: '100%', padding: '14px', border: 'none', borderRadius: 14, cursor: expired ? 'default' : 'pointer',

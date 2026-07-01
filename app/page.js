@@ -658,15 +658,38 @@ export default function Home() {
             }
             const idx = prev.length - 1 - revIdx
             const next = [...prev]
-            next[idx] = { ...next[idx], trackingData: data.trackingData }
-            return next
+            // The MCP's tracking tool only resolves a sandbox test order number,
+            // so its recipient/items belong to that test order, not this one.
+            // Status and timeline ARE real and meaningful — keep those. Overlay
+            // this order's own plan data on top so the card reads as one
+            // coherent order instead of showing someone else's delivery.
+            const plan = next[idx].plan
+            const merged = {
+              ...data.trackingData,
+              recipient: plan?.recipient?.name
+              ? {
+                name: plan.recipient.name,
+                address:[plan.recipient.address, plan.delivery?.city]
+                     .filter(Boolean).join(', ') || null
+              }
+              : data.trackingData.recipient,
+              items: plan?.items?.length
+                ? plan.items.map(i => ({ name: i.name, quantity: i.quantity || 1 }))
+                : data.trackingData.items
+            }
+
+            next[idx] = {
+              ...next[idx],
+              trackingData: merged
+              }
+              return next
           })
-        } else {
-          addMsg({
-            role: 'assistant', msgType: 'tracking', trackingData: data.trackingData,
-            rawContent: data.rawText
-          })
-        }
+            } else{
+              addMsg({
+                role: 'assistant', msgType: 'tracking', trackingData: data.trackingData,
+                rawContent: data.rawText
+              })
+            }
         return
       }
 
@@ -756,23 +779,20 @@ export default function Home() {
   // Demo completion: clicking "pay" opens Kapruka's checkout (payment happens there,
   // off-platform and unobservable via MCP) — so we treat the click as the completion
   // signal to light the Done node and celebrate.
-  function handleOrderComplete() {
-    setJourneyActive(4)
-    setJourneyDone([0, 1, 2, 3])
-    setCelebrate(true)
-    setTimeout(() => setCelebrate(false), 2600)
+  function handleOrderComplete(orderRef) {
+  setJourneyActive(4)
+  setJourneyDone([0, 1, 2, 3])
+  setCelebrate(true)
+  setTimeout(() => setCelebrate(false), 2600)
 
-    // Let the confetti have its moment, then quietly fetch tracking in the
-    // background. The result merges into this same checkout message (see the
-    // `data.type === 'tracking'` branch in send()) and OrderStageCard plays
-    // the ribbon-wrap as it turns into the tracking card — one continuous
-    // beat instead of a second message popping in below. Guarded so a stray
-    // double-click on the pay button can't fire this twice.
-    if (!autoTrackedRef.current) {
-      autoTrackedRef.current = true
-      setTimeout(() => send('Track my order.', { silent: true }), 700)
-    }
+  if (!autoTrackedRef.current) {
+    autoTrackedRef.current = true
+    const trackMsg = orderRef
+      ? `[AUTO-TRACK] Please check delivery status now for order number ${orderRef}.`
+      : 'Track my order.'
+    setTimeout(() => send(trackMsg, { silent: true }), 700)
   }
+}
 
   return (
     <div style={{
