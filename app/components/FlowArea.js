@@ -591,7 +591,8 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN', onToggleC
                         onClick={(e) => { e.stopPropagation(); onDetails(product) }}
                         style={{
                             display: 'inline-flex', alignItems: 'center', gap: 4,
-                            background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px',
+                            background: 'rgba(107,82,200,0.08)', border: 'none', cursor: 'pointer',
+                            padding: '4px 8px', borderRadius: 999,
                             fontFamily: 'Inter', fontSize: 12.5, fontWeight: 600, color: '#6B52C8',
                             flexShrink: 0
                         }}>
@@ -603,12 +604,18 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN', onToggleC
                         <label className="rail-compare-toggle" onClick={(e) => e.stopPropagation()} style={{
                             display: 'inline-flex', alignItems: 'center', gap: 5, cursor: 'pointer',
                             fontFamily: 'Inter', fontSize: 12, fontWeight: 600, flexShrink: 0,
-                            color: compared ? '#3D2785' : 'rgba(26,20,51,0.42)'
+                            padding: '4px 8px', borderRadius: 999, transition: 'all .2s',
+                            background: compared ? 'rgba(61,39,133,0.12)' : 'rgba(61,39,133,0.05)',
+                            border: compared ? '1px solid rgba(61,39,133,0.25)' : '1px solid transparent',
+                            color: compared ? '#3D2785' : 'rgba(26,20,51,0.5)'
                         }}>
                             <input type="checkbox" checked={!!compared}
                                 onChange={() => onToggleCompare(product)}
                                 aria-label={t(lang, 'compareLabel')}
-                                style={{ width: 14, height: 14, accentColor: '#6B52C8', cursor: 'pointer', flexShrink: 0 }} />
+                                style={{ width: 13, height: 13, accentColor: '#6B52C8', cursor: 'pointer', flexShrink: 0 }} />
+                            {/* Always visible, even when the text label hides on mobile — a bare
+                                checkbox with no icon and no label is meaningless on a phone. */}
+                            <Icon name="compare" size={12} color={compared ? '#3D2785' : 'rgba(26,20,51,0.45)'} />
                             <span className="rail-action-text">{t(lang, 'compareLabel')}</span>
                         </label>
                     )}
