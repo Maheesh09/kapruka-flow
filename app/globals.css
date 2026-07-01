@@ -1179,7 +1179,12 @@ a {
   }
 
   .rail-compare-toggle input[type="checkbox"] {
-    display: none !important; /* replaced by icon + pill highlight on mobile */
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    pointer-events: none !important;
   }
 
   /* Choose pill: full-width, 44px tall — unmissable on thumb */
