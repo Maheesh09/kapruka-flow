@@ -182,7 +182,13 @@ function StreamingText({ text }) {
     const [shown, setShown] = useState(0)
     useEffect(() => {
         if (shown >= words.length) return
-        const t = setTimeout(() => setShown(s => s + 1), 52)
+        
+        // Guarantee completion within ~24 ticks (under 1 second total)
+        // so long paragraphs don't take painfully long to finish.
+        const chunk = Math.max(1, Math.ceil(words.length / 24))
+        const delay = 25 + Math.random() * 30 // 25-55ms jitter for natural feel
+        
+        const t = setTimeout(() => setShown(s => s + chunk), delay)
         return () => clearTimeout(t)
     }, [shown, words.length])
     const streaming = shown < words.length
@@ -626,8 +632,8 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN', onToggleC
                     style={{
                         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                         padding: '7px 12px', borderRadius: 999, transition: 'all .25s', cursor: 'pointer',
-                        background: hovered ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'rgba(61,39,133,0.10)',
-                        boxShadow: hovered ? '0 6px 16px rgba(61,39,133,0.4)' : 'none',
+                        background: hovered ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'linear-gradient(135deg,rgba(61,39,133,0.04),rgba(61,39,133,0.09))',
+                        boxShadow: hovered ? '0 6px 16px rgba(61,39,133,0.4)' : '0 0 0 1px rgba(61,39,133,0.12), 0 2px 6px rgba(61,39,133,0.04)',
                         flexShrink: 0, width: '100%'
                     }}>
                     <span className="choose-label" style={{

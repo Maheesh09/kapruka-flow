@@ -88,7 +88,7 @@ function AmbientLayer({ loading }) {
         backgroundImage: 'url("/back.jpg")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        filter: loading ? 'blur(24px) brightness(0.85)' : 'blur(10px)',
+        filter: loading ? 'blur(24px) brightness(0.7)' : 'blur(10px) brightness(0.85)',
         zIndex: -1,
         opacity: 0.95,
         transform: `translateZ(-50px) rotateX(${tiltX * 0.4}deg) rotateY(${tiltY * 0.4}deg) scale(1.1)`,
@@ -162,7 +162,7 @@ function AmbientLayer({ loading }) {
         borderRadius: '50%',
         background: loading
           ? 'radial-gradient(circle,rgba(107,82,200,0.4) 0%,rgba(107,82,200,0.1) 40%,rgba(255,255,255,0) 68%)'
-          : 'radial-gradient(circle,rgba(255,255,255,0.75) 0%,rgba(255,255,255,0.2) 40%,rgba(255,255,255,0) 68%)',
+          : 'radial-gradient(circle,rgba(255,255,255,0.45) 0%,rgba(255,255,255,0.15) 40%,rgba(255,255,255,0) 68%)',
         zIndex: 2, pointerEvents: 'none',
         animation: loading ? 'glowPulse 3s ease-in-out infinite' : 'glowPulse 10s ease-in-out infinite',
         transition: 'transform 0.3s ease-out, background 1.5s ease'

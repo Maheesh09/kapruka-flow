@@ -1199,7 +1199,7 @@ a {
   display: none;
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, #E9E4FF 0%, #FAF9FF 45%, #FFF7E0 80%, #FFE9F3 100%);
+  background: linear-gradient(160deg, #D9D2F6 0%, #F0EEF8 45%, #F4E8C8 80%, #F5DDEB 100%);
   z-index: -1;
 }
 
