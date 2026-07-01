@@ -96,11 +96,14 @@ function CategoryPill({ cat, onSubmit, idx }) {
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
                 padding: '12px 4px', borderRadius: 18, cursor: 'pointer', border: 'none',
                 background: hovered
-                    ? 'linear-gradient(135deg,rgba(255,255,255,0.84),rgba(255,255,255,0.68))'
-                    : 'linear-gradient(135deg,rgba(255,255,255,0.56),rgba(255,255,255,0.38))',
+                    ? 'linear-gradient(135deg,rgba(255,255,255,0.76),rgba(255,255,255,0.60))'
+                    : 'linear-gradient(135deg,rgba(255,255,255,0.48),rgba(255,255,255,0.28))',
                 backdropFilter: 'blur(16px) saturate(180%)',
                 WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-                boxShadow: hovered ? '0 12px 26px rgba(61,39,133,0.18)' : '0 4px 12px rgba(61,39,133,0.06)',
+                border: '1px solid rgba(255,255,255,0.75)',
+                boxShadow: hovered
+                    ? '0 12px 26px rgba(61,39,133,0.18), inset 0 1px 0 rgba(255,255,255,0.9)'
+                    : '0 4px 12px rgba(61,39,133,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
                 transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
                 transition: 'all .25s ease',
                 animation: `riseBlur .6s ${0.9 + idx * 0.06}s cubic-bezier(.2,.7,.2,1) both`,
@@ -182,6 +185,7 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang, leaving
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text',
+                        filter: 'drop-shadow(0 2px 4px rgba(26,20,51,0.15))',
                         animation: 'sloganShimmer 15s linear infinite',
                         display: 'inline-block'
                     }}>
@@ -446,8 +450,8 @@ export function InputBar({ value, onChange, placeholder, onSubmit, docked, loadi
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         width: 42, height: 42, borderRadius: 12, border: 'none', cursor: 'pointer',
                         flexShrink: 0,
-                        background: listening ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'rgba(61,39,133,0.08)',
-                        boxShadow: listening ? '0 0 0 4px rgba(61,39,133,0.15)' : 'none',
+                        background: listening ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'linear-gradient(135deg,rgba(61,39,133,0.04),rgba(61,39,133,0.09))',
+                        boxShadow: listening ? '0 0 0 4px rgba(61,39,133,0.15)' : '0 0 0 1px rgba(61,39,133,0.12), 0 2px 4px rgba(61,39,133,0.03)',
                         animation: listening ? 'agentPulse 1.4s ease-in-out infinite' : 'none',
                         transition: 'all .25s'
                     }}>

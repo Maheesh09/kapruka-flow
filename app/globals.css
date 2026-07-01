@@ -414,6 +414,9 @@ a {
   scroll-behavior: smooth;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  /* Fade old messages out at the top — soft visual boundary */
+  mask-image: linear-gradient(to bottom, transparent 0px, black 72px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 72px);
 }
 
 .flow-area::-webkit-scrollbar {
@@ -519,6 +522,25 @@ a {
   .choose-pill svg {
     stroke: #fff !important;
   }
+
+  /* Press feedback — all card action buttons get a quick scale-down on tap */
+  .choose-pill:active {
+    transform: scale(0.96) !important;
+    transition: transform .1s !important;
+    box-shadow: 0 2px 6px rgba(61, 39, 133, 0.25) !important;
+  }
+
+  .rail-details-btn:active,
+  .rail-compare-toggle:active {
+    transform: scale(0.92) !important;
+    transition: transform .1s !important;
+    opacity: 0.75 !important;
+  }
+
+  /* Compare toggle: show selected state clearly without a checkbox */
+  .rail-compare-toggle {
+    transition: background .15s, border-color .15s !important;
+  }
 }
 
 @media (max-width: 768px) {
@@ -585,8 +607,8 @@ a {
   .opening-canvas {
     overflow-y: auto !important;
     justify-content: center !important;
-    padding: 128px 18px calc(40px + env(safe-area-inset-bottom)) !important;
-    gap: 20px !important;
+    padding: 110px 18px calc(40px + env(safe-area-inset-bottom)) !important;
+    gap: 16px !important;
   }
 
   .opening-canvas h1 {
@@ -1081,13 +1103,15 @@ a {
     padding-bottom: 14px;
   }
 
+  /* 160px fits ~2 cards + a peek on a 390px screen, up from 152px */
   .rail-card-wrap {
-    flex-basis: 152px;
-    width: 152px;
+    flex-basis: 160px;
+    width: 160px;
   }
 
+  /* Taller image proportional to wider card */
   .rail-img {
-    height: 116px;
+    height: 128px;
   }
 
   .rail-name {
@@ -1098,19 +1122,41 @@ a {
     font-size: 12px;
   }
 
-  /* Actions row no longer fits "Details"/"Compare" as words at 152px —
-     drop to icon-only so nothing gets clipped by .rail-card's overflow:hidden */
+  /* Actions row: drop text labels, keep icons at full touch-target size.
+     44px is Apple HIG minimum; 36px is the Google Material minimum. */
   .rail-action-text {
     display: none;
   }
 
   .rail-actions-left {
-    gap: 6px !important;
+    gap: 4px !important;
+  }
+
+  /* Bigger icon buttons — easy to tap */
+  .rail-details-btn {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    padding: 0 10px !important;
+    justify-content: center !important;
+  }
+
+  /* Compare toggle: full pill height, hide the native checkbox (too small to tap),
+     rely on the icon which is already always visible */
+  .rail-compare-toggle {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    padding: 0 10px !important;
+    justify-content: center !important;
   }
 
   .rail-compare-toggle input[type="checkbox"] {
-    width: 17px;
-    height: 17px;
+    display: none !important; /* replaced by icon + pill highlight on mobile */
+  }
+
+  /* Choose pill: full-width, 44px tall — unmissable on thumb */
+  .choose-pill {
+    min-height: 44px !important;
+    border-radius: 14px !important;
   }
 }
 
@@ -1156,7 +1202,7 @@ a {
   display: none;
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, #E9E4FF 0%, #FAF9FF 45%, #FFF7E0 80%, #FFE9F3 100%);
+  background: linear-gradient(160deg, #D9D2F6 0%, #F0EEF8 45%, #F4E8C8 80%, #F5DDEB 100%);
   z-index: -1;
 }
 
@@ -1207,6 +1253,8 @@ a {
     scrollbar-width: none;
     gap: 8px;
     padding-bottom: 4px;
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
   }
 
   .category-grid::-webkit-scrollbar {

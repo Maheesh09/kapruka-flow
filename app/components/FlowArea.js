@@ -182,7 +182,13 @@ function StreamingText({ text }) {
     const [shown, setShown] = useState(0)
     useEffect(() => {
         if (shown >= words.length) return
-        const t = setTimeout(() => setShown(s => s + 1), 52)
+        
+        // Guarantee completion within ~24 ticks (under 1 second total)
+        // so long paragraphs don't take painfully long to finish.
+        const chunk = Math.max(1, Math.ceil(words.length / 24))
+        const delay = 25 + Math.random() * 30 // 25-55ms jitter for natural feel
+        
+        const t = setTimeout(() => setShown(s => s + chunk), delay)
         return () => clearTimeout(t)
     }, [shown, words.length])
     const streaming = shown < words.length
@@ -200,7 +206,8 @@ function StreamingText({ text }) {
     )
 }
 
-// ── User message ───────────────────────────────────────────────────────────────
+// ── User message ──────────────────────────────────────────────────────────────────
+// A glassmorphic pill that sits on the right — visually balances with the agent bubble.
 function UserMessage({ text }) {
     return (
         <div style={{
@@ -208,9 +215,20 @@ function UserMessage({ text }) {
             animation: 'riseBlur .42s cubic-bezier(.2,.7,.2,1) both'
         }}>
             <div className="user-msg" style={{
-                maxWidth: '72%', textAlign: 'right', paddingRight: 16,
-                borderRight: '2px solid rgba(61,39,133,0.45)', color: '#3D2785',
-                fontSize: 17, lineHeight: 1.55, fontWeight: 500
+                maxWidth: '72%',
+                background: 'linear-gradient(135deg,rgba(61,39,133,0.12),rgba(61,39,133,0.07))',
+                backdropFilter: 'blur(18px) saturate(160%)',
+                WebkitBackdropFilter: 'blur(18px) saturate(160%)',
+                borderWidth: 1, borderStyle: 'solid',
+                borderTopColor: 'rgba(255,255,255,0.75)',
+                borderLeftColor: 'rgba(255,255,255,0.75)',
+                borderRightColor: 'rgba(61,39,133,0.18)',
+                borderBottomColor: 'rgba(61,39,133,0.18)',
+                boxShadow: '0 6px 20px rgba(61,39,133,0.10)',
+                borderRadius: '20px 6px 20px 20px',
+                padding: '12px 18px',
+                color: '#3D2785', fontSize: 17, lineHeight: 1.55, fontWeight: 500,
+                textAlign: 'left'
             }}>
                 {text}
             </div>
@@ -244,22 +262,35 @@ function AgentMessage({ text, stream, chips, onChip }) {
                 {stream ? <StreamingText text={text} /> : <FormattedText text={text} />}
                 {chips?.length > 0 && (
                     <div style={{
-                        display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12,
+                        display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14,
                         animation: 'fadeIn .4s .3s ease-out both'
                     }}>
                         {chips.map((c, i) => (
                             <button key={i} onClick={() => onChip?.(c)} style={{
-                                padding: '8px 15px', borderRadius: 999, cursor: 'pointer',
+                                display: 'inline-flex', alignItems: 'center', gap: 6,
+                                padding: '8px 14px', borderRadius: 999, cursor: 'pointer',
                                 fontFamily: "'Inter','Noto Sans Sinhala',sans-serif",
                                 fontSize: 13.5, fontWeight: 600, color: '#3D2785',
-                                background: 'rgba(61,39,133,0.07)',
-                                border: '1px solid rgba(61,39,133,0.22)',
-                                transition: 'all .2s',
-                                animation: `riseBlur .4s ${0.35 + i * 0.06}s ease-out both`
+                                background: 'rgba(61,39,133,0.06)',
+                                border: '1px solid rgba(61,39,133,0.18)',
+                                transition: 'all .22s cubic-bezier(.2,.7,.2,1)',
+                                animation: `riseBlur .4s ${0.35 + i * 0.06}s ease-out both`,
+                                position: 'relative', overflow: 'hidden'
                             }}
-                                onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg,#FFE08A,#F5C800)'; e.currentTarget.style.borderColor = 'transparent' }}
-                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(61,39,133,0.07)'; e.currentTarget.style.borderColor = 'rgba(61,39,133,0.22)' }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.background = 'linear-gradient(135deg,rgba(245,200,0,0.18),rgba(245,200,0,0.08))'
+                                    e.currentTarget.style.borderColor = 'rgba(245,200,0,0.55)'
+                                    e.currentTarget.style.transform = 'translateY(-2px)'
+                                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(245,200,0,0.18)'
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.background = 'rgba(61,39,133,0.06)'
+                                    e.currentTarget.style.borderColor = 'rgba(61,39,133,0.18)'
+                                    e.currentTarget.style.transform = 'translateY(0)'
+                                    e.currentTarget.style.boxShadow = 'none'
+                                }}
                             >
+                                <Icon name="sparkles" size={12} color="#6B52C8" />
                                 {c}
                             </button>
                         ))}
@@ -626,8 +657,8 @@ function ProductCard({ product, idx, onChoose, onDetails, lang = 'EN', onToggleC
                     style={{
                         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                         padding: '7px 12px', borderRadius: 999, transition: 'all .25s', cursor: 'pointer',
-                        background: hovered ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'rgba(61,39,133,0.10)',
-                        boxShadow: hovered ? '0 6px 16px rgba(61,39,133,0.4)' : 'none',
+                        background: hovered ? 'linear-gradient(135deg,#5A3FB0,#3D2785)' : 'linear-gradient(135deg,rgba(61,39,133,0.04),rgba(61,39,133,0.09))',
+                        boxShadow: hovered ? '0 6px 16px rgba(61,39,133,0.4)' : '0 0 0 1px rgba(61,39,133,0.12), 0 2px 6px rgba(61,39,133,0.04)',
                         flexShrink: 0, width: '100%'
                     }}>
                     <span className="choose-label" style={{
