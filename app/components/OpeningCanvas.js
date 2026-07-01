@@ -144,16 +144,16 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang, leaving
         <div className="opening-canvas" style={{
             position: 'absolute', inset: 0, zIndex: 5, display: 'flex',
             flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            gap: 28, padding: '108px 24px 60px', textAlign: 'center',
+            gap: 20, padding: '80px 20px 60px', textAlign: 'center',
             overflowY: 'auto', WebkitOverflowScrolling: 'touch',
             pointerEvents: leaving ? 'none' : 'auto'
         }}>
 
             {/* Headline + slogan */}
             <div style={{ maxWidth: 860, ...fadeAway }}>
-                <h1 style={{
+                <h1 className="opening-headline" style={{
                     margin: 0, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700,
-                    fontSize: 'clamp(28px,5vw,52px)', lineHeight: 1.08, letterSpacing: '-0.025em',
+                    fontSize: 'clamp(24px,5vw,52px)', lineHeight: 1.08, letterSpacing: '-0.025em',
                     color: '#1A1433', textWrap: 'balance'
                 }}>
                     {words.map((w, i) => (
@@ -167,15 +167,15 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang, leaving
                     ))}
                 </h1>
 
-                {/* Slogan */}
-                <div style={{
-                    marginTop: 12,
+                {/* Slogan — hidden on very small phones to save vertical space */}
+                <div className="opening-slogan" style={{
+                    marginTop: 10,
                     animation: 'riseBlur .6s 0.055s cubic-bezier(.2,.7,.2,1) both'
                 }}>
                     <span style={{
                         fontFamily: "'Space Grotesk',sans-serif",
                         fontWeight: 500,
-                        fontSize: 'clamp(13px,1.6vw,16px)',
+                        fontSize: 'clamp(12px,1.6vw,16px)',
                         letterSpacing: '0.01em',
                         backgroundImage: 'linear-gradient(90deg, #3D2785 0%, #3D2785 35%, #6B52C8 45%, #F5C800 50%, #6B52C8 55%, #3D2785 65%, #3D2785 100%)',
                         backgroundSize: '400% auto',
@@ -203,11 +203,13 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang, leaving
                 />
             </div>
 
-            {/* Intent chips — even 2×3 grid */}
-            <div style={{
+            {/* Intent chips — 2×2 grid on mobile, 1×4 row on wider screens.
+                On mobile the category rail below replaces the mental model of
+                "what modes are available" — so 4 chips is already plenty. */}
+            <div className="opening-chips-grid" style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-                gap: 12, maxWidth: 620, width: '100%',
+                gap: 10, maxWidth: 620, width: '100%',
                 animation: 'riseBlur .7s 0.7s ease-out both',
                 ...fadeAway
             }}>
@@ -216,13 +218,13 @@ export default function OpeningCanvas({ onSubmit, input, setInput, lang, leaving
                 ))}
             </div>
 
-            {/* Category rail — a visual, no-typing-required browse entry.
-                Grid column count is defined in globals.css (.category-grid) so it
-                can be tuned per breakpoint without fighting inline-style specificity. */}
+            {/* Category rail — horizontal scroll on all sizes.
+                On mobile this renders as a single swipeable strip (CSS handles it)
+                so it doesn't add a second row of options creating two competing grids. */}
             <div style={{ ...fadeAway, animation: 'riseBlur .7s 0.85s ease-out both', width: '100%', maxWidth: 520 }}>
-                <div style={{
-                    fontFamily: 'Inter', fontSize: 12.5, fontWeight: 500,
-                    color: 'rgba(26,20,51,0.5)', marginBottom: 10
+                <div className="opening-cat-label" style={{
+                    fontFamily: 'Inter', fontSize: 12, fontWeight: 500,
+                    color: 'rgba(26,20,51,0.45)', marginBottom: 8
                 }}>
                     {t(lang, 'categoryRailLabel')}
                 </div>
