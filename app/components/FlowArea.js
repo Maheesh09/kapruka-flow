@@ -1,6 +1,7 @@
 'use client'
 import { t, fmt } from '../i18n'
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import Icon from './Icon'
 import PlanBoard from './PlanBoard'
 import TrackingCard from './TrackingCard'
@@ -319,9 +320,9 @@ function ProductDetail({ product, lang = 'EN', onClose, onChoose }) {
     const stockLow = product.stock === 'low'
     const stockLabel = stockLow ? t(lang, 'lowStock') : (product.stock ? t(lang, 'inStock') : null)
 
-    return (
+    const content = (
         <div onClick={onClose} className="detail-overlay" style={{
-            position: 'fixed', inset: 0, zIndex: 95,
+            position: 'fixed', inset: 0, zIndex: 150,
             display: 'flex',
             /* Mobile: sheet anchored to bottom. Desktop: centred card */
             alignItems: 'flex-end',
@@ -508,7 +509,7 @@ function ProductDetail({ product, lang = 'EN', onClose, onChoose }) {
 
             {zoomed && (
                 <div onClick={(e) => { e.stopPropagation(); setZoomed(false) }} style={{
-                    position: 'fixed', inset: 0, zIndex: 97,
+                    position: 'fixed', inset: 0, zIndex: 160,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     background: 'rgba(10,6,24,0.88)', backdropFilter: 'blur(4px)',
                     WebkitBackdropFilter: 'blur(4px)',
@@ -532,6 +533,7 @@ function ProductDetail({ product, lang = 'EN', onClose, onChoose }) {
             )}
         </div>
     )
+    return typeof document !== 'undefined' ? createPortal(content, document.body) : content
 }
 
 // ── Product card (compact, uniform — lives on a horizontal rail) ───────────────
@@ -764,9 +766,9 @@ function ComparisonView({ products, lang = 'EN', onClose, onChoose }) {
         setActiveIdx(Math.min(products.length - 1, Math.round(el.scrollLeft / step)))
     }
 
-    return (
+    const content = (
         <div onClick={onClose} style={{
-            position: 'fixed', inset: 0, zIndex: 96,
+            position: 'fixed', inset: 0, zIndex: 150,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: 20, background: 'rgba(26,20,51,0.46)',
             backdropFilter: 'blur(7px)', WebkitBackdropFilter: 'blur(7px)',
