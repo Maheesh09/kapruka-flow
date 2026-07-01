@@ -320,22 +320,34 @@ function ProductDetail({ product, lang = 'EN', onClose, onChoose }) {
     const stockLabel = stockLow ? t(lang, 'lowStock') : (product.stock ? t(lang, 'inStock') : null)
 
     return (
-        <div onClick={onClose} style={{
+        <div onClick={onClose} className="detail-overlay" style={{
             position: 'fixed', inset: 0, zIndex: 95,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 20, background: 'rgba(26,20,51,0.46)',
+            display: 'flex',
+            /* Mobile: sheet anchored to bottom. Desktop: centred card */
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            background: 'rgba(26,20,51,0.46)',
             backdropFilter: 'blur(7px)', WebkitBackdropFilter: 'blur(7px)',
             animation: 'fadeIn .22s ease-out'
         }}>
             <div onClick={e => e.stopPropagation()} role="dialog" aria-modal="true"
                 className="detail-modal" style={{
-                    width: 'min(440px, 94vw)', maxHeight: '88vh', overflowY: 'auto',
-                    borderRadius: 24,
-                    background: 'linear-gradient(160deg,rgba(255,255,255,0.97),rgba(255,255,255,0.92))',
+                    width: 'min(440px, 100vw)',
+                    maxHeight: '92dvh', overflowY: 'auto',
+                    /* Rounded only on top for the sheet; desktop corners handled by CSS override */
+                    borderRadius: '24px 24px 0 0',
+                    background: 'linear-gradient(160deg,rgba(255,255,255,0.98),rgba(255,255,255,0.94))',
                     border: '1px solid rgba(255,255,255,0.9)',
-                    boxShadow: '0 28px 70px rgba(26,20,51,0.34)',
-                    animation: 'scaleIn .28s cubic-bezier(.2,.7,.2,1) both', color: '#1A1433'
+                    borderBottom: 'none',
+                    boxShadow: '0 -8px 40px rgba(26,20,51,0.28)',
+                    animation: 'sheetUp .32s cubic-bezier(.2,.8,.2,1) both', color: '#1A1433',
+                    paddingBottom: 'env(safe-area-inset-bottom)'
                 }}>
+                {/* Drag-handle pill — standard bottom-sheet affordance */}
+                <div style={{
+                    width: 40, height: 5, borderRadius: 99, margin: '12px auto 0',
+                    background: 'rgba(61,39,133,0.15)'
+                }} />
 
                 {/* Image header */}
                 <div onClick={() => product.image_url && !imgErr && setZoomed(true)} style={{
